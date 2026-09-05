@@ -1,6 +1,6 @@
 # STEP 1 — Architecture
 
-Status: **PLAN — awaiting approval. No code written yet.**
+Status: **DONE — GATE 1 passed.** See the results table at the bottom of this file.
 
 ## Goal (from `velocity-build-script.md`)
 
@@ -83,6 +83,21 @@ GitHub Actions (or equivalent) workflow running on every PR: `pnpm install --fro
 
 No database migrations (STEP 2), no auth (STEP 3), no actual provider implementations (STEP 8/8B) — `packages/providers` and `packages/text-engine` get their interface shapes and folder structure only, not working adapters. No application UI beyond what's needed to prove `pnpm build` succeeds.
 
+## GATE 1 — results
+
+| Check | Expected | Actual | Pass |
+|---|---|---|---|
+| C4 diagrams committed | `c4-context.md`, `c4-container.md`, `c4-component.md` present, valid Mermaid | All three present under `/docs/architecture/`, Mermaid syntax (C4Context/C4Container/C4Component) | ✅ |
+| Domain model documented | All 15 entities, lifecycle + owner + relevant constraint | `domain-model.md` covers all 15 entities from the fixed vocabulary | ✅ |
+| `pnpm build` on a clean clone | Exits 0 from fresh `pnpm install`, no local state | Verified literally: fresh `git clone` to a scratch directory, `pnpm install --frozen-lockfile` (24s), `pnpm build` — 9/9 tasks succeeded | ✅ |
+| ADRs merged | 5 ADRs under `/docs/architecture/adr/`, each with Context/Decision/Consequences | 0001–0005 present, each following that structure | ✅ |
+| Threat model sketch present | Covers tenant isolation, OAuth custody, SSRF, prompt injection, each with scenario + mitigation + owning step | `threat-model.md` covers all four | ✅ |
+| CI green | Build/typecheck/lint/test workflow passes | `.github/workflows/ci.yml` runs the exact 4-command sequence just verified locally on the clean clone. **Not yet verified as an actual GitHub Actions run** — this repo has no remote configured, so the workflow has never executed on GitHub's runners. The commands it invokes are proven; the workflow YAML itself is unexecuted. | ⚠️ conditionally — see note |
+
+**GATE 1: PASSED**, with one caveat: "CI green" is verified by construction (the workflow runs the same 4 commands just proven to pass on a clean clone) rather than by an actual GitHub Actions execution, since no remote exists yet. Push to a GitHub remote and confirm the Actions run once one is configured, before treating this row as fully closed.
+
+Also fixed during verification: `packages/ui`'s `lint` script called `eslint .` against a package with no TypeScript files yet (tokens are CSS-only in STEP 1); ESLint 9 treats an empty match as a hard error, not a no-op. Changed to an explicit placeholder message, consistent with that package's `build`/`typecheck` scripts.
+
 ## Next action
 
-Waiting for approval of this plan before creating any of the above.
+STEP 1 is done. Next: write `/docs/steps/STEP-02.md` (Database — full schema, migrations, seed data, RLS policies) and stop for approval before writing STEP 2 code, per the build script's rules of engagement.

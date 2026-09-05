@@ -10,7 +10,7 @@ Sibling project note: `../socialblitz-app` is a separate, earlier, simpler build
 
 ## Current step
 
-**Pre-Step-1 setup.** Steps 1–22 have not started. See `docs/steps/STEP-01.md` for the Step 1 plan awaiting approval.
+**STEP 1 (Architecture) complete — GATE 1 passed.** Repo skeleton, C4 diagrams, domain model, 5 ADRs, threat model, and CI are in place; verified against a genuine clean clone (`pnpm install --frozen-lockfile && pnpm build && pnpm typecheck && pnpm lint && pnpm test`, all green). See `docs/steps/STEP-01.md`. Next: write `docs/steps/STEP-02.md` (Database) and stop for approval before writing STEP 2 code.
 
 ## Non-negotiable constraints (C1–C8)
 
