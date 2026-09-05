@@ -10,7 +10,7 @@ Sibling project note: `../socialblitz-app` is a separate, earlier, simpler build
 
 ## Current step
 
-**STEP 1 (Architecture) complete — GATE 1 passed.** Repo skeleton, C4 diagrams, domain model, 5 ADRs, threat model, and CI are in place; verified against a genuine clean clone (`pnpm install --frozen-lockfile && pnpm build && pnpm typecheck && pnpm lint && pnpm test`, all green). See `docs/steps/STEP-01.md`. Next: write `docs/steps/STEP-02.md` (Database) and stop for approval before writing STEP 2 code.
+**STEP 1 (Architecture) — GATE 1 passed.** **STEP 2 (Database) — code-complete, partially verified.** 49-table schema, hand-rolled up/down migrator, RLS via ADR 0003's `SET LOCAL`/`set_config` pattern, local-dev KMS adapter, seed script, and a full test suite (generated tenant-isolation test, RLS-fail-closed, ledger integrity, audit-log grant) are all built, typecheck/lint/build-clean, and verified on a genuine clean clone. **The live-database checks are unverified** — this dev environment has no Docker and no credentials for the pre-existing native Postgres service on this machine; GATE 2 is explicitly not marked passed. See `docs/steps/STEP-02.md` for the exact commands to close it once a reachable Postgres is available. Next: write `docs/steps/STEP-03.md` (Authentication / RBAC) and stop for approval before writing STEP 3 code.
 
 ## Non-negotiable constraints (C1–C8)
 

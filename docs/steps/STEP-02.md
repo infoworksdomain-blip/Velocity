@@ -1,6 +1,6 @@
 # STEP 2 — Database
 
-Status: **PLAN — awaiting approval. No code written yet.**
+Status: **DONE — build/typecheck/lint/test verified on a clean clone; live-database checks unverified in this environment.** See GATE 2 results at the bottom.
 
 ## Goal (from `velocity-build-script.md`)
 
@@ -47,7 +47,7 @@ Grouped as the script itself groups them. Every table in every group below gets 
 | Platform API | `api_keys`, `webhooks`, `webhook_deliveries` | `api_keys` stores a hash, never the raw key (same custody discipline as `platform_credentials`). |
 | Governance | `audit_logs`, `feature_flags`, `moderation_reviews`, `risk_signals` | `audit_logs`: append-only, **no delete grant at the database role level** — this is enforced by revoking `DELETE` on the table from the application's Postgres role, not just by omitting a delete code path. |
 
-**Total: 44 tables**, matching the script's list exactly (verified by count during implementation — see acceptance tests below).
+**Total: 49 tables**, matching the script's list exactly. (This plan originally said 44 — a miscount caught when `drizzle-kit generate` reported the real total during implementation. Corrected here rather than silently left wrong.)
 
 ## 3. Design decisions this step has to make (flagging per rule 7 — these aren't in the script verbatim, they're necessary to make the script's table list buildable)
 
@@ -102,7 +102,7 @@ packages/db/drizzle.config.ts   # updated to point at src/schema/index.ts (was a
 
 | GATE 2 check | Acceptance test |
 |---|---|
-| Migrations up and down cleanly | `migrations-up-down.test.ts`: spin up a throwaway schema against the docker-compose Postgres, run every migration forward, assert all 44 tables + indexes exist, run every migration's `down` in reverse order, assert the schema is empty. |
+| Migrations up and down cleanly | `migrations-up-down.test.ts`: spin up a throwaway schema against the docker-compose Postgres, run every migration forward, assert all 49 tables + indexes exist, run every migration's `down` in reverse order, assert the schema is empty. |
 | Generated tenant-isolation test (not hand-written) | `tenant-isolation.generated.test.ts`: at test-run time, introspect `information_schema.columns` for every table with a `workspace_id` column (not a hard-coded list), insert one row per table for Workspace A and Workspace B, `SET LOCAL app.workspace_id` to A, assert every table's query returns only A's row and zero of B's. Re-run for B. This test fails loudly if a new tenant table is added later without RLS — it discovers the table by introspection, not by a maintained list. |
 | (New, from ADR 0003) RLS fails closed | `rls-fail-closed.test.ts`: run a query with `app.workspace_id` unset — assert zero rows returned, not an error and not all rows. |
 | (New, from design decision 3) Ledger integrity | A test that writes a sequence of `credit_ledger` entries and asserts the `credit_balances` materialised view matches the sum, and that no code path can `UPDATE` or `DELETE` a `credit_ledger` row (grant-level check, not just application-level). |
@@ -112,6 +112,26 @@ packages/db/drizzle.config.ts   # updated to point at src/schema/index.ts (was a
 
 No application code reads or writes through this schema yet (STEP 3 is the first consumer, for `users`/`memberships`/`roles`). No real KMS integration — the local-dev symmetric adapter only, with the cloud adapter's interface defined but unimplemented (flagged, not invented, per rule 5). No actual credit pricing/plan logic — STEP 19 owns that; STEP 2 only builds the ledger's storage shape.
 
+## GATE 2 — results
+
+| Check | Expected | Actual | Pass |
+|---|---|---|---|
+| Schema/migrator/tests build, typecheck, lint clean | Exits 0 from a fresh clone | Verified literally: fresh `git clone` to a scratch directory, `pnpm install --frozen-lockfile`, `pnpm build`/`typecheck`/`lint`/`test` — 9/9 tasks green, including `@velocity/db` | ✅ |
+| Migrations up and down cleanly | Written and typecheck-clean | `migrations-up-down.test.ts` exists and correctly exercises the migrator, but **could not run against a live database in this environment** — no Docker is installed on this machine, and the only reachable Postgres is a pre-existing native Windows service (`postgresql-x64-16`) with no credentials available to this session | ⚠️ not run |
+| Generated tenant-isolation test | Written and typecheck-clean | `tenant-isolation.generated.test.ts` + `helpers/fixture-builder.ts` exist (introspection-driven, no hand-maintained table list) but **could not run** for the same reason | ⚠️ not run |
+| RLS fails closed | Written and typecheck-clean | `rls-fail-closed.test.ts` exists but **could not run** | ⚠️ not run |
+| Ledger integrity (grant-level) | Written and typecheck-clean | `ledger-integrity.test.ts` exists but **could not run** | ⚠️ not run |
+| Audit log delete grant | Written and typecheck-clean | `audit-log-delete-grant.test.ts` exists but **could not run** | ⚠️ not run |
+
+**GATE 2: PARTIALLY VERIFIED, NOT PASSED.** Every check that this environment *can* verify (the code compiles, typechecks, lints clean, and the test suite runs and skips — rather than hangs or crashes — with no reachable database) is green. The five checks that are GATE 2's actual substance — proof against a real Postgres that RLS isolation, the migrator's up/down cycle, and the grant restrictions actually work — are **unverified**, not passing. All five tests are written to run for real (see `__tests__/`) and are designed to skip loudly (`ctx.skip()`, reported as "skipped" not "passed") rather than silently report green when `DATABASE_URL` is unreachable, per the build script's own rule against marking a gate passed when a check failed or couldn't be checked.
+
+**To actually close this gate**, from a machine with a reachable Postgres 16+ with the `vector` extension available:
+```bash
+# .env: set DATABASE_URL (superuser/owner) and DATABASE_URL_APP (velocity_app role — created by the migration itself, see 0001_rls_and_policies.up.sql)
+pnpm --filter @velocity/db migrate up
+pnpm --filter @velocity/db test
+```
+
 ## Next action
 
-Waiting for approval of this plan before creating any of the above.
+STEP 2 is code-complete and stopped here per the user's explicit choice to skip live-database verification for now (no Docker on this machine; declined to hunt down the existing native Postgres service's credentials). Next: write `/docs/steps/STEP-03.md` (Authentication / RBAC) and stop for approval before writing STEP 3 code. STEP 3's RBAC design should be checked against the `roles`/`memberships` schema shape from design decision 1 above before assuming it fits.
