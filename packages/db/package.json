@@ -2,7 +2,7 @@
   "name": "@velocity/db",
   "private": true,
   "version": "0.0.0",
-  "description": "Drizzle schema, migrations, and RLS policies. Empty in STEP 1 by design — full schema (organisations, workspaces, RLS policies, pgvector indexes) is STEP 2's deliverable, per ADR 0003.",
+  "description": "Drizzle schema, hand-rolled up/down migrator, RLS policies, KMS abstraction, and seed data (STEP 2, ADR 0003).",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -12,13 +12,20 @@
   },
   "devDependencies": {
     "drizzle-kit": "^0.30.1",
-    "@types/pg": "^8.11.10"
+    "@types/pg": "^8.11.10",
+    "vitest": "^2.1.8",
+    "dotenv": "^16.4.7",
+    "tsx": "^4.19.2"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.typecheck.json",
     "lint": "eslint .",
-    "test": "echo \"@velocity/db: no schema yet — see STEP 2\"",
-    "push": "echo \"@velocity/db: nothing to push yet — see STEP 2\""
+    "test": "vitest run",
+    "push": "echo \"@velocity/db: use migrate/migrate:down, not drizzle-kit push — schema changes are versioned migrations from STEP 2 onward\"",
+    "generate": "drizzle-kit generate",
+    "migrate": "tsx scripts/migrate.ts up",
+    "migrate:down": "tsx scripts/migrate.ts down",
+    "seed": "tsx seed/seed.ts"
   }
 }
