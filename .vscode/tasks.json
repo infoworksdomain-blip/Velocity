@@ -1,0 +1,51 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "docker: up (Postgres, Redis, MinIO, Temporal)",
+      "type": "shell",
+      "command": "docker compose up -d",
+      "problemMatcher": []
+    },
+    {
+      "label": "temporal: dev server",
+      "type": "shell",
+      "command": "temporal server start-dev",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "pnpm: dev",
+      "type": "shell",
+      "command": "pnpm dev",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "remotion: studio",
+      "type": "shell",
+      "command": "pnpm remotion studio",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "db: push",
+      "type": "shell",
+      "command": "pnpm db:push",
+      "problemMatcher": []
+    },
+    {
+      "label": "gate: run for step NN",
+      "type": "shell",
+      "command": "pnpm gate:${input:stepNumber}",
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "stepNumber",
+      "type": "promptString",
+      "description": "Step number to gate-check (e.g. 01)"
+    }
+  ]
+}

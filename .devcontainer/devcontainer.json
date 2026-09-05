@@ -1,0 +1,40 @@
+{
+  "name": "velocity",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    }
+  },
+  "onCreateCommand": "corepack enable && corepack prepare pnpm@latest --activate && apt-get update && apt-get install -y ffmpeg",
+  "postCreateCommand": "pnpm install",
+  "forwardPorts": [3000, 3001, 5432, 6379, 7233, 8080, 9000, 9229],
+  "portsAttributes": {
+    "3000": { "label": "web (Next.js)" },
+    "3001": { "label": "render/remotion studio" },
+    "5432": { "label": "postgres" },
+    "6379": { "label": "redis" },
+    "7233": { "label": "temporal frontend" },
+    "8080": { "label": "temporal web ui" },
+    "9000": { "label": "minio" },
+    "9229": { "label": "node debug (worker)" }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropic.claude-code",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "ms-azuretools.vscode-docker",
+        "vitest.explorer",
+        "usernamehw.errorlens",
+        "yoavbls.pretty-ts-errors",
+        "graphql.vscode-graphql-syntax",
+        "ms-playwright.playwright"
+      ]
+    }
+  },
+  "remoteUser": "node"
+}
