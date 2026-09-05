@@ -1,0 +1,22 @@
+{
+  "name": "@velocity/worker",
+  "private": true,
+  "version": "0.0.0",
+  "description": "BullMQ short-job consumer and Temporal worker process (ADR 0001). Placeholder entrypoint in STEP 1 — the render workflow lands in STEP 8, the publish workflow in STEP 12, BullMQ job handlers alongside the module that needs them.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "dev": "tsc -p tsconfig.json --watch",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "echo \"@velocity/worker: no tests yet\""
+  },
+  "dependencies": {
+    "@velocity/core": "workspace:*",
+    "@velocity/providers": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2"
+  }
+}

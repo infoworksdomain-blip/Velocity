@@ -1,0 +1,16 @@
+{
+  "name": "@velocity/ui",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Token-driven design-system package. Components arrive in STEP 7 — this package currently ships the Appendix A design tokens only.",
+  "type": "module",
+  "exports": {
+    "./tokens/index.css": "./tokens/index.css"
+  },
+  "scripts": {
+    "build": "echo \"@velocity/ui: tokens-only in STEP 1 — no build step until components land in STEP 7\"",
+    "typecheck": "echo \"@velocity/ui: no TypeScript yet\"",
+    "lint": "echo \"@velocity/ui: no lintable source yet — tokens are CSS, not TS\"",
+    "test": "echo \"@velocity/ui: no tests yet\""
+  }
+}

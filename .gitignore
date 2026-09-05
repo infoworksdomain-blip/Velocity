@@ -1,0 +1,29 @@
+# dependencies
+node_modules/
+
+# build outputs
+dist/
+.next/
+.turbo/
+out/
+*.tsbuildinfo
+
+# env
+.env
+.env.local
+.env.*.local
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# editor / OS
+.DS_Store
+Thumbs.db
+
+# test / coverage
+coverage/
+
+# remotion
+apps/render/out/

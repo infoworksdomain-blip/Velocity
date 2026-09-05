@@ -1,0 +1,53 @@
+/**
+ * VELOCITY design tokens — Appendix A of velocity-build-script.md.
+ * Single source of truth. The GATE 7 token-audit script fails the build on
+ * any hex value, border-radius, font-size or box-shadow literal that
+ * appears outside this file.
+ */
+
+:root {
+  /* Colour */
+  --paper: #ffffff; /* primary canvas */
+  --paper-2: #f7f6f4; /* alternating section wash, card interiors */
+  --ink: #101012; /* display + headings */
+  --ink-2: #6e6e76; /* body, secondary */
+  --line: #e9e7e4; /* hairlines, pill borders */
+  --flare: #ff4d12; /* single accent — CTAs, ticks, active states */
+  --flare-deep: #c9350a; /* pressed states, gradient stop */
+  --ember: #0b0b0c; /* gradient base for the divider + footer */
+  --glow: rgba(255, 77, 18, 0.26); /* bloom behind hero media + primary CTA */
+
+  /* Form / depth */
+  --r-pill: 999px;
+  --r-card: 28px;
+  --r-media: 20px;
+  --r-field: 14px;
+  --sh-float: 0 8px 30px rgba(0, 0, 0, 0.08); /* nav, primary buttons */
+  --sh-card: 0 2px 14px rgba(0, 0, 0, 0.05); /* cards at rest */
+  --sh-glow: 0 0 80px var(--glow); /* hero media, primary CTA only */
+
+  /* Spacing */
+  --space-unit: 4px;
+  --container-max: 1140px;
+  --container-gutter: 24px;
+
+  /* Type scale */
+  --text-display-1: clamp(2.75rem, 6.5vw, 5.5rem);
+  --text-display-2: clamp(2rem, 4.2vw, 3.5rem);
+  --text-heading: 1.5rem;
+  --text-body-lg: 1.125rem;
+  --text-body: 1rem;
+  --text-label: 0.75rem;
+  --text-numeral: 0.8125rem;
+}
+
+/* Dark mode — app shell only, not the marketing site. See Appendix A.2. */
+:root[data-theme="dark"] {
+  --paper: #101012;
+  --paper-2: #1a1a1c;
+  --ink: #ffffff;
+  --ink-2: #a9a9b2;
+  --line: #2a2a2d;
+  --glow: rgba(255, 77, 18, 0.18);
+  /* --flare and --flare-deep are unchanged in dark mode by design. */
+}

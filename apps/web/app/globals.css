@@ -1,0 +1,44 @@
+/*
+ * Temporary relative import into packages/ui's token source. Once STEP 7
+ * gives packages/ui a real build/publish step, this becomes a normal
+ * package import (`@velocity/ui/tokens/index.css`) resolved through
+ * node_modules rather than a relative path across the workspace.
+ */
+@import "../../../packages/ui/tokens/index.css";
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+.placeholder {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: calc(var(--space-unit) * 20) var(--container-gutter);
+}
+
+.label {
+  font-family:
+    ui-monospace,
+    monospace;
+  font-size: var(--text-label);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+h1 {
+  font-size: var(--text-display-1);
+  letter-spacing: -0.035em;
+  line-height: 0.94;
+  margin: var(--space-unit) 0;
+}

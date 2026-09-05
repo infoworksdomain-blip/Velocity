@@ -1,0 +1,24 @@
+{
+  "name": "@velocity/db",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Drizzle schema, migrations, and RLS policies. Empty in STEP 1 by design — full schema (organisations, workspaces, RLS policies, pgvector indexes) is STEP 2's deliverable, per ADR 0003.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "dependencies": {
+    "drizzle-orm": "^0.38.2",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.30.1",
+    "@types/pg": "^8.11.10"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "echo \"@velocity/db: no schema yet — see STEP 2\"",
+    "push": "echo \"@velocity/db: nothing to push yet — see STEP 2\""
+  }
+}

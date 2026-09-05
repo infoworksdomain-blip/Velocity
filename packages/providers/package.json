@@ -1,0 +1,15 @@
+{
+  "name": "@velocity/providers",
+  "private": true,
+  "version": "0.0.0",
+  "description": "VideoProvider/ImageProvider/TTSProvider/TranscriptionProvider interfaces and the capability-based router (ADR 0004). Interface shapes only in STEP 1 — working adapters (Kling, Veo, Seedance, MiniMax, Seedream, WhisperX) arrive in STEP 8 via the provider-adapter command.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "echo \"@velocity/providers: no adapters yet — see STEP 8\""
+  }
+}

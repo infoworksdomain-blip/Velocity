@@ -1,0 +1,21 @@
+{
+  "name": "@velocity/render",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Remotion composition service (ADR 0002). Placeholder entrypoint in STEP 1 — the Remotion project (compositions, the text-layer components from STEP 8B.5, Lambda deployment) lands in STEP 8.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "dev": "tsc -p tsconfig.json --watch",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "echo \"@velocity/render: no compositions yet\""
+  },
+  "dependencies": {
+    "@velocity/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2"
+  }
+}

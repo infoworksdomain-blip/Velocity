@@ -1,0 +1,18 @@
+{
+  "name": "@velocity/contracts",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Zod schemas shared between tRPC, REST /v1, and OpenAPI generation. Only shared primitives land in STEP 1 — per-module contracts arrive with the module's own step.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "dependencies": {
+    "zod": "^3.24.1"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "echo \"@velocity/contracts: no tests yet\""
+  }
+}

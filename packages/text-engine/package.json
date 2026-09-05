@@ -1,0 +1,18 @@
+{
+  "name": "@velocity/text-engine",
+  "private": true,
+  "version": "0.0.0",
+  "description": "TextProvider abstraction and the TextPlan contract (STEP 8B, ADR 0005). Interface + schema only in STEP 1 — the Anthropic/OpenAI adapters, prompt construction, and validation/repair loop arrive in STEP 8B.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "dependencies": {
+    "zod": "^3.24.1"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "echo \"@velocity/text-engine: no adapters yet — see STEP 8B\""
+  }
+}
