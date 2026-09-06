@@ -12,9 +12,11 @@ Sibling project note: `../socialblitz-app` is a separate, earlier, simpler build
 
 **The user has waived the "write plan, stop for approval" rule for the remainder of this build (see chat) — proceeding continuously through the steps, no per-step approval gate.** STEP-NN.md files are still written for the design record, just not as checkpoints.
 
-**STEP 1 (Architecture) — GATE 1 passed.** **STEP 2 (Database) — code-complete, live-DB checks unverified** (no Docker, no credentials for the pre-existing native Postgres on this machine — see `docs/steps/STEP-02.md`). **STEP 3 (Auth/RBAC) — substantially passed**: RBAC policy engine, password hashing, TOTP MFA, JWT sessions, and a real Google OAuth adapter, verified by 29 passing tests. **STEP 4 (Workspace) — substantially passed**: workspace CRUD, membership/invitations, ownership transfer, settings resolution (workspace → org → platform), provisional seat limits, `requireWorkspacePermission` middleware, and a React Query workspace switcher with the GATE 4 cache-isolation property genuinely tested and passing (2 tests). DB-backed checks remain unverified, same open item as STEP 2/3.
+**STEP 1 (Architecture) — GATE 1 passed.** **STEP 2 (Database) — code-complete, live-DB checks unverified** (no Docker, no credentials for the pre-existing native Postgres on this machine — see `docs/steps/STEP-02.md`). **STEP 3 (Auth/RBAC) — substantially passed**: RBAC policy engine, password hashing, TOTP MFA, JWT sessions, and a real Google OAuth adapter. **STEP 4 (Workspace) — substantially passed**: workspace CRUD, membership/invitations, ownership transfer, settings resolution, provisional seat limits, `requireWorkspacePermission`, and a React Query workspace switcher with GATE 4's cache-isolation property genuinely tested. **STEP 5 (Onboarding) — substantially passed**: the onboarding state machine, abandonment-event instrumentation, and a functional (unstyled) wizard, with website-analysis/concept-generation explicitly stubbed pending STEP 6/8. 50 tests passing across the monorepo; DB-backed checks remain unverified, same open item since STEP 2.
 
-Next: STEP 5 (Onboarding).
+Note: `packages/core`'s package.json now has an `exports` map (root + `./onboarding` subpath + `./*` wildcard) — this exists because a client component importing the root barrel pulled server-only `node:crypto` code into the browser bundle and broke `next build`. Any future browser-safe module added to `packages/core` needs the same treatment: a dedicated subpath export, not just relying on the root barrel.
+
+Next: STEP 6 (Brand Intelligence) — the real implementation behind STEP 5's website-intelligence stub.
 
 ## Non-negotiable constraints (C1–C8)
 

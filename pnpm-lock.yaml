@@ -54,6 +54,9 @@ importers:
       '@velocity/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@velocity/providers':
+        specifier: workspace:*
+        version: link:../../packages/providers
       drizzle-orm:
         specifier: ^0.38.2
         version: 0.38.4(@types/pg@8.23.1)(@types/react@19.2.18)(pg@8.23.0)(react@19.0.0)
@@ -161,7 +164,11 @@ importers:
         specifier: ^2.1.8
         version: 2.1.9(@types/node@22.20.1)(jsdom@25.0.1)
 
-  packages/providers: {}
+  packages/providers:
+    devDependencies:
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@22.20.1)(jsdom@25.0.1)
 
   packages/text-engine:
     dependencies:

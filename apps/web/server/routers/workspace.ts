@@ -6,28 +6,9 @@ import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { getAdminDb } from "../db";
 import { protectedProcedure, requireWorkspacePermission, router } from "../trpc";
+import { createWorkspaceForUser, findGlobalRoleId } from "../workspace-service";
 
 const INVITATION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
-
-/**
- * Looks up the baseline (workspace_id IS NULL) global role by key —
- * seeded once in packages/db/seed/seed.ts. Agency-defined custom
- * per-workspace roles (STEP 17) will need this to prefer a matching
- * workspace-scoped row over the global one; not needed until that step
- * actually creates any.
- */
-async function findGlobalRoleId(key: string): Promise<string> {
-  const rows = await getAdminDb()
-    .select({ id: schema.roles.id })
-    .from(schema.roles)
-    .where(and(eq(schema.roles.scope, "workspace"), eq(schema.roles.key, key)))
-    .limit(1);
-  const role = rows[0];
-  if (!role) {
-    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: `Role "${key}" is not seeded` });
-  }
-  return role.id;
-}
 
 export const workspaceRouter = router({
   /** Creates a workspace, and a new organisation for it unless `organisationId` is given (the agency "add a client workspace" path). Caller becomes owner. */
@@ -40,34 +21,7 @@ export const workspaceRouter = router({
         organisationId: z.string().uuid().optional(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
-      const db = getAdminDb();
-
-      let organisationId = input.organisationId;
-      if (!organisationId) {
-        organisationId = randomUUID();
-        await db.insert(schema.organisations).values({ id: organisationId, name: input.name });
-      }
-
-      const workspaceId = randomUUID();
-      await db.insert(schema.workspaces).values({
-        id: workspaceId,
-        organisationId,
-        name: input.name,
-        workspaceType: input.workspaceType,
-        timezone: input.timezone,
-      });
-
-      const ownerRoleId = await findGlobalRoleId("owner");
-      await db.insert(schema.memberships).values({
-        id: randomUUID(),
-        workspaceId,
-        userId: ctx.user.id,
-        roleId: ownerRoleId,
-      });
-
-      return { workspaceId, organisationId };
-    }),
+    .mutation(async ({ ctx, input }) => createWorkspaceForUser(ctx.user.id, input)),
 
   get: requireWorkspacePermission("workspace:read:workspace").query(async ({ ctx }) => {
     const rows = await getAdminDb()

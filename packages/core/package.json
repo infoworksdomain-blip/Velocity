@@ -6,6 +6,17 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./onboarding": {
+      "types": "./dist/onboarding/state-machine.d.ts",
+      "default": "./dist/onboarding/state-machine.js"
+    },
+    "./*": "./dist/*"
+  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "jose": "^5.9.6",
