@@ -1,21 +1,23 @@
 import { randomUUID } from "node:crypto";
 import { nextOnboardingStage, type OnboardingStage } from "@velocity/core";
 import { schema } from "@velocity/db";
-import { StubConceptGenerationProvider, StubWebsiteIntelligenceProvider } from "@velocity/providers";
+import { RealWebsiteIntelligenceProvider, StubConceptGenerationProvider } from "@velocity/providers";
 import { z } from "zod";
 import { getAdminDb } from "../db";
 import { protectedProcedure, publicProcedure, router } from "../trpc";
 import { createWorkspaceForUser } from "../workspace-service";
 
 /**
- * STEP 5's onboarding flow. `analyzeWebsite` and the concept batch in
- * `complete` call stub providers (packages/providers) — STEP 6 and STEP 8
- * replace them with real implementations behind the same interfaces. See
- * docs/steps/STEP-05.md for why this step can't fully exist without them
- * yet, and why GATE 5's 90-second target isn't measurable against a stub.
+ * STEP 5's onboarding flow. `analyzeWebsite` now uses STEP 6's real
+ * crawler (real SSRF-safe Playwright crawl, real injection-safe prompt
+ * construction) — only its final LLM extraction step is still a stub, per
+ * docs/steps/STEP-06.md. The concept batch in `complete` remains STEP 8's
+ * stub. GATE 5's 90-second target still isn't measurable: a real crawl
+ * plus a stub extraction has different (and still not representative)
+ * timing than the eventual full pipeline.
  */
 
-const websiteIntelligence = new StubWebsiteIntelligenceProvider();
+const websiteIntelligence = new RealWebsiteIntelligenceProvider();
 const conceptGeneration = new StubConceptGenerationProvider();
 
 async function recordEvent(sessionId: string, stage: OnboardingStage, workspaceId?: string) {

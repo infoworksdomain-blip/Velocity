@@ -6,6 +6,9 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "dependencies": {
+    "playwright": "1.63.0"
+  },
   "devDependencies": {
     "vitest": "^2.1.8"
   },
