@@ -1,0 +1,22 @@
+.deck {
+  position: relative;
+  width: min(360px, 90vw);
+  aspect-ratio: 9 / 16;
+  margin: 0 auto;
+}
+
+.slot {
+  position: absolute;
+  inset: 0;
+  transform: scale(calc(1 - var(--depth) * 0.06)) translateY(calc(var(--depth) * 10px));
+  transition:
+    transform 200ms ease,
+    opacity 200ms ease;
+  opacity: calc(1 - var(--depth) * 0.15);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slot {
+    transition: none;
+  }
+}

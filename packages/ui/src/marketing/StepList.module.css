@@ -1,0 +1,30 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 8);
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: calc(var(--space-unit) * 10) var(--container-gutter);
+  list-style: none;
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: calc(var(--space-unit) * 6);
+  align-items: start;
+  padding-bottom: calc(var(--space-unit) * 8);
+  border-bottom: 1px solid var(--line);
+}
+
+.step:last-child {
+  border-bottom: none;
+}
+
+.number {
+  color: var(--flare);
+}
+
+.copy {
+  margin-top: calc(var(--space-unit) * 2);
+}

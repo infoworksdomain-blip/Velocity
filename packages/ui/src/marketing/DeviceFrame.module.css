@@ -1,0 +1,47 @@
+.wrapper {
+  position: relative;
+  width: min(320px, 80vw);
+  margin: 0 auto;
+}
+
+.frame {
+  aspect-ratio: 9 / 16;
+  border-radius: var(--r-media);
+  overflow: hidden;
+  box-shadow: var(--sh-glow);
+  background: var(--paper-2);
+}
+
+.chip {
+  position: absolute;
+  right: calc(-1 * var(--space-unit) * 8);
+  top: calc(20% + var(--chip-index, 0) * 100px);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 0.5);
+  background: var(--paper);
+  border-radius: var(--r-card);
+  box-shadow: var(--sh-float);
+  padding: calc(var(--space-unit) * 3) calc(var(--space-unit) * 4);
+}
+
+.chipValue {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-heading);
+  color: var(--ink);
+}
+
+.chipLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+@media (max-width: 768px) {
+  .chip {
+    display: none;
+  }
+}

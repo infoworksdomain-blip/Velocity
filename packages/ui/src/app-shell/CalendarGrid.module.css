@@ -1,0 +1,43 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  overflow: hidden;
+}
+
+.weekday {
+  background: var(--paper-2);
+  padding: calc(var(--space-unit) * 2);
+  text-align: center;
+}
+
+.day {
+  background: var(--paper);
+  min-height: 96px;
+  padding: calc(var(--space-unit) * 2);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 1);
+}
+
+.outside {
+  background: var(--paper-2);
+  opacity: 0.6;
+}
+
+.date {
+  align-self: flex-start;
+}
+
+.today {
+  color: var(--flare);
+}
+
+.slots {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 1);
+}

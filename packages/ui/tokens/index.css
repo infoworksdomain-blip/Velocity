@@ -16,6 +16,8 @@
   --flare-deep: #c9350a; /* pressed states, gradient stop */
   --ember: #0b0b0c; /* gradient base for the divider + footer */
   --glow: rgba(255, 77, 18, 0.26); /* bloom behind hero media + primary CTA */
+  --scrim: rgba(0, 0, 0, 0.65); /* dark gradient behind light text over media (ContentCard, BlitzCard) */
+  --on-dark: #ffffff; /* text color over a scrim/media surface, distinct from --ink which is for text on --paper */
 
   /* Form / depth */
   --r-pill: 999px;
@@ -31,14 +33,54 @@
   --container-max: 1140px;
   --container-gutter: 24px;
 
-  /* Type scale */
+  /* Type families — STEP 7 design decision 1: real font files (Aeonik /
+     Satoshi / General Sans / Geist) are a licensing + asset-pipeline
+     decision, not a component-architecture one. These system stacks are
+     the placeholder; every component reads the token, never a literal
+     family name, so swapping in real files later is a one-line change
+     here. */
+  --font-display: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Segoe UI Mono", Consolas, monospace;
+
+  /* Type scale — sizes, weights, tracking, leading exactly per Appendix A.3 */
   --text-display-1: clamp(2.75rem, 6.5vw, 5.5rem);
+  --text-display-1-weight: 700;
+  --text-display-1-tracking: -0.035em;
+  --text-display-1-leading: 0.94;
+
   --text-display-2: clamp(2rem, 4.2vw, 3.5rem);
+  --text-display-2-weight: 700;
+  --text-display-2-tracking: -0.03em;
+  --text-display-2-leading: 1.02;
+
   --text-heading: 1.5rem;
+  --text-heading-weight: 600;
+  --text-heading-tracking: -0.02em;
+  --text-heading-leading: 1.2;
+
   --text-body-lg: 1.125rem;
+  --text-body-lg-weight: 400;
+  --text-body-lg-leading: 1.6;
+
   --text-body: 1rem;
+  --text-body-weight: 400;
+  --text-body-leading: 1.6;
+
   --text-label: 0.75rem;
+  --text-label-weight: 500;
+  --text-label-tracking: 0.14em;
+  --text-label-leading: 1;
+
   --text-numeral: 0.8125rem;
+  --text-numeral-weight: 500;
+  --text-numeral-tracking: 0.08em;
+  --text-numeral-leading: 1;
+
+  /* Two sizes outside Appendix A.3's table, added when STEP 7's token
+     audit caught real components needing them — not proliferation, one
+     narrow purpose each. */
+  --text-stat: clamp(1.5rem, 2.5vw, 2rem); /* StatCard's large number — between heading and display-2 */
+  --text-wordmark: clamp(3rem, 12vw, 9rem); /* SiteFooter's oversized wordmark, bigger than display-1 */
 }
 
 /* Dark mode — app shell only, not the marketing site. See Appendix A.2. */

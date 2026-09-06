@@ -1,0 +1,29 @@
+.switcher {
+  display: inline-flex;
+}
+
+.hiddenLabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.select {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-body);
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: calc(var(--space-unit) * 2) calc(var(--space-unit) * 5) calc(var(--space-unit) * 2)
+    calc(var(--space-unit) * 4);
+  cursor: pointer;
+}
+
+.select:focus-visible {
+  outline: 2px solid var(--flare);
+  outline-offset: 2px;
+}

@@ -1,0 +1,38 @@
+.card {
+  position: relative;
+  aspect-ratio: 9 / 16;
+  border-radius: var(--r-media);
+  overflow: hidden;
+  background: var(--paper-2);
+  box-shadow: var(--sh-card);
+}
+
+.thumb {
+  position: absolute;
+  inset: 0;
+}
+
+.overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: calc(var(--space-unit) * 4);
+  background: linear-gradient(to top, var(--scrim), transparent);
+}
+
+.hook {
+  color: var(--on-dark);
+  margin: 0;
+  font-weight: 600;
+}
+
+.state {
+  position: absolute;
+  top: calc(var(--space-unit) * 3);
+  right: calc(var(--space-unit) * 3);
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: var(--r-pill);
+  padding: calc(var(--space-unit) * 1) calc(var(--space-unit) * 2.5);
+}

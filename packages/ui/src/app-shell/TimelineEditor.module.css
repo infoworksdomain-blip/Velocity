@@ -1,0 +1,35 @@
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 2);
+}
+
+.track {
+  position: relative;
+  height: 40px;
+  background: var(--paper-2);
+  border-radius: var(--r-field);
+}
+
+.marker {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  background: var(--paper);
+  border: 1px solid var(--flare);
+  border-radius: calc(var(--r-field) / 2);
+  display: flex;
+  align-items: center;
+  padding: 0 calc(var(--space-unit) * 2);
+  overflow: hidden;
+}
+
+.markerLabel {
+  white-space: nowrap;
+  color: var(--flare-deep);
+}
+
+.duration {
+  align-self: flex-end;
+  color: var(--ink-2);
+}

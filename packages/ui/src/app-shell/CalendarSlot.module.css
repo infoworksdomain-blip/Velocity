@@ -1,0 +1,30 @@
+.slot {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--space-unit) * 2);
+  padding: calc(var(--space-unit) * 1.5);
+  border-radius: var(--r-field);
+  background: var(--paper);
+  border: 1px solid var(--line);
+}
+
+.empty {
+  border-style: dashed;
+  background: transparent;
+}
+
+.thumb {
+  width: 28px;
+  aspect-ratio: 9 / 16;
+  border-radius: calc(var(--r-field) / 2);
+  overflow: hidden;
+  background: var(--paper-2);
+  flex-shrink: 0;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}

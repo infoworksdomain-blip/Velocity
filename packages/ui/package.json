@@ -2,15 +2,35 @@
   "name": "@velocity/ui",
   "private": true,
   "version": "0.0.0",
-  "description": "Token-driven design-system package. Components arrive in STEP 7 — this package currently ships the Appendix A design tokens only.",
+  "description": "Token-driven design-system component library (Appendix A). No pre-built dist — CSS Modules need a consuming bundler (Next's webpack via transpilePackages, or Storybook's Vite) to process them, so this package ships TypeScript/CSS source directly.",
   "type": "module",
-  "exports": {
-    "./tokens/index.css": "./tokens/index.css"
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "clsx": "^2.1.1"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@storybook/react": "8.4.7",
+    "@storybook/react-vite": "8.4.7",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "@vitejs/plugin-react": "4.3.4",
+    "storybook": "8.4.7",
+    "typescript": "^5.7.2",
+    "vite": "5.4.11"
   },
   "scripts": {
-    "build": "echo \"@velocity/ui: tokens-only in STEP 1 — no build step until components land in STEP 7\"",
-    "typecheck": "echo \"@velocity/ui: no TypeScript yet\"",
-    "lint": "echo \"@velocity/ui: no lintable source yet — tokens are CSS, not TS\"",
-    "test": "echo \"@velocity/ui: no tests yet\""
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "test": "echo \"@velocity/ui: visual correctness is Storybook's job; no separate test runner yet\"",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "audit-tokens": "node scripts/audit-tokens.mjs",
+    "check-story-coverage": "node scripts/check-story-coverage.mjs"
   }
 }

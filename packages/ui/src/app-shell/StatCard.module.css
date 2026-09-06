@@ -1,0 +1,22 @@
+.card {
+  border-radius: var(--r-card);
+  background: var(--paper);
+  box-shadow: var(--sh-card);
+  padding: calc(var(--space-unit) * 5);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 1);
+}
+
+.value {
+  margin: 0;
+  font-size: var(--text-stat);
+}
+
+/* No separate success/error hue — Appendix A's accent discipline reserves
+   --flare for CTAs, ticks, and active states only. Direction is conveyed
+   by the arrow glyph and copy, not by a second saturated color. */
+.trend {
+  margin: 0;
+  color: var(--ink-2);
+}

@@ -27,3 +27,6 @@ coverage/
 
 # remotion
 apps/render/out/
+
+# storybook
+storybook-static/

@@ -1,6 +1,7 @@
 import { createTRPCProxyClient, httpBatchLink } from "@trpc/client";
 import superjson from "superjson";
 import type { AppRouter } from "@/server/routers/_app";
+import { currentWorkspaceIdRef } from "@/lib/workspace-context";
 
 /**
  * Vanilla tRPC client (not the React Query hooks integration — that's
@@ -11,5 +12,13 @@ import type { AppRouter } from "@/server/routers/_app";
  */
 export const trpcClient = createTRPCProxyClient<AppRouter>({
   transformer: superjson,
-  links: [httpBatchLink({ url: "/api/trpc" })],
+  links: [
+    httpBatchLink({
+      url: "/api/trpc",
+      headers() {
+        const workspaceId = currentWorkspaceIdRef.current;
+        return workspaceId ? { "x-workspace-id": workspaceId } : {};
+      },
+    }),
+  ],
 });

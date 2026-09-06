@@ -1,0 +1,38 @@
+.card {
+  position: relative;
+  width: min(360px, 90vw);
+  aspect-ratio: 9 / 16;
+  border-radius: var(--r-media);
+  overflow: hidden;
+  box-shadow: var(--sh-float);
+  background: var(--paper-2);
+  will-change: transform;
+}
+
+.media {
+  position: absolute;
+  inset: 0;
+}
+
+.overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: calc(var(--space-unit) * 5);
+  background: linear-gradient(to top, var(--scrim), transparent);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 2);
+}
+
+.angle {
+  color: var(--on-dark);
+  opacity: 0.8;
+}
+
+.hook {
+  color: var(--on-dark);
+  margin: 0;
+  font-weight: 600;
+}

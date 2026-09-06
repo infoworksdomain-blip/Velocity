@@ -1,0 +1,24 @@
+.overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.guide {
+  position: absolute;
+  border: 1px dashed var(--flare);
+}
+
+.label {
+  position: absolute;
+  top: calc(var(--space-unit) * 2);
+  left: calc(var(--space-unit) * 2);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--text-label-tracking);
+  text-transform: uppercase;
+  color: var(--on-dark);
+  background: var(--scrim);
+  padding: calc(var(--space-unit) * 1) calc(var(--space-unit) * 2);
+  border-radius: var(--r-field);
+}

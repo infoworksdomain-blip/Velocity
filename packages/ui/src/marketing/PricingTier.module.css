@@ -1,0 +1,79 @@
+.tier {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 5);
+  border-radius: var(--r-card);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: calc(var(--space-unit) * 7);
+  position: relative;
+}
+
+.recommended {
+  border: none;
+  box-shadow: var(--sh-float);
+}
+
+.badge {
+  position: absolute;
+  top: calc(var(--space-unit) * -3);
+  left: calc(var(--space-unit) * 7);
+  background: var(--flare);
+  color: var(--paper);
+  border-radius: var(--r-pill);
+  padding: calc(var(--space-unit) * 1) calc(var(--space-unit) * 3);
+}
+
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  gap: calc(var(--space-unit) * 1);
+}
+
+.price {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-display-2);
+  color: var(--ink);
+}
+
+.period {
+  color: var(--ink-2);
+}
+
+.features {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 3);
+  flex: 1;
+}
+
+.features li::before {
+  content: "✓";
+  color: var(--flare);
+  margin-right: calc(var(--space-unit) * 2);
+}
+
+.cta {
+  font-family: var(--font-display);
+  font-weight: 600;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: calc(var(--space-unit) * 3);
+  cursor: pointer;
+}
+
+.ctaRecommended {
+  background: var(--flare);
+  color: var(--paper);
+  border: none;
+}
+
+.ctaRecommended:hover {
+  background: var(--flare-deep);
+}

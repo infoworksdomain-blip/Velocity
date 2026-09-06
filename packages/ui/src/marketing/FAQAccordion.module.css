@@ -1,0 +1,47 @@
+.accordion {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: calc(var(--space-unit) * 10) var(--container-gutter);
+}
+
+.item {
+  border-bottom: 1px solid var(--line);
+}
+
+.trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--space-unit) * 4);
+  background: none;
+  border: none;
+  padding: calc(var(--space-unit) * 5) 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.trigger:focus-visible {
+  outline: 2px solid var(--flare);
+  outline-offset: 2px;
+}
+
+.question {
+  font-size: var(--text-body-lg);
+}
+
+.icon {
+  font-family: var(--font-display);
+  font-size: var(--text-heading);
+  color: var(--flare);
+  transition: transform 150ms ease;
+  flex-shrink: 0;
+}
+
+.iconOpen {
+  transform: rotate(45deg);
+}
+
+.answer {
+  margin: 0 0 calc(var(--space-unit) * 6);
+}

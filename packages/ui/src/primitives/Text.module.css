@@ -1,0 +1,76 @@
+.display-1 {
+  font-family: var(--font-display);
+  font-size: var(--text-display-1);
+  font-weight: var(--text-display-1-weight);
+  letter-spacing: var(--text-display-1-tracking);
+  line-height: var(--text-display-1-leading);
+  color: var(--ink);
+  margin: 0;
+}
+
+.display-2 {
+  font-family: var(--font-display);
+  font-size: var(--text-display-2);
+  font-weight: var(--text-display-2-weight);
+  letter-spacing: var(--text-display-2-tracking);
+  line-height: var(--text-display-2-leading);
+  color: var(--ink);
+  margin: 0;
+}
+
+.heading {
+  font-family: var(--font-display);
+  font-size: var(--text-heading);
+  font-weight: var(--text-heading-weight);
+  letter-spacing: var(--text-heading-tracking);
+  line-height: var(--text-heading-leading);
+  color: var(--ink);
+  margin: 0;
+}
+
+.body-lg {
+  font-family: var(--font-display);
+  font-size: var(--text-body-lg);
+  font-weight: var(--text-body-lg-weight);
+  line-height: var(--text-body-lg-leading);
+  color: var(--ink-2);
+  margin: 0;
+  max-width: 62ch;
+}
+
+.body {
+  font-family: var(--font-display);
+  font-size: var(--text-body);
+  font-weight: var(--text-body-weight);
+  line-height: var(--text-body-leading);
+  color: var(--ink-2);
+  margin: 0;
+  max-width: 62ch;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-tracking);
+  line-height: var(--text-label-leading);
+  color: var(--ink-2);
+  text-transform: uppercase;
+}
+
+.numeral {
+  font-family: var(--font-mono);
+  font-size: var(--text-numeral);
+  font-weight: var(--text-numeral-weight);
+  letter-spacing: var(--text-numeral-tracking);
+  line-height: var(--text-numeral-leading);
+  color: var(--ink);
+}
+
+/* The reference design's signature move — emphasis words inside a display
+   line, in the italic cut at the same weight. Applied via <em> inside
+   display copy rather than a separate component. */
+.display-1 em,
+.display-2 em {
+  font-style: italic;
+}

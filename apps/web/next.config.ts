@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  transpilePackages: ["@velocity/core", "@velocity/contracts"],
+  transpilePackages: ["@velocity/core", "@velocity/contracts", "@velocity/ui"],
   // Playwright (via @velocity/providers' brand-intelligence crawler,
   // server-only, imported from the onboarding router) ships native
   // Node bindings and an optional chromium-bidi dependency that isn't

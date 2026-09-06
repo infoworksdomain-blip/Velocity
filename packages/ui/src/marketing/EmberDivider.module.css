@@ -1,0 +1,5 @@
+.divider {
+  width: 100%;
+  height: clamp(160px, 20vw, 320px);
+  background: radial-gradient(ellipse at center, var(--ember) 0%, var(--flare-deep) 70%, var(--flare) 100%);
+}

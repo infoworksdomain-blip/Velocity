@@ -43,6 +43,13 @@
       "when": 1788662706713,
       "tag": "0005_onboarding",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1788712715946,
+      "tag": "0006_notifications",
+      "breakpoints": true
     }
   ]
 }

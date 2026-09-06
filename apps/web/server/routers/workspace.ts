@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { plans, settings as settingsCore } from "@velocity/core";
 import { schema } from "@velocity/db";
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { getAdminDb } from "../db";
 import { protectedProcedure, requireWorkspacePermission, router } from "../trpc";
@@ -11,6 +11,24 @@ import { createWorkspaceForUser, findGlobalRoleId } from "../workspace-service";
 const INVITATION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 export const workspaceRouter = router({
+  /**
+   * User-scoped, not workspace-scoped — deliberately not behind
+   * requireWorkspacePermission, since its whole purpose is letting the
+   * client discover which workspace id to put in the x-workspace-id
+   * header in the first place (the WorkspaceSwitcher's data source).
+   */
+  listMine: protectedProcedure.query(async ({ ctx }) => {
+    return getAdminDb()
+      .select({
+        id: schema.workspaces.id,
+        name: schema.workspaces.name,
+        workspaceType: schema.workspaces.workspaceType,
+      })
+      .from(schema.memberships)
+      .innerJoin(schema.workspaces, eq(schema.workspaces.id, schema.memberships.workspaceId))
+      .where(and(eq(schema.memberships.userId, ctx.user.id), isNull(schema.workspaces.deletedAt)));
+  }),
+
   /** Creates a workspace, and a new organisation for it unless `organisationId` is given (the agency "add a client workspace" path). Caller becomes owner. */
   create: protectedProcedure
     .input(

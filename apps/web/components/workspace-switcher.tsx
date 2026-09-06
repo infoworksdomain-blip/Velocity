@@ -1,34 +1,22 @@
 "use client";
 
 import { useWorkspace } from "@/lib/workspace-context";
+import { WorkspaceSwitcher as StyledWorkspaceSwitcher, type WorkspaceSummary } from "@velocity/ui";
 
-export interface WorkspaceSummary {
-  id: string;
-  name: string;
-}
+export type { WorkspaceSummary };
 
 /**
- * Functional only — Appendix A's actual visual design (floating pill chrome
- * etc.) lands in STEP 7. This exists so the cache-isolation property GATE 4
- * requires is a real, testable component, not a UI polish exercise.
+ * Wires STEP 4's workspace-context hook (the thing GATE 4's cache-isolation
+ * test actually exercises) into STEP 7's styled presentational component.
+ * Business logic stays here; visual design lives in packages/ui.
  */
 export function WorkspaceSwitcher({ workspaces }: { workspaces: WorkspaceSummary[] }) {
   const { currentWorkspaceId, setCurrentWorkspaceId } = useWorkspace();
-
   return (
-    <select
-      aria-label="Switch workspace"
-      value={currentWorkspaceId ?? ""}
-      onChange={(event) => setCurrentWorkspaceId(event.target.value)}
-    >
-      <option value="" disabled>
-        Select a workspace
-      </option>
-      {workspaces.map((workspace) => (
-        <option key={workspace.id} value={workspace.id}>
-          {workspace.name}
-        </option>
-      ))}
-    </select>
+    <StyledWorkspaceSwitcher
+      workspaces={workspaces}
+      currentWorkspaceId={currentWorkspaceId}
+      onSelect={setCurrentWorkspaceId}
+    />
   );
 }
