@@ -12,11 +12,17 @@
     "test:e2e": "echo \"@velocity/web: Playwright suite arrives with STEP 5 onboarding flow\""
   },
   "dependencies": {
+    "@trpc/client": "^10.45.2",
+    "@trpc/server": "^10.45.2",
     "@velocity/contracts": "workspace:*",
     "@velocity/core": "workspace:*",
+    "@velocity/db": "workspace:*",
+    "drizzle-orm": "^0.38.2",
     "next": "15.1.3",
     "react": "19.0.0",
-    "react-dom": "19.0.0"
+    "react-dom": "19.0.0",
+    "superjson": "^2.2.2",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

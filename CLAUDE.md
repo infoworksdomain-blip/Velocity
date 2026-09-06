@@ -10,7 +10,11 @@ Sibling project note: `../socialblitz-app` is a separate, earlier, simpler build
 
 ## Current step
 
-**STEP 1 (Architecture) — GATE 1 passed.** **STEP 2 (Database) — code-complete, partially verified.** 49-table schema, hand-rolled up/down migrator, RLS via ADR 0003's `SET LOCAL`/`set_config` pattern, local-dev KMS adapter, seed script, and a full test suite (generated tenant-isolation test, RLS-fail-closed, ledger integrity, audit-log grant) are all built, typecheck/lint/build-clean, and verified on a genuine clean clone. **The live-database checks are unverified** — this dev environment has no Docker and no credentials for the pre-existing native Postgres service on this machine; GATE 2 is explicitly not marked passed. See `docs/steps/STEP-02.md` for the exact commands to close it once a reachable Postgres is available. Next: write `docs/steps/STEP-03.md` (Authentication / RBAC) and stop for approval before writing STEP 3 code.
+**The user has waived the "write plan, stop for approval" rule for the remainder of this build (see chat) — proceeding continuously through the steps, no per-step approval gate.** STEP-NN.md files are still written for the design record, just not as checkpoints.
+
+**STEP 1 (Architecture) — GATE 1 passed.** **STEP 2 (Database) — code-complete, live-DB checks unverified** (no Docker, no credentials for the pre-existing native Postgres on this machine — see `docs/steps/STEP-02.md`). **STEP 3 (Auth/RBAC) — substantially passed**: RBAC policy engine, password hashing, TOTP MFA, JWT sessions, and a real Google OAuth adapter are built and genuinely verified by 29 passing tests (no DB needed for any of that); only the impersonation audit-log write needs a live Postgres, same open item as STEP 2. tRPC wired up in `apps/web` with a working auth router. See `docs/steps/STEP-03.md`.
+
+Next: STEP 4 (Workspace).
 
 ## Non-negotiable constraints (C1–C8)
 

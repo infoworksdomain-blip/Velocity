@@ -63,6 +63,16 @@ export function createAdminPool(): Pool {
   return new Pool({ connectionString: requireEnv("DATABASE_URL") });
 }
 
+/**
+ * A Drizzle instance over the admin pool, for platform-root tables that
+ * have no RLS to begin with (users, sessions, mfa_*, roles, organisations
+ * — see ADR 0003's scope note). Not for anything workspace-scoped; use
+ * withWorkspace for that.
+ */
+export function createAdminDb(): Database {
+  return drizzle(createAdminPool(), { schema });
+}
+
 export async function closeAppPool(): Promise<void> {
   if (appPool) {
     await appPool.end();

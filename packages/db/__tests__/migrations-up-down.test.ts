@@ -14,10 +14,12 @@ describe("migrations up/down (GATE 2)", () => {
       const ran = await migrateUp(pool);
       expect(ran).toEqual(expectedNames);
 
+      // 49 from 0000 (STEP 2) + 4 auth tables from 0002 (STEP 3) = 53.
+      // 0003 only adds columns to an existing table, not a new one.
       const tableCount = await pool.query<{ count: string }>(
         "SELECT count(*)::text AS count FROM pg_tables WHERE schemaname = 'public'",
       );
-      expect(Number(tableCount.rows[0]!.count)).toBe(49);
+      expect(Number(tableCount.rows[0]!.count)).toBe(53);
 
       const reverted = await migrateDown(pool, Infinity);
       expect(reverted).toEqual([...expectedNames].reverse());

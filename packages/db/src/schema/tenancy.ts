@@ -31,6 +31,19 @@ export const users = pgTable("users", {
   id: idColumn(),
   email: text("email").notNull(),
   name: text("name"),
+  /** Nullable — a user who only ever signs in via OAuth (STEP 3's Google adapter) has no password. Hashed with bcrypt, see packages/core/src/auth/password.ts. */
+  passwordHash: text("password_hash"),
+  emailVerifiedAt: timestamp("email_verified_at", { withTimezone: true }),
+  /**
+   * Nullable FK to a scope='platform' row in `roles`. Platform roles
+   * (superadmin/support/moderator/finance) aren't tied to any workspace,
+   * so they can't be expressed through `memberships` (which requires a
+   * workspace_id) — this column is the actual assignment mechanism.
+   * Enforcing "must point at a scope='platform' role" is an application-
+   * layer check (STEP 3's signup/admin procedures), not a DB constraint —
+   * Postgres has no native cross-row CHECK against another table's column.
+   */
+  platformRoleId: uuid("platform_role_id").references(() => roles.id),
   ...timestamps(),
 }, (table) => [uniqueIndex("users_email_idx").on(table.email)]);
 

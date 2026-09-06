@@ -2,14 +2,23 @@
   "name": "@velocity/core",
   "private": true,
   "version": "0.0.0",
-  "description": "Shared domain types. See /docs/architecture/domain-model.md — these types are the compiled mirror of that document.",
+  "description": "Shared domain types and business logic. See /docs/architecture/domain-model.md — the domain types are the compiled mirror of that document. RBAC (STEP 3) and auth primitives (password hashing, TOTP MFA, session tokens, OAuth adapters) live here too, per STEP 1's monorepo layout.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "jose": "^5.9.6",
+    "otpauth": "^9.3.6"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "vitest": "^2.1.8"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint .",
-    "test": "echo \"@velocity/core: no tests yet — business logic arrives with later steps\""
+    "test": "vitest run"
   }
 }
