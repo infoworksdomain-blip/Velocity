@@ -14,6 +14,8 @@ export interface AuthenticatedUser {
 export interface Context {
   sessionId: string | null;
   user: AuthenticatedUser | null;
+  /** Raw `x-workspace-id` header, unresolved/unauthorized — requireWorkspacePermission (trpc.ts) is what turns this into a checked membership+role. */
+  workspaceIdHeader: string | null;
 }
 
 function parseCookie(cookieHeader: string, name: string): string | null {
@@ -24,8 +26,6 @@ function parseCookie(cookieHeader: string, name: string): string | null {
   return null;
 }
 
-const EMPTY_CONTEXT: Context = { sessionId: null, user: null };
-
 /**
  * Resolves the caller from the session cookie: verify the JWT, then check
  * the referenced `sessions` row hasn't been revoked or expired — the JWT's
@@ -33,10 +33,13 @@ const EMPTY_CONTEXT: Context = { sessionId: null, user: null };
  * token would otherwise still verify until it naturally expires.
  */
 export async function createContext(req: Request): Promise<Context> {
+  const workspaceIdHeader = req.headers.get("x-workspace-id");
+  const emptyContext: Context = { sessionId: null, user: null, workspaceIdHeader };
+
   const authSecret = process.env.AUTH_SECRET;
   const cookieHeader = req.headers.get("cookie") ?? "";
   const token = parseCookie(cookieHeader, SESSION_COOKIE_NAME);
-  if (!token || !authSecret) return EMPTY_CONTEXT;
+  if (!token || !authSecret) return emptyContext;
 
   let sessionId: string;
   let userId: string;
@@ -45,7 +48,7 @@ export async function createContext(req: Request): Promise<Context> {
     sessionId = payload.sessionId;
     userId = payload.sub;
   } catch {
-    return EMPTY_CONTEXT;
+    return emptyContext;
   }
 
   const rows = await getAdminDb()
@@ -63,10 +66,11 @@ export async function createContext(req: Request): Promise<Context> {
     .limit(1);
 
   const row = rows[0];
-  if (!row || row.expiresAt < new Date()) return EMPTY_CONTEXT;
+  if (!row || row.expiresAt < new Date()) return emptyContext;
 
   return {
     sessionId,
     user: { id: row.userId, email: row.email, platformRoleKey: row.platformRoleKey },
+    workspaceIdHeader,
   };
 }

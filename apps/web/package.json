@@ -8,10 +8,11 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "echo \"@velocity/web: no tests yet\"",
+    "test": "vitest run",
     "test:e2e": "echo \"@velocity/web: Playwright suite arrives with STEP 5 onboarding flow\""
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.62.7",
     "@trpc/client": "^10.45.2",
     "@trpc/server": "^10.45.2",
     "@velocity/contracts": "workspace:*",
@@ -25,9 +26,13 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@testing-library/react": "^16.1.0",
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
-    "typescript": "^5.7.2"
+    "@vitejs/plugin-react": "^4.3.4",
+    "jsdom": "^25.0.1",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
   }
 }

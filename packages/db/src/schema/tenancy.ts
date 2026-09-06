@@ -12,6 +12,8 @@ import { invitationStatusEnum, roleScopeEnum, workspaceTypeEnum } from "./enums"
 export const organisations = pgTable("organisations", {
   id: idColumn(),
   name: text("name").notNull(),
+  /** Org-default settings — the middle tier of STEP 4's workspace-override -> org-default -> platform-default resolution order. See packages/core/src/settings. */
+  settings: jsonb("settings").$type<Record<string, unknown>>().notNull().default({}),
   ...timestamps(),
 });
 
@@ -23,6 +25,8 @@ export const workspaces = pgTable("workspaces", {
   name: text("name").notNull(),
   workspaceType: workspaceTypeEnum("workspace_type").notNull(),
   timezone: text("timezone").notNull().default("UTC"),
+  /** Workspace-level override — the innermost, highest-priority tier of the settings resolution order. */
+  settings: jsonb("settings").$type<Record<string, unknown>>().notNull().default({}),
   ...timestamps(),
   ...softDelete(),
 });

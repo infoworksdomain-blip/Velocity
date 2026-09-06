@@ -29,6 +29,7 @@ export const ROLE_PERMISSIONS: Record<RoleKey, readonly Permission[]> = {
     "workspace:read:workspace",
     "workspace:update:workspace",
     "workspace:archive:workspace",
+    "workspace:transfer_ownership:workspace",
     "members:invite:workspace",
     "members:remove:workspace",
     "members:role_change:workspace",

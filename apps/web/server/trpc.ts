@@ -1,6 +1,9 @@
 import { rbac } from "@velocity/core";
+import { schema } from "@velocity/db";
 import { TRPCError, initTRPC } from "@trpc/server";
+import { and, eq } from "drizzle-orm";
 import superjson from "superjson";
+import { getAdminDb } from "./db";
 import type { Context } from "./context";
 
 const t = initTRPC.context<Context>().create({ transformer: superjson });
@@ -22,13 +25,7 @@ export const protectedProcedure = publicProcedure.use(({ ctx, next }) => {
   return next({ ctx: { ...ctx, user: ctx.user, sessionId: ctx.sessionId } });
 });
 
-/**
- * Gates a procedure behind a platform-scoped permission (packages/core's
- * PERMISSION_CATALOG). Workspace-scoped permission gating needs a
- * workspace context (which workspace, and the caller's role within it) —
- * that's STEP 4's WorkspaceGuard-equivalent, not built yet, so this
- * middleware only exists for platform:: permissions in STEP 3.
- */
+/** Gates a procedure behind a platform-scoped permission (packages/core's PERMISSION_CATALOG). */
 export function requirePlatformPermission(permission: rbac.Permission) {
   return protectedProcedure.use(({ ctx, next }) => {
     const roleKey = ctx.user.platformRoleKey;
@@ -39,5 +36,38 @@ export function requirePlatformPermission(permission: rbac.Permission) {
       });
     }
     return next({ ctx });
+  });
+}
+
+/**
+ * Resolves the caller's role within the `x-workspace-id` header's
+ * workspace (via `memberships`) and gates on a workspace-scoped
+ * permission — the piece STEP 3 explicitly deferred to this step. Exposes
+ * the resolved `workspaceId` and `workspaceRoleKey` to the procedure so it
+ * never has to re-derive them.
+ */
+export function requireWorkspacePermission(permission: rbac.Permission) {
+  return protectedProcedure.use(async ({ ctx, next }) => {
+    const workspaceId = ctx.workspaceIdHeader;
+    if (!workspaceId) {
+      throw new TRPCError({ code: "BAD_REQUEST", message: "x-workspace-id header is required" });
+    }
+
+    const rows = await getAdminDb()
+      .select({ roleKey: schema.roles.key })
+      .from(schema.memberships)
+      .innerJoin(schema.roles, eq(schema.roles.id, schema.memberships.roleId))
+      .where(and(eq(schema.memberships.workspaceId, workspaceId), eq(schema.memberships.userId, ctx.user.id)))
+      .limit(1);
+
+    const roleKey = rows[0]?.roleKey;
+    if (!roleKey || !rbac.can(roleKey as rbac.RoleKey, permission)) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: `Missing workspace permission: ${permission}`,
+      });
+    }
+
+    return next({ ctx: { ...ctx, workspaceId, workspaceRoleKey: roleKey as rbac.RoleKey } });
   });
 }
