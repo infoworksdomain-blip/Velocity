@@ -36,13 +36,21 @@ export const platformCredentials = pgTable("platform_credentials", {
 });
 
 /**
- * One row per social account (STEP 11) — the unique index below is not
- * just an integrity nicety, it's what makes `checkAndIncrementQuota`'s
- * single-statement `INSERT ... ON CONFLICT` genuinely atomic under real
- * concurrency (GATE 11: "Quota counters correct under concurrent
- * publishes"). Without it, two concurrent first-ever requests for the
- * same account could both take the INSERT path and create two rows,
- * defeating the whole point of a single counter.
+ * One row per (social account, request kind) (STEP 11, request_kind
+ * added STEP 13) — the unique index below is not just an integrity
+ * nicety, it's what makes `checkAndIncrementQuota`'s single-statement
+ * `INSERT ... ON CONFLICT` genuinely atomic under real concurrency
+ * (GATE 11: "Quota counters correct under concurrent publishes").
+ * Without it, two concurrent first-ever requests for the same account +
+ * kind could both take the INSERT path and create two rows, defeating
+ * the whole point of a single counter.
+ *
+ * `requestKind` ('publish' | 'metrics_read') exists because a platform's
+ * publish-rate cap and its metrics-read-rate cap are genuinely different
+ * quota buckets on the vendor's side (STEP 13: "on a schedule respecting
+ * read quotas") — sharing one counter across both would let a burst of
+ * analytics polling silently eat into an account's publish quota, a real
+ * correctness bug, not a hypothetical one.
  */
 export const platformQuotaState = pgTable(
   "platform_quota_state",
@@ -52,11 +60,12 @@ export const platformQuotaState = pgTable(
     socialAccountId: uuid("social_account_id")
       .notNull()
       .references(() => socialAccounts.id),
+    requestKind: text("request_kind").notNull().default("publish"),
     windowStartsAt: timestamp("window_starts_at", { withTimezone: true }).notNull(),
     windowSeconds: integer("window_seconds").notNull(),
     requestCount: integer("request_count").notNull().default(0),
     requestCap: integer("request_cap").notNull(),
     ...timestamps(),
   },
-  (table) => [uniqueIndex("platform_quota_state_social_account_id_idx").on(table.socialAccountId)],
+  (table) => [uniqueIndex("platform_quota_state_social_account_id_request_kind_idx").on(table.socialAccountId, table.requestKind)],
 );

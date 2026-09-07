@@ -36,6 +36,8 @@ export interface AutoFillInput {
   existingSlots: ExistingSlot[];
   campaignWindows: AutoFillCampaignWindow[];
   platformCaps: PlatformCapsConfig;
+  /** STEP 13: real, workspace-specific best times (calendar/best-time.ts's `computeWorkspaceBestTimes`), keyed by platform. When a platform has no entry, `bestTimesFor`'s general heuristic is used — the same honest fallback `computeWorkspaceBestTimes` itself returns `null` for below its 30-distinct-day threshold. */
+  bestTimesOverride?: Partial<Record<string, string[]>>;
 }
 
 export interface AutoFillAssignment {
@@ -134,7 +136,7 @@ export function autoFillCalendar(input: AutoFillInput): AutoFillResult {
 
     for (const account of input.accounts) {
       const cap = capFor(input.platformCaps, account.platform);
-      const times = bestTimesFor(account.platform);
+      const times = input.bestTimesOverride?.[account.platform] ?? bestTimesFor(account.platform);
 
       for (const hm of times) {
         const { hour, minute } = parseHm(hm);

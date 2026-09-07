@@ -217,4 +217,31 @@ describe("GATE 10: 30-day auto-fill across 3 platforms and 5 accounts", () => {
     const offsetsSeen = new Set(result.assignments.map((a) => a.scheduledAtUtc.getUTCHours() - Number(utcToZonedParts(a.scheduledAtUtc, "Europe/London").hour)));
     expect(offsetsSeen.size).toBeGreaterThan(1);
   });
+
+  /**
+   * STEP 13: once a real workspace-specific best-time model exists
+   * (calendar/best-time.ts's `computeWorkspaceBestTimes`, gated on ~30
+   * days of the workspace's own data), auto-fill must actually USE it in
+   * place of the generic per-platform heuristic — proves the wiring, not
+   * just that the override field is accepted and ignored.
+   */
+  it("uses bestTimesOverride in place of the generic heuristic when provided", () => {
+    const input: AutoFillInput = {
+      workspaceTimezone: "Europe/London",
+      startDate: { year: 2026, month: 1, day: 1 },
+      days: 5,
+      accounts: [{ socialAccountId: "acct-1", platform: "tiktok" }],
+      contentPool: makeContentPool(50),
+      existingSlots: [],
+      campaignWindows: [],
+      platformCaps: CAPS,
+      bestTimesOverride: { tiktok: ["08:00"] }, // deliberately NOT one of tiktok's DEFAULT_BEST_TIMES
+    };
+    const result = autoFillCalendar(input);
+    expect(result.assignments.length).toBeGreaterThan(0);
+    for (const assignment of result.assignments) {
+      const zoned = utcToZonedParts(assignment.scheduledAtUtc, "Europe/London");
+      expect(zoned.hour).toBe(8);
+    }
+  });
 });

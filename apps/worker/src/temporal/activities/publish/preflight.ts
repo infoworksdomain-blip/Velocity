@@ -59,6 +59,7 @@ export async function preflightCheck(input: PreflightActivityInput): Promise<Pre
     const quotaResult = await social.checkAndIncrementQuota(db, {
       workspaceId: input.workspaceId,
       socialAccountId: input.socialAccountId,
+      requestKind: "publish",
       windowSeconds: DEFAULT_QUOTA_WINDOW_SECONDS,
       requestCap: DEFAULT_QUOTA_CAP,
     });

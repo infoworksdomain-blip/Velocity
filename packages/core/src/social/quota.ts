@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { schema } from "@velocity/db";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import type { PgDatabase } from "drizzle-orm/pg-core";
 
 /**
@@ -33,6 +33,8 @@ export interface QuotaCheckResult {
 export interface CheckAndIncrementQuotaInput {
   workspaceId: string;
   socialAccountId: string;
+  /** 'publish' | 'metrics_read' — see schema/social.ts's own comment on why these are separate quota buckets, never conflated. */
+  requestKind: string;
   windowSeconds: number;
   requestCap: number;
   now?: Date;
@@ -48,10 +50,10 @@ export async function checkAndIncrementQuota(db: QuotaDb, input: CheckAndIncreme
     window_starts_at: Date;
   }>(sql`
     INSERT INTO ${schema.platformQuotaState}
-      (id, workspace_id, social_account_id, window_starts_at, window_seconds, request_count, request_cap)
+      (id, workspace_id, social_account_id, request_kind, window_starts_at, window_seconds, request_count, request_cap)
     VALUES
-      (${newId}, ${input.workspaceId}, ${input.socialAccountId}, ${now}, ${input.windowSeconds}, 1, ${input.requestCap})
-    ON CONFLICT (social_account_id) DO UPDATE SET
+      (${newId}, ${input.workspaceId}, ${input.socialAccountId}, ${input.requestKind}, ${now}, ${input.windowSeconds}, 1, ${input.requestCap})
+    ON CONFLICT (social_account_id, request_kind) DO UPDATE SET
       request_count = CASE
         WHEN ${schema.platformQuotaState.windowStartsAt} + (${schema.platformQuotaState.windowSeconds} || ' seconds')::interval <= ${now}
         THEN 1
@@ -83,7 +85,11 @@ export async function checkAndIncrementQuota(db: QuotaDb, input: CheckAndIncreme
   }
 
   // The WHERE clause rejected the conflicting row (still-open window, already at cap) — no row was touched, so RETURNING is empty. Fetch the current state to report it honestly.
-  const existingRows = await db.select().from(schema.platformQuotaState).where(eq(schema.platformQuotaState.socialAccountId, input.socialAccountId)).limit(1);
+  const existingRows = await db
+    .select()
+    .from(schema.platformQuotaState)
+    .where(and(eq(schema.platformQuotaState.socialAccountId, input.socialAccountId), eq(schema.platformQuotaState.requestKind, input.requestKind)))
+    .limit(1);
   const existing = existingRows[0]!;
   return { allowed: false, requestCount: existing.requestCount, requestCap: existing.requestCap, windowStartsAt: existing.windowStartsAt };
 }

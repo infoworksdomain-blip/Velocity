@@ -76,7 +76,7 @@ describe("publish workflow — preflight rejections never reach a vendor (STEP 1
 
     // Exhaust the account's quota BEFORE the workflow runs — same cap (15/24h) preflight.ts itself uses.
     for (let i = 0; i < 15; i++) {
-      await testDb.runInWorkspaceTx(input.workspaceId, (db) => social.checkAndIncrementQuota(db, { workspaceId: input.workspaceId, socialAccountId: input.socialAccountId, windowSeconds: 86400, requestCap: 15 }));
+      await testDb.runInWorkspaceTx(input.workspaceId, (db) => social.checkAndIncrementQuota(db, { workspaceId: input.workspaceId, socialAccountId: input.socialAccountId, requestKind: "publish", windowSeconds: 86400, requestCap: 15 }));
     }
 
     const fetchMock = vi.fn();

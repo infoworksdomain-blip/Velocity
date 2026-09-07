@@ -23,6 +23,7 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
   { id: "velocity", label: "Velocity", icon: <span aria-hidden>▲</span>, href: "/velocity" },
   { id: "calendar", label: "Calendar", icon: <span aria-hidden>■</span>, href: "/calendar" },
   { id: "accounts", label: "Accounts", icon: <span aria-hidden>●</span>, href: "/accounts" },
+  { id: "analytics", label: "Analytics", icon: <span aria-hidden>▲</span>, href: "/analytics" },
 ];
 
 const PLATFORM_GLYPH: Record<string, string> = { tiktok: "TT", instagram: "IG", youtube: "YT" };

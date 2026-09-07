@@ -1,0 +1,128 @@
+.shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+  background: var(--paper-2);
+}
+
+.main {
+  padding: calc(var(--space-unit) * 8) calc(var(--space-unit) * 10);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 6);
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--space-unit) * 4);
+  flex-wrap: wrap;
+}
+
+.actions {
+  display: flex;
+  gap: calc(var(--space-unit) * 3);
+}
+
+.viewTabs {
+  display: flex;
+  gap: calc(var(--space-unit) * 1);
+  background: var(--paper);
+  border-radius: var(--r-pill);
+  padding: calc(var(--space-unit) * 1);
+  border: 1px solid var(--line);
+  width: fit-content;
+}
+
+.tab,
+.tabActive {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-body);
+  border: none;
+  border-radius: var(--r-pill);
+  padding: calc(var(--space-unit) * 1.5) calc(var(--space-unit) * 4);
+  cursor: pointer;
+  background: transparent;
+  color: var(--ink-2);
+}
+
+.tabActive {
+  background: var(--flare);
+  color: var(--paper);
+}
+
+.approveButton,
+.smallButton {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-body);
+  background: var(--flare);
+  color: var(--paper);
+  border: none;
+  border-radius: var(--r-pill);
+  padding: calc(var(--space-unit) * 2) calc(var(--space-unit) * 5);
+  cursor: pointer;
+}
+
+.approveButton:hover,
+.smallButton:hover {
+  background: var(--flare-deep);
+}
+
+.approveButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--paper);
+  border-radius: var(--r-card);
+  overflow: hidden;
+  box-shadow: var(--sh-card);
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: calc(var(--space-unit) * 3);
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-display);
+  font-size: var(--text-body);
+}
+
+.table th {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.outliersSection {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  box-shadow: var(--sh-card);
+  padding: calc(var(--space-unit) * 4);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 2);
+}
+
+.outliersList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 1.5);
+}
+
+@media (max-width: 900px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+}

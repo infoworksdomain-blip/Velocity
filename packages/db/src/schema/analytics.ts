@@ -1,4 +1,4 @@
-import { integer, jsonb, numeric, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { integer, jsonb, numeric, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { idColumn, timestamps, workspaceIdColumn } from "./_helpers";
 import { publications } from "./scheduling";
 import { workspaces } from "./tenancy";
@@ -32,11 +32,23 @@ export const attributionEvents = pgTable("attribution_events", {
   occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const linkShorts = pgTable("link_shorts", {
-  id: idColumn(),
-  workspaceId: workspaceIdColumn().references(() => workspaces.id),
-  publicationId: uuid("publication_id").references(() => publications.id),
-  slug: text("slug").notNull(),
-  destinationUrl: text("destination_url").notNull(),
-  ...timestamps(),
-});
+/**
+ * `slug` is globally unique (STEP 13) — short-link redirects
+ * (`/api/s/[slug]`) resolve it with no workspace context available yet
+ * (the visitor is an anonymous browser, not an authenticated request),
+ * so the lookup can't be scoped by workspace the way every other query
+ * in this codebase is; global uniqueness is what makes that lookup
+ * well-defined.
+ */
+export const linkShorts = pgTable(
+  "link_shorts",
+  {
+    id: idColumn(),
+    workspaceId: workspaceIdColumn().references(() => workspaces.id),
+    publicationId: uuid("publication_id").references(() => publications.id),
+    slug: text("slug").notNull(),
+    destinationUrl: text("destination_url").notNull(),
+    ...timestamps(),
+  },
+  (table) => [uniqueIndex("link_shorts_slug_idx").on(table.slug)],
+);
