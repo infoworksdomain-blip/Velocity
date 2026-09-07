@@ -14,7 +14,7 @@ import {
   InMemoryBreakerStore,
 } from "@velocity/providers";
 import { AnthropicTextProvider, OpenAITextProvider, createStubTextProvider } from "@velocity/text-engine";
-import { withWorkspace } from "@velocity/db";
+import { createKmsProvider, withWorkspace, type KmsProvider } from "@velocity/db";
 import { StubCompositor } from "../../composition/stub.compositor.js";
 import { PassThroughNormaliser } from "../../composition/loudness.js";
 import { InMemoryBlobStore } from "../../storage/local.blob-store.js";
@@ -63,6 +63,13 @@ let breaker: CircuitBreaker | undefined;
 export function getCircuitBreaker(): CircuitBreaker {
   breaker ??= new CircuitBreaker(new InMemoryBreakerStore());
   return breaker;
+}
+
+let kmsProvider: KmsProvider | undefined;
+/** STEP 12: decrypts `platform_credentials.encrypted_payload` in the publish pipeline's platformInit activity — same env-driven `createKmsProvider()` factory apps/web's social-service.ts already uses for the same payload shape. */
+export function getKmsProvider(): KmsProvider {
+  kmsProvider ??= createKmsProvider();
+  return kmsProvider;
 }
 
 let embedder: DeterministicEmbeddingProvider | undefined;
@@ -114,6 +121,7 @@ export function setRunInWorkspaceTxForTests(impl: RunInWorkspaceTx): void {
 export function resetActivityContextForTests(): void {
   registry = undefined;
   breaker = undefined;
+  kmsProvider = undefined;
   embedder = undefined;
   blobStore = undefined;
   compositor = undefined;

@@ -15,3 +15,4 @@ export { normalise } from "./normalise.js";
 export { recordProvenance } from "./provenance.js";
 export { runQcActivity } from "./qc.js";
 export { publishReady } from "./publish-ready.js";
+export { preflightCheck, mediaStage, platformInit, upload, poll, confirm, record } from "./publish/index.js";

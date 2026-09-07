@@ -92,6 +92,13 @@
       "when": 1788820000000,
       "tag": "0012_social_account_connection_status",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1788840000000,
+      "tag": "0013_publication_steps",
+      "breakpoints": true
     }
   ]
 }

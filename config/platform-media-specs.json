@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "specs": {
+    "tiktok": {
+      "maxDurationMs": 600000,
+      "minDurationMs": 1000,
+      "aspectRatio": "9:16",
+      "note": "TikTok's Content Posting API accepts vertical video up to 10 minutes for most accounts; the practical ceiling for this product's short-form content is far below that, so this is a generous outer bound, not the format's design target."
+    },
+    "instagram": {
+      "maxDurationMs": 90000,
+      "minDurationMs": 3000,
+      "aspectRatio": "9:16",
+      "note": "Reels published via the Content Publishing API are capped at 90 seconds — the one concrete number the build script itself gives for this platform."
+    },
+    "youtube": {
+      "maxDurationMs": 180000,
+      "minDurationMs": 1000,
+      "aspectRatio": "9:16",
+      "note": "YouTube Shorts' vertical-video eligibility window is up to 3 minutes; content targeting the Shorts surface (this product's only YouTube target, per CLAUDE.md) should stay within it."
+    }
+  }
+}

@@ -60,6 +60,8 @@ export default function CalendarPage() {
   const [draggingSlotId, setDraggingSlotId] = useState<string | null>(null);
   const [autoFillPreview, setAutoFillPreview] = useState<AutoFillPreview | null>(null);
   const [newCampaignName, setNewCampaignName] = useState("");
+  const [publishingSlotId, setPublishingSlotId] = useState<string | null>(null);
+  const [publishNotice, setPublishNotice] = useState<string | null>(null);
 
   const rangeStart = viewMode === "week" ? addDays(anchorDate, -anchorDate.getUTCDay()) : startOfCalendarGrid(anchorDate);
   const rangeEnd = viewMode === "week" ? addDays(rangeStart, 7) : addDays(rangeStart, 42);
@@ -153,6 +155,27 @@ export default function CalendarPage() {
     }
   };
 
+  /**
+   * STEP 12's real "clickable demo path": fires the actual publish
+   * pipeline (preflight -> ... -> record) for one scheduled slot. Only
+   * meaningful once a real platform app is connected and audited — in
+   * this sandbox it exercises every real step up to (never past) the
+   * vendor call this environment can't make (see docs/steps/STEP-12.md).
+   */
+  const handlePublishNow = async (row: SlotRow) => {
+    if (!row.slot.contentItemId || !row.slot.socialAccountId) return;
+    setPublishingSlotId(row.slot.id);
+    setPublishNotice(null);
+    try {
+      const result = await trpcClient.publish.trigger.mutate({ contentItemId: row.slot.contentItemId, socialAccountId: row.slot.socialAccountId });
+      setPublishNotice(result.alreadyExisted ? "Already publishing — tracking the existing attempt." : `Publish started (${result.workflowId}).`);
+    } catch (err) {
+      setPublishNotice(err instanceof Error ? err.message : "Failed to start publishing");
+    } finally {
+      setPublishingSlotId(null);
+    }
+  };
+
   const handleAutoFillCommit = async () => {
     if (!autoFillPreview) return;
     try {
@@ -216,6 +239,14 @@ export default function CalendarPage() {
           <p role="alert">
             <Text variant="body" as="span">
               {error}
+            </Text>
+          </p>
+        )}
+
+        {publishNotice && (
+          <p>
+            <Text variant="body" as="span">
+              {publishNotice}
             </Text>
           </p>
         )}
@@ -284,6 +315,7 @@ export default function CalendarPage() {
                 {viewMode === "table" && <th>Format</th>}
                 <th>Hook</th>
                 <th>Reschedule</th>
+                <th>Publish</th>
               </tr>
             </thead>
             <tbody>
@@ -305,6 +337,16 @@ export default function CalendarPage() {
                         void handleReschedule(row.slot.id, new Date(e.target.value));
                       }}
                     />
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      className={styles.smallButton}
+                      disabled={!row.slot.contentItemId || !row.slot.socialAccountId || publishingSlotId === row.slot.id}
+                      onClick={() => handlePublishNow(row)}
+                    >
+                      {publishingSlotId === row.slot.id ? "Publishing…" : "Publish now"}
+                    </button>
                   </td>
                 </tr>
               ))}

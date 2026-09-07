@@ -15,6 +15,7 @@
 
 export type NotificationEventType =
   | "render_complete"
+  | "publish_succeeded"
   | "publish_failed"
   | "credit_low"
   | "invitation_received"

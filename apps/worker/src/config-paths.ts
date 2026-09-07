@@ -10,3 +10,7 @@
 export function resolveSafeAreasConfigPath(): string {
   return process.env.VELOCITY_SAFE_AREAS_CONFIG ?? "config/safe-areas.json";
 }
+
+export function resolvePlatformMediaSpecsConfigPath(): string {
+  return process.env.VELOCITY_PLATFORM_MEDIA_SPECS_CONFIG ?? "config/platform-media-specs.json";
+}

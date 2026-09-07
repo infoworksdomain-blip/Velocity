@@ -6,6 +6,7 @@ import { dashboardRouter } from "./dashboard";
 import { mediaRouter } from "./media";
 import { notificationsRouter } from "./notifications";
 import { onboardingRouter } from "./onboarding";
+import { publishRouter } from "./publish";
 import { renderRouter } from "./render";
 import { socialRouter } from "./social";
 import { velocityRouter } from "./velocity";
@@ -23,6 +24,7 @@ export const appRouter = router({
   velocity: velocityRouter,
   calendar: calendarRouter,
   social: socialRouter,
+  publish: publishRouter,
 });
 
 export type AppRouter = typeof appRouter;

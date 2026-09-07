@@ -13,3 +13,4 @@ export * as metering from "./metering/index";
 export * as velocity from "./velocity/index";
 export * as calendar from "./calendar/index";
 export * as social from "./social/index";
+export * as publish from "./publish/index";
