@@ -50,6 +50,20 @@
       "when": 1788712715946,
       "tag": "0006_notifications",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1788715555293,
+      "tag": "0007_render_pipeline",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1788740000000,
+      "tag": "0008_credit_ledger_trigger_security_definer",
+      "breakpoints": true
     }
   ]
 }

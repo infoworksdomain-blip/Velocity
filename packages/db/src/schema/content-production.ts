@@ -1,4 +1,4 @@
-import { boolean, jsonb, numeric, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { boolean, jsonb, numeric, pgTable, text, timestamp, uuid, type AnyPgColumn } from "drizzle-orm/pg-core";
 import { EMBEDDING_DIMENSIONS, idColumn, softDelete, timestamps, vector, workspaceIdColumn } from "./_helpers";
 import { angles, personas, trendBlueprints } from "./content-planning";
 import { contentFormatEnum, contentItemStatusEnum } from "./enums";
@@ -20,6 +20,13 @@ export const contentConcepts = pgTable("content_concepts", {
   personaId: uuid("persona_id").references(() => personas.id),
   blueprintId: uuid("blueprint_id").references(() => trendBlueprints.id),
   hook: text("hook").notNull(),
+  /**
+   * Nullable (STEP 8 schema gap fix): the stub TextProvider path (pending
+   * STEP 8B's real Anthropic/OpenAI adapters) may legitimately produce no
+   * plan yet. contentItems.textPlanId below stays not-null — swipe-right
+   * (STEP 9) requires a resolved plan before a concept can progress.
+   */
+  textPlanId: uuid("text_plan_id").references((): AnyPgColumn => textPlans.id),
   previewAssetStorageKey: text("preview_asset_storage_key"),
   predictedScore: numeric("predicted_score", { precision: 5, scale: 4 }),
   aiGenerated: boolean("ai_generated").notNull().default(true),

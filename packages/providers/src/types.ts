@@ -19,10 +19,20 @@ export interface ProviderJobStatus {
   outputUrl?: string;
   errorMessage?: string;
   costUsd: number;
+  /**
+   * The vendor's own reported cost for this job, when the vendor's API
+   * exposes one — distinct from `costUsd` (the adapter's own estimate).
+   * This is GATE 8's reconciliation source: usage_events should agree with
+   * this figure to within 1%. Absent for vendors that don't report cost
+   * per-job (reconciliation then falls back to the estimate).
+   */
+  providerReportedCostUsd?: number;
 }
 
 interface BaseCapabilities {
   commercialUse: boolean;
+  /** Plan tiers this provider is available to, e.g. ["growth", "pro"]. Never hard-coded into routing logic — read by the router from config (ADR 0004). */
+  tiers: string[];
 }
 
 export interface VideoJobInput {
@@ -43,8 +53,10 @@ export interface VideoProvider {
     watermark: WatermarkPolicy;
     costPerSecond: number;
   };
+  estimateCost(input: VideoJobInput): number;
   generate(input: VideoJobInput): Promise<ProviderJobHandle>;
   poll(handle: ProviderJobHandle): Promise<ProviderJobStatus>;
+  cancel?(handle: ProviderJobHandle): Promise<void>;
 }
 
 export interface ImageJobInput {
@@ -59,8 +71,10 @@ export interface ImageProvider {
     watermark: WatermarkPolicy;
     costPerImage: number;
   };
+  estimateCost(input: ImageJobInput): number;
   generate(input: ImageJobInput): Promise<ProviderJobHandle>;
   poll(handle: ProviderJobHandle): Promise<ProviderJobStatus>;
+  cancel?(handle: ProviderJobHandle): Promise<void>;
 }
 
 export interface TTSJobInput {
@@ -73,8 +87,10 @@ export interface TTSProvider {
   capabilities: BaseCapabilities & {
     costPerCharacter: number;
   };
+  estimateCost(input: TTSJobInput): number;
   generate(input: TTSJobInput): Promise<ProviderJobHandle>;
   poll(handle: ProviderJobHandle): Promise<ProviderJobStatus>;
+  cancel?(handle: ProviderJobHandle): Promise<void>;
 }
 
 export interface TranscriptionJobInput {
@@ -93,8 +109,12 @@ export interface TranscriptionProvider {
   capabilities: BaseCapabilities & {
     costPerSecond: number;
   };
+  estimateCost(input: TranscriptionJobInput): number;
   transcribe(input: TranscriptionJobInput): Promise<ProviderJobHandle>;
   poll(handle: ProviderJobHandle): Promise<
     ProviderJobStatus & { words?: WordTiming[] }
   >;
+  cancel?(handle: ProviderJobHandle): Promise<void>;
 }
+
+export type AnyProvider = VideoProvider | ImageProvider | TTSProvider | TranscriptionProvider;

@@ -58,3 +58,20 @@ export const roleScopeEnum = pgEnum("role_scope", ["workspace", "platform"]);
 
 export const swipeDirectionEnum = pgEnum("swipe_direction", ["left", "right"]);
 
+export const renderStatusEnum = pgEnum("render_status", [
+  "pending",
+  "running",
+  "qc_failed",
+  "succeeded",
+  "failed",
+  "cancelled",
+]);
+
+export const renderStepStateEnum = pgEnum("render_step_state", [
+  "pending",
+  "running",
+  "succeeded",
+  "failed",
+  "skipped",
+]);
+

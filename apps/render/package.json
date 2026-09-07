@@ -2,7 +2,7 @@
   "name": "@velocity/render",
   "private": true,
   "version": "0.0.0",
-  "description": "Remotion composition service (ADR 0002). Placeholder entrypoint in STEP 1 — the Remotion project (compositions, the text-layer components from STEP 8B.5, Lambda deployment) lands in STEP 8.",
+  "description": "Remotion composition service (ADR 0002, STEP 8). Real component shape for VerticalVideo/Slideshow, unrunnable in this environment pending real shot/VO media and a deployed Lambda function — see docs/steps/STEP-08.md. Text-layer components (STEP 8B.5) land in TextLayerSlot.",
   "type": "module",
   "main": "./dist/index.js",
   "scripts": {
@@ -13,9 +13,17 @@
     "test": "echo \"@velocity/render: no compositions yet\""
   },
   "dependencies": {
-    "@velocity/core": "workspace:*"
+    "@velocity/core": "workspace:*",
+    "@velocity/contracts": "workspace:*",
+    "remotion": "4.0.290",
+    "@remotion/cli": "4.0.290",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@types/node": "^22.10.2"
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0"
   }
 }

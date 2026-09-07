@@ -3,6 +3,30 @@ import { EMBEDDING_DIMENSIONS, idColumn, softDelete, timestamps, vector, workspa
 import { brandProfiles } from "./brand";
 import { workspaces } from "./tenancy";
 
+/**
+ * Platform-root corpus (STEP 8.3, ADR 0007) — ingestion is "per niche," not
+ * per workspace, so this holds one copy of each blueprint globally rather
+ * than duplicating the corpus N times across tenants. No workspace_id, no
+ * RLS: it carries no tenant data, only structure extracted from public
+ * trend signals (C3 — never source footage). `trendBlueprints` below is the
+ * per-workspace adopted copy, written lazily on first retrieval, carrying
+ * `libraryId` back to this table for lineage.
+ */
+export const trendBlueprintLibrary = pgTable("trend_blueprint_library", {
+  id: idColumn(),
+  hookPattern: text("hook_pattern").notNull(),
+  beatTimings: jsonb("beat_timings").$type<number[]>().notNull().default([]),
+  shotGrammar: text("shot_grammar"),
+  captionCadence: text("caption_cadence"),
+  textPlacement: text("text_placement"),
+  audioArchetype: text("audio_archetype"),
+  nicheTags: jsonb("niche_tags").$type<string[]>().notNull().default([]),
+  velocityScore: numeric("velocity_score", { precision: 6, scale: 3 }).notNull().default("0"),
+  sourceRef: text("source_ref"),
+  embedding: vector("embedding", { dimensions: EMBEDDING_DIMENSIONS }),
+  ...timestamps(),
+});
+
 export const angles = pgTable("angles", {
   id: idColumn(),
   workspaceId: workspaceIdColumn().references(() => workspaces.id),
@@ -22,6 +46,8 @@ export const angles = pgTable("angles", {
 export const trendBlueprints = pgTable("trend_blueprints", {
   id: idColumn(),
   workspaceId: workspaceIdColumn().references(() => workspaces.id),
+  /** Lineage back to the platform-root corpus this was adopted from — null for a workspace-specific blueprint never sourced from the shared library. */
+  libraryId: uuid("library_id").references(() => trendBlueprintLibrary.id),
   hookPattern: text("hook_pattern").notNull(),
   beatTimings: jsonb("beat_timings").$type<number[]>().notNull().default([]),
   shotGrammar: text("shot_grammar"),

@@ -20,11 +20,16 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "jose": "^5.9.6",
-    "otpauth": "^9.3.6"
+    "otpauth": "^9.3.6",
+    "drizzle-orm": "^0.38.2",
+    "zod": "^3.24.1",
+    "@velocity/db": "workspace:*",
+    "@velocity/contracts": "workspace:*"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.8",
+    "@velocity/providers": "workspace:*"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

@@ -5,3 +5,8 @@ export * as settings from "./settings/resolve";
 export * as plans from "./plans/index";
 export * from "./onboarding/state-machine";
 export * as notifications from "./notifications/bus";
+export * as content from "./content/index";
+export * as trends from "./trends/index";
+export * as qc from "./qc/index";
+export * as provenance from "./provenance/index";
+export * as metering from "./metering/index";

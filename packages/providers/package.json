@@ -2,12 +2,14 @@
   "name": "@velocity/providers",
   "private": true,
   "version": "0.0.0",
-  "description": "VideoProvider/ImageProvider/TTSProvider/TranscriptionProvider interfaces and the capability-based router (ADR 0004). Interface shapes only in STEP 1 — working adapters (Kling, Veo, Seedance, MiniMax, Seedream, WhisperX) arrive in STEP 8 via the provider-adapter command.",
+  "description": "VideoProvider/ImageProvider/TTSProvider/TranscriptionProvider interfaces and the capability-based router (ADR 0004, STEP 8). Adapters are deterministic stubs pending funded vendor credentials (Kling, Veo, Seedance, MiniMax, Seedream, ElevenLabs, WhisperX) — see docs/steps/STEP-08.md.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "dependencies": {
-    "playwright": "1.63.0"
+    "playwright": "1.63.0",
+    "zod": "^3.24.1",
+    "@velocity/contracts": "workspace:*"
   },
   "devDependencies": {
     "vitest": "^2.1.8"

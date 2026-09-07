@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "providers": [
+    {
+      "kind": "video",
+      "id": "kling-3.0",
+      "enabled": true,
+      "weight": 100,
+      "tiers": ["free", "starter", "growth", "pro"],
+      "adapter": "stub",
+      "credentials": { "apiKey": "${KLING_API_KEY}" },
+      "breaker": { "failureThreshold": 5, "windowSec": 60, "cooldownSec": 120 }
+    },
+    {
+      "kind": "video",
+      "id": "veo-3.1",
+      "enabled": true,
+      "weight": 70,
+      "tiers": ["growth", "pro"],
+      "adapter": "stub",
+      "credentials": { "apiKey": "${VEO_API_KEY}" },
+      "breaker": { "failureThreshold": 5, "windowSec": 60, "cooldownSec": 120 }
+    },
+    {
+      "kind": "video",
+      "id": "seedance-2.5",
+      "enabled": true,
+      "weight": 60,
+      "tiers": ["free", "starter", "growth", "pro"],
+      "adapter": "stub",
+      "credentials": { "apiKey": "${SEEDANCE_API_KEY}" },
+      "breaker": { "failureThreshold": 5, "windowSec": 60, "cooldownSec": 120 }
+    },
+    {
+      "kind": "video",
+      "id": "minimax-h3",
+      "enabled": true,
+      "weight": 50,
+      "tiers": ["free", "starter", "growth", "pro"],
+      "adapter": "stub",
+      "credentials": { "apiKey": "${MINIMAX_API_KEY}" },
+      "breaker": { "failureThreshold": 5, "windowSec": 60, "cooldownSec": 120 }
+    },
+    {
+      "kind": "image",
+      "id": "seedream-5.0",
+      "enabled": true,
+      "weight": 100,
+      "tiers": ["free", "starter", "growth", "pro"],
+      "adapter": "stub",
+      "credentials": { "apiKey": "${SEEDREAM_API_KEY}" },
+      "breaker": { "failureThreshold": 5, "windowSec": 60, "cooldownSec": 120 }
+    },
+    {
+      "kind": "tts",
+      "id": "elevenlabs",
+      "enabled": true,
+      "weight": 100,
+      "tiers": ["free", "starter", "growth", "pro"],
+      "adapter": "stub",
+      "credentials": { "apiKey": "${ELEVENLABS_API_KEY}" },
+      "breaker": { "failureThreshold": 5, "windowSec": 60, "cooldownSec": 120 }
+    },
+    {
+      "kind": "transcription",
+      "id": "whisperx",
+      "enabled": true,
+      "weight": 100,
+      "tiers": ["free", "starter", "growth", "pro"],
+      "adapter": "stub",
+      "credentials": {},
+      "breaker": { "failureThreshold": 5, "windowSec": 60, "cooldownSec": 120 }
+    }
+  ],
+  "fallbackChainMaxLength": 3,
+  "defaultCostCeilingUsd": {
+    "video": 0.6,
+    "image": 0.05,
+    "tts": 0.02,
+    "transcription": 0.01
+  }
+}

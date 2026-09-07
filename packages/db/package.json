@@ -15,7 +15,9 @@
     "@types/pg": "^8.11.10",
     "vitest": "^2.1.8",
     "dotenv": "^16.4.7",
-    "tsx": "^4.19.2"
+    "tsx": "^4.19.2",
+    "@electric-sql/pglite": "^0.5.8",
+    "@electric-sql/pglite-pgvector": "^0.0.9"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

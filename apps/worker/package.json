@@ -2,7 +2,7 @@
   "name": "@velocity/worker",
   "private": true,
   "version": "0.0.0",
-  "description": "BullMQ short-job consumer and Temporal worker process (ADR 0001). Placeholder entrypoint in STEP 1 — the render workflow lands in STEP 8, the publish workflow in STEP 12, BullMQ job handlers alongside the module that needs them.",
+  "description": "BullMQ short-job consumer and Temporal worker process (ADR 0001). Render workflow (STEP 8) registered here — resolveAssets -> generateShots -> generateVO -> align -> composeText -> compose -> normalise -> provenance -> qc -> publishReady. Publish workflow lands in STEP 12.",
   "type": "module",
   "main": "./dist/index.js",
   "scripts": {
@@ -10,13 +10,23 @@
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint .",
-    "test": "echo \"@velocity/worker: no tests yet\""
+    "test": "pnpm build && vitest run",
+    "test:concurrency": "pnpm build && vitest run src/__tests__/render.workflow.concurrency.test.ts"
   },
   "dependencies": {
     "@velocity/core": "workspace:*",
-    "@velocity/providers": "workspace:*"
+    "@velocity/providers": "workspace:*",
+    "@velocity/contracts": "workspace:*",
+    "@velocity/db": "workspace:*",
+    "@temporalio/worker": "1.11.7",
+    "@temporalio/workflow": "1.11.7",
+    "@temporalio/client": "1.11.7",
+    "@temporalio/common": "1.11.7",
+    "drizzle-orm": "^0.38.2"
   },
   "devDependencies": {
-    "@types/node": "^22.10.2"
+    "@types/node": "^22.10.2",
+    "@temporalio/testing": "1.11.7",
+    "vitest": "^2.1.8"
   }
 }
