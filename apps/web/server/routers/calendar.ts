@@ -7,7 +7,7 @@ import { z } from "zod";
 import { getAdminDb } from "../db";
 import { requireWorkspacePermission, router } from "../trpc";
 
-const { autoFillCalendar, loadPlatformCapsConfig, capFor } = calendarCore;
+const { loadPlatformCapsConfig, capFor } = calendarCore;
 
 /** Same CWD-relative-path-with-env-override pattern as config/providers.json (STEP 8) and config/safe-areas.json (STEP 8B). */
 function platformCapsConfigPath(): string {
@@ -115,45 +115,8 @@ export const calendarRouter = router({
     preview: requireWorkspacePermission(PERMISSION)
       .input(z.object({ days: z.number().int().min(1).max(60).default(30), startsAt: z.string().datetime() }))
       .mutation(async ({ ctx, input }) => {
-        const db = getAdminDb();
-
-        const workspaceRows = await db.select({ timezone: schema.workspaces.timezone }).from(schema.workspaces).where(eq(schema.workspaces.id, ctx.workspaceId)).limit(1);
-        const timezone = workspaceRows[0]?.timezone ?? "UTC";
-
-        const accounts = await db.select({ id: schema.socialAccounts.id, platform: schema.socialAccounts.platform }).from(schema.socialAccounts).where(eq(schema.socialAccounts.workspaceId, ctx.workspaceId));
-
-        const readyItems = await db
-          .select({ id: schema.contentItems.id, format: schema.contentConcepts.format, angleKind: schema.angles.kind, hookPattern: schema.contentConcepts.hookPattern })
-          .from(schema.contentItems)
-          .innerJoin(schema.contentConcepts, eq(schema.contentConcepts.id, schema.contentItems.contentConceptId))
-          .innerJoin(schema.angles, eq(schema.angles.id, schema.contentConcepts.angleId))
-          .where(and(eq(schema.contentItems.workspaceId, ctx.workspaceId), eq(schema.contentItems.status, "ready")));
-
-        const existingSlotRows = await db
-          .select({ socialAccountId: schema.calendarSlots.socialAccountId, scheduledAt: schema.calendarSlots.scheduledAt })
-          .from(schema.calendarSlots)
-          .where(and(eq(schema.calendarSlots.workspaceId, ctx.workspaceId), isNull(schema.calendarSlots.deletedAt)));
-
-        const campaignRows = await db.select().from(schema.campaigns).where(and(eq(schema.campaigns.workspaceId, ctx.workspaceId), isNull(schema.campaigns.deletedAt)));
-
-        const start = new Date(input.startsAt);
-        const capsConfig = loadPlatformCapsConfig(platformCapsConfigPath());
-
-        const result = autoFillCalendar({
-          workspaceTimezone: timezone,
-          startDate: { year: start.getUTCFullYear(), month: start.getUTCMonth() + 1, day: start.getUTCDate() },
-          days: input.days,
-          accounts: accounts.map((a) => ({ socialAccountId: a.id, platform: a.platform })),
-          contentPool: readyItems.map((i) => ({ contentItemId: i.id, format: i.format, angleKind: i.angleKind, hookPattern: i.hookPattern, campaignId: null })),
-          existingSlots: existingSlotRows.filter((s): s is { socialAccountId: string; scheduledAt: Date } => Boolean(s.socialAccountId)).map((s) => ({ socialAccountId: s.socialAccountId, scheduledAtUtc: s.scheduledAt })),
-          campaignWindows: campaignRows.filter((c) => c.startsAt && c.endsAt).map((c) => ({ campaignId: c.id, startsAt: c.startsAt!, endsAt: c.endsAt! })),
-          platformCaps: capsConfig,
-        });
-
-        return {
-          assignments: result.assignments.map((a) => ({ ...a, scheduledAtUtc: a.scheduledAtUtc.toISOString() })),
-          unfilled: result.unfilled.map((u) => ({ ...u, scheduledAtUtc: u.scheduledAtUtc.toISOString() })),
-        };
+        const { previewAutoFillForWorkspace } = await import("../calendar-service");
+        return previewAutoFillForWorkspace(ctx.workspaceId, input.days, new Date(input.startsAt));
       }),
 
     /** Commits a previously-previewed diff — real inserts, real content_items.status transitions to "scheduled". Takes the assignments back as input rather than re-running the algorithm, so what gets committed is EXACTLY what the user reviewed, not a fresh (possibly different, if content changed in between) computation. */

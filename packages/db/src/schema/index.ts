@@ -3,6 +3,7 @@ export * from "./tenancy";
 export * from "./auth";
 export * from "./onboarding";
 export * from "./brand";
+export * from "./growth-brain";
 export * from "./content-planning";
 export * from "./content-production";
 export * from "./rendering";

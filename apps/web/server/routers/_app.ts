@@ -6,6 +6,7 @@ import { contentRouter } from "./content";
 import { dashboardRouter } from "./dashboard";
 import { mediaRouter } from "./media";
 import { notificationsRouter } from "./notifications";
+import { growthBrainRouter } from "./growth-brain";
 import { onboardingRouter } from "./onboarding";
 import { publishRouter } from "./publish";
 import { renderRouter } from "./render";
@@ -27,6 +28,7 @@ export const appRouter = router({
   social: socialRouter,
   publish: publishRouter,
   analytics: analyticsRouter,
+  growthBrain: growthBrainRouter,
 });
 
 export type AppRouter = typeof appRouter;

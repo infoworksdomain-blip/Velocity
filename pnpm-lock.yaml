@@ -87,6 +87,9 @@ importers:
       '@velocity/providers':
         specifier: workspace:*
         version: link:../../packages/providers
+      '@velocity/text-engine':
+        specifier: workspace:*
+        version: link:../../packages/text-engine
       '@velocity/ui':
         specifier: workspace:*
         version: link:../../packages/ui

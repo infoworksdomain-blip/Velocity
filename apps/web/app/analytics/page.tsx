@@ -16,6 +16,7 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
   { id: "calendar", label: "Calendar", icon: <span aria-hidden>■</span>, href: "/calendar" },
   { id: "accounts", label: "Accounts", icon: <span aria-hidden>●</span>, href: "/accounts" },
   { id: "analytics", label: "Analytics", icon: <span aria-hidden>▲</span>, href: "/analytics", active: true },
+  { id: "assistant", label: "Assistant", icon: <span aria-hidden>✦</span>, href: "/assistant" },
 ];
 
 const GROUP_TABS: { key: GroupBy; label: string }[] = [

@@ -1,0 +1,108 @@
+.shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+  background: var(--paper-2);
+}
+
+.main {
+  padding: calc(var(--space-unit) * 8) calc(var(--space-unit) * 10);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 4);
+  max-width: 900px;
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--space-unit) * 3);
+}
+
+.aiBadge,
+.aiBadgeSmall {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: var(--ember);
+  color: var(--paper);
+  border-radius: var(--r-pill);
+  padding: calc(var(--space-unit) * 1) calc(var(--space-unit) * 3);
+  display: inline-block;
+  width: fit-content;
+}
+
+.aiBadgeSmall {
+  margin-bottom: calc(var(--space-unit) * 1);
+  font-size: 0.65rem;
+}
+
+.thread {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 3);
+  min-height: 300px;
+}
+
+.userBubble,
+.assistantBubble {
+  border-radius: var(--r-card);
+  padding: calc(var(--space-unit) * 3) calc(var(--space-unit) * 4);
+  max-width: 80%;
+}
+
+.userBubble {
+  background: var(--flare);
+  color: var(--paper);
+  align-self: flex-end;
+}
+
+.assistantBubble {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  box-shadow: var(--sh-card);
+  align-self: flex-start;
+}
+
+.composer {
+  display: flex;
+  gap: calc(var(--space-unit) * 2);
+}
+
+.input {
+  flex: 1;
+  font-family: var(--font-display);
+  font-size: var(--text-body);
+  padding: calc(var(--space-unit) * 2) calc(var(--space-unit) * 3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-field);
+  background: var(--paper);
+}
+
+.sendButton {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-body);
+  background: var(--flare);
+  color: var(--paper);
+  border: none;
+  border-radius: var(--r-pill);
+  padding: calc(var(--space-unit) * 2) calc(var(--space-unit) * 5);
+  cursor: pointer;
+}
+
+.sendButton:hover {
+  background: var(--flare-deep);
+}
+
+.sendButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+@media (max-width: 900px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+}

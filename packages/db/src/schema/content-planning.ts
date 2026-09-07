@@ -1,6 +1,7 @@
 import { integer, jsonb, numeric, pgTable, text, uuid } from "drizzle-orm/pg-core";
 import { EMBEDDING_DIMENSIONS, idColumn, softDelete, timestamps, vector, workspaceIdColumn } from "./_helpers";
 import { brandProfiles } from "./brand";
+import { competitors } from "./growth-brain";
 import { workspaces } from "./tenancy";
 
 /**
@@ -48,6 +49,8 @@ export const trendBlueprints = pgTable("trend_blueprints", {
   workspaceId: workspaceIdColumn().references(() => workspaces.id),
   /** Lineage back to the platform-root corpus this was adopted from — null for a workspace-specific blueprint never sourced from the shared library. */
   libraryId: uuid("library_id").references(() => trendBlueprintLibrary.id),
+  /** STEP 14: set when this blueprint was extracted from a tracked competitor's public account rather than organic trend discovery — null for the latter. */
+  competitorId: uuid("competitor_id").references(() => competitors.id),
   hookPattern: text("hook_pattern").notNull(),
   beatTimings: jsonb("beat_timings").$type<number[]>().notNull().default([]),
   shotGrammar: text("shot_grammar"),

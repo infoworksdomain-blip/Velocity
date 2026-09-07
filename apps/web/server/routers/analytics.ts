@@ -2,9 +2,13 @@ import { randomUUID } from "node:crypto";
 import { analytics as analyticsCore, calendar, velocity as velocityCore } from "@velocity/core";
 import { schema } from "@velocity/db";
 import { eq, sql } from "drizzle-orm";
+import type { PgDatabase } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { getAdminDb } from "../db";
 import { requireWorkspacePermission, router } from "../trpc";
+
+/** Same generic base used throughout this codebase (quota.ts, step-ledger.ts, analytics-service.ts) so these two functions run against PGlite in tests and the real network Postgres in production, unchanged — added for STEP 14's real adversarial-isolation test of the AI Assistant's pull_analytics tool. */
+type AnalyticsDb = PgDatabase<any, typeof schema>; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 const { aggregateByFormat, aggregateByAngle, aggregateByPersona, aggregateByPlatform, aggregateByHookPattern, aggregateByPublishCohort, detectOutliers, engagementRate, toCsv } = analyticsCore;
 const { computePreferenceUpdatesFromPerformance } = velocityCore;
@@ -21,8 +25,7 @@ const PERMISSION = "analytics:read:workspace";
  * starting the workflow, so this is a close, honest approximation, not
  * a dedicated "published_at" column this schema doesn't have.
  */
-async function fetchMetricSamples(workspaceId: string, workspaceTimezone: string): Promise<analyticsCore.MetricSample[]> {
-  const db = getAdminDb();
+export async function fetchMetricSamples(workspaceId: string, workspaceTimezone: string, db: AnalyticsDb = getAdminDb()): Promise<analyticsCore.MetricSample[]> {
   const rows = await db
     .select({
       publicationId: schema.metricSnapshots.publicationId,
@@ -63,8 +66,7 @@ async function fetchMetricSamples(workspaceId: string, workspaceTimezone: string
   });
 }
 
-async function getWorkspaceTimezone(workspaceId: string): Promise<string> {
-  const db = getAdminDb();
+export async function getWorkspaceTimezone(workspaceId: string, db: AnalyticsDb = getAdminDb()): Promise<string> {
   const rows = await db.select({ timezone: schema.workspaces.timezone }).from(schema.workspaces).where(eq(schema.workspaces.id, workspaceId)).limit(1);
   return rows[0]?.timezone ?? "UTC";
 }

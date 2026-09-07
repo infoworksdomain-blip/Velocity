@@ -19,6 +19,7 @@
     "@velocity/core": "workspace:*",
     "@velocity/db": "workspace:*",
     "@velocity/providers": "workspace:*",
+    "@velocity/text-engine": "workspace:*",
     "@velocity/ui": "workspace:*",
     "@velocity/worker": "workspace:*",
     "drizzle-orm": "^0.38.2",

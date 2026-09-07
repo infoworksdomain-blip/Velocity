@@ -113,6 +113,13 @@
       "when": 1788880000000,
       "tag": "0015_link_shorts_slug_unique",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1788900000000,
+      "tag": "0016_competitors",
+      "breakpoints": true
     }
   ]
 }

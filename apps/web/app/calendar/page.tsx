@@ -16,6 +16,7 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
   { id: "calendar", label: "Calendar", icon: <span aria-hidden>■</span>, href: "/calendar", active: true },
   { id: "accounts", label: "Accounts", icon: <span aria-hidden>●</span>, href: "/accounts" },
   { id: "analytics", label: "Analytics", icon: <span aria-hidden>▲</span>, href: "/analytics" },
+  { id: "assistant", label: "Assistant", icon: <span aria-hidden>✦</span>, href: "/assistant" },
 ];
 
 type ViewMode = "month" | "week" | "list" | "table";
