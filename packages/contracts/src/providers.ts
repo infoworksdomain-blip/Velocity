@@ -6,7 +6,7 @@ import { z } from "zod";
  * at load time — a malformed config fails fast at worker boot, not mid-render.
  */
 
-export const ProviderKindSchema = z.enum(["video", "image", "tts", "transcription"]);
+export const ProviderKindSchema = z.enum(["video", "image", "tts", "transcription", "text"]);
 export type ProviderKind = z.infer<typeof ProviderKindSchema>;
 
 export const WatermarkPolicySchema = z.enum(["none", "model", "forced"]);
@@ -40,6 +40,7 @@ export const ProviderRegistryConfigSchema = z.object({
     image: z.number().positive(),
     tts: z.number().positive(),
     transcription: z.number().positive(),
+    text: z.number().positive(),
   }),
 });
 export type ProviderRegistryConfig = z.infer<typeof ProviderRegistryConfigSchema>;

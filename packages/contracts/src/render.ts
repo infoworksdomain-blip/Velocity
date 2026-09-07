@@ -23,6 +23,21 @@ export const RENDER_STEP_KINDS = [
 export const RenderStepKindSchema = z.enum(RENDER_STEP_KINDS);
 export type RenderStepKind = z.infer<typeof RenderStepKindSchema>;
 
+/**
+ * STEP 8B addition: the TextPlan contract requires `platformVariants`
+ * (tiktok/reels/shorts — the short-form video PRODUCT, matching
+ * TextPlanSchema.platformVariants exactly), distinct from primitives.ts's
+ * `Platform` (tiktok/instagram/youtube — the publishing destination COMPANY
+ * used by STEP 9+'s social account/publication contracts). Nothing
+ * upstream of the render workflow carried this concept before this
+ * (STEP 9/13 own real per-workspace platform connections and per-platform
+ * scheduling); defaulting to all three keeps this a small, additive
+ * contract change rather than a speculative platform-targeting system —
+ * see docs/steps/STEP-08B.md.
+ */
+export const ContentPlatformVariantSchema = z.enum(["tiktok", "reels", "shorts"]);
+export type ContentPlatformVariant = z.infer<typeof ContentPlatformVariantSchema>;
+
 export const RenderWorkflowInputSchema = z.object({
   renderId: z.string().uuid(),
   workspaceId: z.string().uuid(),
@@ -35,6 +50,7 @@ export const RenderWorkflowInputSchema = z.object({
   workspaceTier: z.string(),
   costCeilingUsd: z.number().positive(),
   regenerationRound: z.number().int().min(0).max(2).default(0),
+  targetPlatforms: z.array(ContentPlatformVariantSchema).min(1).default(["tiktok", "reels", "shorts"]),
 });
 export type RenderWorkflowInput = z.infer<typeof RenderWorkflowInputSchema>;
 

@@ -1,9 +1,12 @@
 /**
- * Provider-abstraction interfaces (ADR 0004). Shapes only in STEP 1 — no
- * adapters implement these yet. Every generation vendor (video, image, TTS,
- * transcription) sits behind one of these, selected by ProviderRouter from
- * config, never hard-coded into business logic.
+ * Provider-abstraction interfaces (ADR 0004). Every generation vendor
+ * (video, image, TTS, transcription, and — as of STEP 8B — text) sits
+ * behind one of these, selected by the router from config, never
+ * hard-coded into business logic. TextProvider itself is defined in
+ * @velocity/text-engine (its home since STEP 1, ADR 0005) and re-exported
+ * here as part of AnyProvider so the one router serves all five kinds.
  */
+import type { TextProvider } from "@velocity/text-engine";
 
 export type WatermarkPolicy = "none" | "model" | "forced";
 
@@ -117,4 +120,4 @@ export interface TranscriptionProvider {
   cancel?(handle: ProviderJobHandle): Promise<void>;
 }
 
-export type AnyProvider = VideoProvider | ImageProvider | TTSProvider | TranscriptionProvider;
+export type AnyProvider = VideoProvider | ImageProvider | TTSProvider | TranscriptionProvider | TextProvider;

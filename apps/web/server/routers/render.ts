@@ -77,6 +77,11 @@ export const renderRouter = router({
         workspaceTier: input.workspaceTier,
         costCeilingUsd: DEFAULT_COST_CEILING_USD,
         regenerationRound: 0,
+        // STEP 8B: no per-workspace platform connection/scheduling exists
+        // yet (STEP 9/13's job) — default to all three so the text engine
+        // always has a real target-platform set to build a TextPlan
+        // against, per RenderWorkflowInputSchema's own default.
+        targetPlatforms: ["tiktok", "reels", "shorts"],
       });
 
       return { renderId, workflowId };

@@ -64,5 +64,6 @@ export async function buildRenderFixture(
     workspaceTier: "growth",
     costCeilingUsd: 5,
     regenerationRound: 0,
+    targetPlatforms: ["tiktok", "reels", "shorts"],
   };
 }

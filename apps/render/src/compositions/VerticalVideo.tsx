@@ -1,6 +1,9 @@
 import { AbsoluteFill, Audio, OffthreadVideo, Sequence } from "remotion";
 import { z } from "zod";
+import { SafeAreasConfigSchema } from "@velocity/text-engine";
+import { ContentPlatformVariantSchema } from "@velocity/contracts";
 import { TextLayerSlot } from "./TextLayerSlot.js";
+import { CaptionWordSchema } from "./caption-word.schema.js";
 
 /**
  * The real 1080x1920 vertical video composition (build script 8.4/8.5) —
@@ -19,6 +22,10 @@ export const VerticalVideoPropsSchema = z.object({
   shotDurationsSec: z.array(z.number()),
   voiceoverUrl: z.string().nullable(),
   textOverlayRef: z.string().nullable(),
+  targetPlatforms: z.array(ContentPlatformVariantSchema),
+  safeAreasConfig: SafeAreasConfigSchema,
+  captionWords: z.array(CaptionWordSchema),
+  brandLogoUrl: z.string().nullable(),
 });
 export type VerticalVideoProps = z.infer<typeof VerticalVideoPropsSchema>;
 
@@ -26,7 +33,7 @@ export const VIDEO_WIDTH = 1080;
 export const VIDEO_HEIGHT = 1920;
 export const VIDEO_FPS = 30;
 
-export function VerticalVideo({ shotUrls, shotDurationsSec, voiceoverUrl, textOverlayRef }: VerticalVideoProps) {
+export function VerticalVideo({ shotUrls, shotDurationsSec, voiceoverUrl, textOverlayRef, targetPlatforms, safeAreasConfig, captionWords, brandLogoUrl }: VerticalVideoProps) {
   let startFrame = 0;
   return (
     <AbsoluteFill style={{ backgroundColor: "#000" }}>
@@ -41,7 +48,7 @@ export function VerticalVideo({ shotUrls, shotDurationsSec, voiceoverUrl, textOv
         return sequence;
       })}
       {voiceoverUrl && <Audio src={voiceoverUrl} />}
-      <TextLayerSlot textOverlayRef={textOverlayRef} />
+      <TextLayerSlot textOverlayRef={textOverlayRef} targetPlatforms={targetPlatforms} safeAreasConfig={safeAreasConfig} captionWords={captionWords} brandLogoUrl={brandLogoUrl} />
     </AbsoluteFill>
   );
 }

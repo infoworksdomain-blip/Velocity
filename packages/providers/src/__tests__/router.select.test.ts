@@ -34,7 +34,7 @@ function baseConfig(providers: ProviderRegistryConfig["providers"]): ProviderReg
     version: 1,
     providers,
     fallbackChainMaxLength: 3,
-    defaultCostCeilingUsd: { video: 1, image: 1, tts: 1, transcription: 1 },
+    defaultCostCeilingUsd: { video: 1, image: 1, tts: 1, transcription: 1, text: 1 },
   };
 }
 
@@ -182,7 +182,7 @@ describe("selectChain — the ordered filter pipeline (ADR 0004)", () => {
           { kind: "video", id: "high-weight-b", enabled: true, weight: 90, tiers: ["growth"], adapter: "stub", credentials: {}, breaker: { failureThreshold: 5, windowSec: 60, cooldownSec: 120 } },
         ],
         fallbackChainMaxLength: 2,
-        defaultCostCeilingUsd: { video: 1, image: 1, tts: 1, transcription: 1 },
+        defaultCostCeilingUsd: { video: 1, image: 1, tts: 1, transcription: 1, text: 1 },
       }),
     );
     registry.register("video", "low-weight", () => makeVideoProvider({ costPerSecond: 0.01 }, "low-weight"));
@@ -214,7 +214,7 @@ describe("selectChain — the ordered filter pipeline (ADR 0004)", () => {
           { kind: "video", id: "veo-3.1", enabled: true, weight: 60, tiers: ["growth", "pro"], adapter: "stub", credentials: {}, breaker: { failureThreshold: 5, windowSec: 60, cooldownSec: 120 } },
         ],
         fallbackChainMaxLength: 3,
-        defaultCostCeilingUsd: { video: 5, image: 1, tts: 1, transcription: 1 },
+        defaultCostCeilingUsd: { video: 5, image: 1, tts: 1, transcription: 1, text: 1 },
       }),
     );
     registry.register("video", "kling-3.0", (entry) => createKlingStubProvider(entry.tiers));

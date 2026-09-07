@@ -13,6 +13,7 @@ import {
   CircuitBreaker,
   InMemoryBreakerStore,
 } from "@velocity/providers";
+import { AnthropicTextProvider, OpenAITextProvider, createStubTextProvider } from "@velocity/text-engine";
 import { withWorkspace } from "@velocity/db";
 import { StubCompositor } from "../../composition/stub.compositor.js";
 import { PassThroughNormaliser } from "../../composition/loudness.js";
@@ -42,6 +43,19 @@ export function getProviderRegistry(): ProviderRegistry {
   registry.register("image", "seedream-5.0", (entry) => createSeedreamStubProvider(entry.tiers));
   registry.register("tts", "elevenlabs", (entry) => createElevenLabsStubProvider(entry.tiers));
   registry.register("transcription", "whisperx", (entry) => createWhisperXStubProvider(entry.tiers));
+  // Real adapters (STEP 8B) — self-adapting on credential presence, unlike
+  // the stub-only video/image/tts/transcription adapters above: with a
+  // funded API key configured, the real Anthropic/OpenAI SDK call runs;
+  // with none (this sandbox, or any env that hasn't funded a key yet), the
+  // SAME factory transparently falls back to a deterministic stub so the
+  // render pipeline stays runnable and testable either way — see
+  // docs/steps/STEP-08B.md.
+  registry.register("text", "anthropic", (entry) =>
+    entry.credentials.apiKey ? new AnthropicTextProvider("claude-sonnet-4-6", entry.credentials.apiKey, entry.tiers) : createStubTextProvider("anthropic", entry.tiers),
+  );
+  registry.register("text", "openai", (entry) =>
+    entry.credentials.apiKey ? new OpenAITextProvider("gpt-4.1", entry.credentials.apiKey, entry.tiers) : createStubTextProvider("openai", entry.tiers),
+  );
   return registry;
 }
 

@@ -80,6 +80,26 @@
       "adapter": "stub",
       "credentials": {},
       "breaker": { "failureThreshold": 5, "windowSec": 60, "cooldownSec": 120 }
+    },
+    {
+      "kind": "text",
+      "id": "anthropic",
+      "enabled": true,
+      "weight": 100,
+      "tiers": ["free", "starter", "growth", "pro"],
+      "adapter": "http",
+      "credentials": { "apiKey": "${ANTHROPIC_API_KEY}" },
+      "breaker": { "failureThreshold": 5, "windowSec": 60, "cooldownSec": 120 }
+    },
+    {
+      "kind": "text",
+      "id": "openai",
+      "enabled": true,
+      "weight": 70,
+      "tiers": ["free", "starter", "growth", "pro"],
+      "adapter": "http",
+      "credentials": { "apiKey": "${OPENAI_API_KEY}" },
+      "breaker": { "failureThreshold": 5, "windowSec": 60, "cooldownSec": 120 }
     }
   ],
   "fallbackChainMaxLength": 3,
@@ -87,6 +107,7 @@
     "video": 0.6,
     "image": 0.05,
     "tts": 0.02,
-    "transcription": 0.01
+    "transcription": 0.01,
+    "text": 0.02
   }
 }

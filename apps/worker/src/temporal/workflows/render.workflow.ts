@@ -42,12 +42,23 @@ export async function renderWorkflow(input: RenderWorkflowInput): Promise<Render
 
     const shotOutputRefs = await generateShots(input.workspaceId, input.renderId, formatPlan, primaryProviderId, round);
     const voiceoverOutputRef = await generateVo(input.workspaceId, input.renderId, formatPlan, round);
-    // Word-level timings for the caption track — real output, not yet consumed:
-    // composeText is 8B's seam and doesn't render captions until the real text
-    // engine lands, at which point this becomes its CaptionTrack input.
+    // Word-level timings for the caption track — real output, consumed by
+    // apps/render's CaptionTrack component once a real render actually runs
+    // (STEP 8B); this workflow only needs to pass the ref through today.
     const alignment = await align(input.workspaceId, input.renderId, formatPlan, voiceoverOutputRef);
     void alignment;
-    const textResult = await composeText(input.textPlanId);
+    const textResult = await composeText({
+      workspaceId: input.workspaceId,
+      renderId: input.renderId,
+      contentConceptId: input.contentConceptId,
+      textPlanId: input.textPlanId ?? input.renderId, // defensive fallback — render.start always resolves a real text_plans id before starting the workflow (see compose-text.ts's own module doc)
+      storyboard: input.storyboard,
+      format: input.format,
+      targetPlatforms: input.targetPlatforms,
+      regenerationRound: round,
+      workspaceTier: input.workspaceTier,
+      costCeilingUsd: input.costCeilingUsd,
+    });
 
     const composeSpec: ComposeSpec = {
       shotOutputRefs,

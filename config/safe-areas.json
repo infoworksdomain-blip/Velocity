@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "frameWidth": 1080,
+  "frameHeight": 1920,
+  "platforms": {
+    "tiktok": { "topInset": 180, "bottomInset": 500, "rightInset": 220, "leftInset": 40 },
+    "reels": { "topInset": 160, "bottomInset": 400, "rightInset": 180, "leftInset": 40 },
+    "shorts": { "topInset": 140, "bottomInset": 320, "rightInset": 180, "leftInset": 40 }
+  }
+}

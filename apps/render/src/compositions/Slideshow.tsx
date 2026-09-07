@@ -1,6 +1,9 @@
 import { AbsoluteFill, Img, Sequence } from "remotion";
 import { z } from "zod";
+import { SafeAreasConfigSchema } from "@velocity/text-engine";
+import { ContentPlatformVariantSchema } from "@velocity/contracts";
 import { TextLayerSlot } from "./TextLayerSlot.js";
+import { CaptionWordSchema } from "./caption-word.schema.js";
 import { VIDEO_FPS } from "./VerticalVideo.js";
 
 /**
@@ -13,10 +16,14 @@ export const SlideshowPropsSchema = z.object({
   slideUrls: z.array(z.string()),
   slideDurationsSec: z.array(z.number()),
   textOverlayRef: z.string().nullable(),
+  targetPlatforms: z.array(ContentPlatformVariantSchema),
+  safeAreasConfig: SafeAreasConfigSchema,
+  captionWords: z.array(CaptionWordSchema),
+  brandLogoUrl: z.string().nullable(),
 });
 export type SlideshowProps = z.infer<typeof SlideshowPropsSchema>;
 
-export function Slideshow({ slideUrls, slideDurationsSec, textOverlayRef }: SlideshowProps) {
+export function Slideshow({ slideUrls, slideDurationsSec, textOverlayRef, targetPlatforms, safeAreasConfig, captionWords, brandLogoUrl }: SlideshowProps) {
   let startFrame = 0;
   return (
     <AbsoluteFill style={{ backgroundColor: "#fff" }}>
@@ -30,7 +37,7 @@ export function Slideshow({ slideUrls, slideDurationsSec, textOverlayRef }: Slid
         startFrame += durationInFrames;
         return sequence;
       })}
-      <TextLayerSlot textOverlayRef={textOverlayRef} />
+      <TextLayerSlot textOverlayRef={textOverlayRef} targetPlatforms={targetPlatforms} safeAreasConfig={safeAreasConfig} captionWords={captionWords} brandLogoUrl={brandLogoUrl} />
     </AbsoluteFill>
   );
 }

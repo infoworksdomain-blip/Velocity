@@ -11,13 +11,14 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint .",
     "test": "pnpm build && vitest run",
-    "test:concurrency": "pnpm build && vitest run src/__tests__/render.workflow.concurrency.test.ts"
+    "test:concurrency": "pnpm build && vitest run --config vitest.concurrency.config.ts"
   },
   "dependencies": {
     "@velocity/core": "workspace:*",
     "@velocity/providers": "workspace:*",
     "@velocity/contracts": "workspace:*",
     "@velocity/db": "workspace:*",
+    "@velocity/text-engine": "workspace:*",
     "@temporalio/worker": "1.11.7",
     "@temporalio/workflow": "1.11.7",
     "@temporalio/client": "1.11.7",
