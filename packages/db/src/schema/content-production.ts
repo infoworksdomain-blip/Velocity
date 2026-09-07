@@ -20,6 +20,8 @@ export const contentConcepts = pgTable("content_concepts", {
   personaId: uuid("persona_id").references(() => personas.id),
   blueprintId: uuid("blueprint_id").references(() => trendBlueprints.id),
   hook: text("hook").notNull(),
+  /** The chosen hook's pattern (e.g. "curiosity_gap") — STEP 9's Velocity-bandit reads this as one of its five arm dimensions (angle x format x persona x blueprint x hook_pattern). Denormalized from text_plans.plan.hook.pattern at concept-creation time (see build-concept-text-plan.ts) so the bandit's ranking query never needs a JSONB reach-in. */
+  hookPattern: text("hook_pattern"),
   /**
    * Nullable (STEP 8 schema gap fix): the stub TextProvider path (pending
    * STEP 8B's real Anthropic/OpenAI adapters) may legitimately produce no

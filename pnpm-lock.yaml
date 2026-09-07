@@ -194,6 +194,9 @@ importers:
       '@velocity/db':
         specifier: workspace:*
         version: link:../db
+      '@velocity/text-engine':
+        specifier: workspace:*
+        version: link:../text-engine
       bcryptjs:
         specifier: ^2.4.3
         version: 2.4.3

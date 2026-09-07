@@ -67,7 +67,7 @@ function baseDeps(overrides: Partial<ConceptGeneratorDeps> = {}): { deps: Concep
 
 const INPUT_BASE = {
   workspaceId: "11111111-1111-1111-1111-111111111111",
-  brandProfile: { product: "TaskFlow", category: "productivity software", oneLiner: "Get more done", pains: ["disorganisation"], differentiators: ["AI-powered"] },
+  brandProfile: { product: "TaskFlow", category: "productivity software", oneLiner: "Get more done", pains: ["disorganisation"], differentiators: ["AI-powered"], ctaVariants: ["Try it free"] },
   personas: [{ id: "persona-1" }],
   angleCount: 2,
   formats: ["hook_demo", "meme"] as const,

@@ -15,7 +15,8 @@
     "test:e2e": "turbo run test:e2e",
     "db:push": "pnpm --filter @velocity/db run push",
     "gate:08": "tsx scripts/gate-08/index.ts",
-    "gate:08b": "tsx scripts/gate-08b/index.ts"
+    "gate:08b": "tsx scripts/gate-08b/index.ts",
+    "gate:09": "tsx scripts/gate-09/index.ts"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.18.0",

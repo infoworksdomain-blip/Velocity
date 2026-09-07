@@ -1,7 +1,9 @@
 import type { ConceptDraft, ContentFormat } from "@velocity/contracts";
+import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import type { StructuredTextProvider } from "./angle-generator.js";
 import { generateAngles } from "./angle-generator.js";
+import { buildConceptTextPlan } from "./build-concept-text-plan.js";
 import { buildConceptMatrix, type PersonaRef } from "./concept-matrix.js";
 import { rejectNearDuplicates, type DedupeCandidate } from "./dedupe.js";
 import { predictConceptScore } from "./predicted-score.js";
@@ -43,6 +45,7 @@ export interface ConceptBatchInput {
     oneLiner: string | null;
     pains: string[];
     differentiators: string[];
+    ctaVariants: string[];
   };
   personas: PersonaRef[];
   angleCount: number;
@@ -168,14 +171,23 @@ export async function generateConceptBatch(deps: ConceptGeneratorDeps, input: Co
 
     const previewAssetStorageKey = deps.generatePreviewImage ? await deps.generatePreviewImage(hookResult.data.results[i]!.hook) : null;
 
+    const { textPlan, hookPattern } = buildConceptTextPlan({
+      placeholderContentItemId: randomUUID(),
+      hook: hookResult.data.results[i]!.hook,
+      variants: hookResult.data.results[i]!.variants,
+      ctaText: input.brandProfile.ctaVariants[0] ?? "Learn more",
+    });
+
     const draft: ConceptDraft = {
       angleKind: slot.angle.kind,
       format: slot.format,
       personaId: slot.personaId,
       blueprintId: matched?.id ?? null,
       hook: hookResult.data.results[i]!.hook,
+      hookPattern,
       storyboard,
-      textPlanId: null, // STEP 8B seam — real TextPlan persistence lands with the real adapters
+      textPlanId: null, // set by the persistence layer once it has a real row id (apps/web's content-service.ts) — this draft carries the plan itself, not yet a DB id
+      textPlan,
       previewAssetStorageKey,
       predictedScore,
       aiGenerated: true,

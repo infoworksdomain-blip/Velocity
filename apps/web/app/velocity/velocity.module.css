@@ -1,0 +1,115 @@
+.shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+  background: var(--paper-2);
+}
+
+.main {
+  padding: calc(var(--space-unit) * 8) calc(var(--space-unit) * 10);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 8);
+  align-items: center;
+}
+
+.topBar {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--space-unit) * 4);
+}
+
+.actions {
+  display: flex;
+  gap: calc(var(--space-unit) * 3);
+}
+
+.undoButton {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-body);
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: calc(var(--space-unit) * 2) calc(var(--space-unit) * 5);
+  cursor: pointer;
+}
+
+.undoButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.undoButton:focus-visible {
+  outline: 2px solid var(--flare);
+  outline-offset: 2px;
+}
+
+.deckArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--space-unit) * 6);
+}
+
+.placeholderMedia {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, var(--paper-2), var(--line));
+}
+
+.buttonRow {
+  display: flex;
+  gap: calc(var(--space-unit) * 6);
+}
+
+.rejectButton,
+.approveButton {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-body-lg);
+  border-radius: var(--r-pill);
+  padding: calc(var(--space-unit) * 3) calc(var(--space-unit) * 8);
+  cursor: pointer;
+  border: none;
+}
+
+.rejectButton {
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+.rejectButton:hover {
+  background: var(--paper-2);
+}
+
+.approveButton {
+  background: var(--flare);
+  color: var(--paper);
+  box-shadow: var(--sh-glow);
+}
+
+.approveButton:hover {
+  background: var(--flare-deep);
+}
+
+.rejectButton:focus-visible,
+.approveButton:focus-visible {
+  outline: 2px solid var(--flare);
+  outline-offset: 2px;
+}
+
+.hint {
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+}

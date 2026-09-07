@@ -126,6 +126,7 @@ export async function generateConceptsForWorkspace(input: GenerateConceptsInput)
         oneLiner: brandProfile.oneLiner,
         pains: (brandProfile.pains as string[]) ?? [],
         differentiators: (brandProfile.differentiators as string[]) ?? [],
+        ctaVariants: (brandProfile.ctaVariants as string[]) ?? [],
       },
       personas,
       angleCount: input.angleCount,
@@ -152,6 +153,31 @@ export async function generateConceptsForWorkspace(input: GenerateConceptsInput)
 
   for (const draft of result.concepts) {
     const contentConceptId = randomUUID();
+
+    // STEP 9: persist the real TextPlan concept-generator.ts already built
+    // from this batch's own (already-paid-for) hook + variants — closes
+    // the "textPlanId: null, STEP 8B seam" gap content_concepts carried
+    // since STEP 8.2. content_items.textPlanId (created later, on
+    // swipe-right) points at this SAME row; nothing re-generates it.
+    let textPlanId = draft.textPlanId;
+    if (draft.textPlan) {
+      textPlanId = randomUUID();
+      await db.insert(schema.textPlans).values({ id: textPlanId, workspaceId: input.workspaceId, version: "1.0", plan: draft.textPlan });
+      const hookVariants = (draft.textPlan as { hookVariants?: { text: string; pattern: string; predictedCtr: number }[] }).hookVariants ?? [];
+      if (hookVariants.length > 0) {
+        await db.insert(schema.hookVariants).values(
+          hookVariants.map((v) => ({
+            id: randomUUID(),
+            workspaceId: input.workspaceId,
+            textPlanId: textPlanId!,
+            text: v.text,
+            pattern: v.pattern,
+            predictedCtr: v.predictedCtr.toString(),
+          })),
+        );
+      }
+    }
+
     await db.insert(schema.contentConcepts).values({
       id: contentConceptId,
       workspaceId: input.workspaceId,
@@ -160,7 +186,8 @@ export async function generateConceptsForWorkspace(input: GenerateConceptsInput)
       personaId: draft.personaId,
       blueprintId: draft.blueprintId,
       hook: draft.hook,
-      textPlanId: draft.textPlanId,
+      hookPattern: draft.hookPattern,
+      textPlanId,
       previewAssetStorageKey: draft.previewAssetStorageKey,
       predictedScore: draft.predictedScore.toString(),
     });

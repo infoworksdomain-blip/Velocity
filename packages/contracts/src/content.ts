@@ -51,8 +51,21 @@ export const ConceptDraftSchema = z.object({
   personaId: z.string().uuid().nullable(),
   blueprintId: z.string().uuid().nullable(),
   hook: z.string().min(1).max(60),
+  /** The chosen hook's pattern (e.g. "curiosity_gap") — a STEP 9 Velocity-bandit arm dimension. Nullable: only populated when `textPlan` below is (STEP 8B's real/stub text-engine ran for this concept). */
+  hookPattern: z.string().nullable(),
   storyboard: StoryboardSchema,
   textPlanId: z.string().uuid().nullable(),
+  /**
+   * A real, schema-valid TextPlan object (see @velocity/text-engine's
+   * TextPlanSchema — kept as an opaque JSON record here, not that
+   * package's own type, so this contracts package never needs to depend
+   * on text-engine) built from the SAME hook+variants this batch already
+   * paid for (STEP 8B.6: one batched call, not N). Null only when no text
+   * provider ran (a legacy/degraded path). The persistence layer
+   * (apps/web's content-service.ts) writes this into a real `text_plans`
+   * row instead of leaving `textPlanId` null pending a placeholder.
+   */
+  textPlan: z.record(z.string(), z.unknown()).nullable(),
   previewAssetStorageKey: z.string().nullable(),
   predictedScore: z.number().min(0).max(1),
   aiGenerated: z.literal(true),
