@@ -9,6 +9,7 @@ export * from "./adapters/video/kling.stub.js";
 export * from "./adapters/video/veo.stub.js";
 export * from "./adapters/video/seedance.stub.js";
 export * from "./adapters/video/minimax.stub.js";
+export * from "./adapters/video/wan.stub.js";
 export * from "./adapters/image/seedream.stub.js";
 export * from "./adapters/tts/elevenlabs.stub.js";
 export * from "./adapters/transcription/whisperx.stub.js";

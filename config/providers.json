@@ -42,6 +42,16 @@
       "breaker": { "failureThreshold": 5, "windowSec": 60, "cooldownSec": 120 }
     },
     {
+      "kind": "video",
+      "id": "wan-2.2",
+      "enabled": true,
+      "weight": 40,
+      "tiers": ["free", "starter", "growth", "pro"],
+      "adapter": "stub",
+      "credentials": { "apiKey": "${WAN_API_KEY}" },
+      "breaker": { "failureThreshold": 5, "windowSec": 60, "cooldownSec": 120 }
+    },
+    {
       "kind": "image",
       "id": "seedream-5.0",
       "enabled": true,

@@ -6,6 +6,7 @@ import { createKlingStubProvider } from "../adapters/video/kling.stub.js";
 import { createMinimaxStubProvider } from "../adapters/video/minimax.stub.js";
 import { createSeedanceStubProvider } from "../adapters/video/seedance.stub.js";
 import { createVeoStubProvider } from "../adapters/video/veo.stub.js";
+import { createWanStubProvider } from "../adapters/video/wan.stub.js";
 import type { ImageProvider, ProviderJobHandle, TranscriptionProvider, TTSProvider, VideoProvider } from "../types.js";
 
 const TIERS = ["free", "starter", "growth", "pro"];
@@ -25,6 +26,7 @@ describe("VideoProvider conformance — one shared suite run against every video
     ["veo-3.1", createVeoStubProvider(TIERS)],
     ["seedance-2.5", createSeedanceStubProvider(TIERS)],
     ["minimax-h3", createMinimaxStubProvider(TIERS)],
+    ["wan-2.2", createWanStubProvider(TIERS)],
   ];
 
   it.each(providers)("%s: has a well-formed capability manifest", (_id, provider) => {

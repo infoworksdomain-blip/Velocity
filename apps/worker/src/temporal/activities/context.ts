@@ -5,6 +5,7 @@ import {
   createSeedanceStubProvider,
   createSeedreamStubProvider,
   createVeoStubProvider,
+  createWanStubProvider,
   createWhisperXStubProvider,
   DeterministicEmbeddingProvider,
   FileProviderConfigSource,
@@ -37,6 +38,7 @@ export function getProviderRegistry(): ProviderRegistry {
   registry.register("video", "veo-3.1", (entry) => createVeoStubProvider(entry.tiers));
   registry.register("video", "seedance-2.5", (entry) => createSeedanceStubProvider(entry.tiers));
   registry.register("video", "minimax-h3", (entry) => createMinimaxStubProvider(entry.tiers));
+  registry.register("video", "wan-2.2", (entry) => createWanStubProvider(entry.tiers));
   registry.register("image", "seedream-5.0", (entry) => createSeedreamStubProvider(entry.tiers));
   registry.register("tts", "elevenlabs", (entry) => createElevenLabsStubProvider(entry.tiers));
   registry.register("transcription", "whisperx", (entry) => createWhisperXStubProvider(entry.tiers));
