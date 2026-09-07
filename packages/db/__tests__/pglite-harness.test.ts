@@ -33,7 +33,7 @@ describe("PGlite test harness — a real embedded Postgres, not a mock", () => {
       { id: randomUUID(), workspaceId: workspaceAId, version: 1, product: "Product A", category: "software", sourceUrl: "https://a.example.com" },
       { id: randomUUID(), workspaceId: workspaceBId, version: 1, product: "Product B", category: "software", sourceUrl: "https://b.example.com" },
     ]);
-  }, 90000); // generous: PGlite's WASM init + full migration replay genuinely slows down under full-monorepo-suite system load (many concurrent heavy test processes), not a hang
+  }, 180000); // bumped from 90000 after a real clean-clone verification run timed out at exactly 90000ms under cold-cache, full-monorepo-test contention (see vitest.config.ts's fileParallelism note) — PGlite's WASM init + full migration replay genuinely slows down under that load, not a hang
 
   afterAll(async () => {
     await testDb.close();
