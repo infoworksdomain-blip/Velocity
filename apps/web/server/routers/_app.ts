@@ -11,6 +11,7 @@ import { onboardingRouter } from "./onboarding";
 import { publishRouter } from "./publish";
 import { renderRouter } from "./render";
 import { socialRouter } from "./social";
+import { ugcRouter } from "./ugc";
 import { velocityRouter } from "./velocity";
 import { workspaceRouter } from "./workspace";
 
@@ -29,6 +30,7 @@ export const appRouter = router({
   publish: publishRouter,
   analytics: analyticsRouter,
   growthBrain: growthBrainRouter,
+  ugc: ugcRouter,
 });
 
 export type AppRouter = typeof appRouter;

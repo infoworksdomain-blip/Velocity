@@ -1,8 +1,8 @@
-import { integer, jsonb, numeric, pgTable, text, uuid } from "drizzle-orm/pg-core";
+import { boolean, integer, jsonb, numeric, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { EMBEDDING_DIMENSIONS, idColumn, softDelete, timestamps, vector, workspaceIdColumn } from "./_helpers";
 import { brandProfiles } from "./brand";
 import { competitors } from "./growth-brain";
-import { workspaces } from "./tenancy";
+import { users, workspaces } from "./tenancy";
 
 /**
  * Platform-root corpus (STEP 8.3, ADR 0007) — ingestion is "per niche," not
@@ -64,6 +64,24 @@ export const trendBlueprints = pgTable("trend_blueprints", {
   ...timestamps(),
 });
 
+/**
+ * A real, verifiable consent artefact (STEP 15) — "built as a first-class
+ * object with the release document attached," per the build script,
+ * not an opaque string. `documentStorageKey` points at the actual signed
+ * release document; `expiresAt` is nullable because a real release can be
+ * open-ended or time-boxed depending on what the subject actually signed.
+ */
+export const consentArtefacts = pgTable("consent_artefacts", {
+  id: idColumn(),
+  workspaceId: workspaceIdColumn().references(() => workspaces.id),
+  subjectName: text("subject_name").notNull(),
+  documentStorageKey: text("document_storage_key").notNull(),
+  signedAt: timestamp("signed_at", { withTimezone: true }).notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }),
+  verifiedByUserId: uuid("verified_by_user_id").references(() => users.id),
+  ...timestamps(),
+});
+
 export const personas = pgTable("personas", {
   id: idColumn(),
   workspaceId: workspaceIdColumn().references(() => workspaces.id),
@@ -77,13 +95,15 @@ export const personas = pgTable("personas", {
   }>(),
   referenceImageStorageKey: text("reference_image_storage_key"),
   /**
-   * Nullable = no consent artefact on file. Generation against this persona
-   * must be blocked in application code whenever this is null AND the
-   * persona is modeling a real identifiable person (STEP 15 hard
-   * requirement) — enforced at the service layer, not by a DB constraint,
-   * since "models a real person" isn't something a CHECK can determine.
+   * Explicitly declared at creation time — "models a real person" is a
+   * workspace decision this codebase must be TOLD, not one it can infer
+   * from a reference image alone. Drives the STEP 15 hard requirement:
+   * generation is blocked in application code whenever this is true AND
+   * `consentArtefactId` is null, never inferred silently either way.
    */
-  consentArtefactRef: text("consent_artefact_ref"),
+  modelsRealPerson: boolean("models_real_person").notNull().default(false),
+  /** Real FK to a verifiable consent_artefacts row — replaces an earlier opaque text reference (never used by any real code path) with the actual first-class object the build script requires. */
+  consentArtefactId: uuid("consent_artefact_id").references(() => consentArtefacts.id),
   ...timestamps(),
   ...softDelete(),
 });

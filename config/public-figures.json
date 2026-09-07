@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "names": ["Elon Musk", "Taylor Swift", "Barack Obama", "Cristiano Ronaldo", "Rihanna", "Lionel Messi", "Oprah Winfrey", "Kim Kardashian"],
+  "note": "A real, configurable name-matching mechanism (packages/core/src/ugc/public-figure-check.ts) needs a real list to match against — this is a small, illustrative seed of globally recognized names, not a comprehensive public-figure database. A production system would need a real named-entity-recognition service or a licensed public-figure/celebrity database, neither of which is available in this sandbox. See docs/steps/STEP-15.md."
+}

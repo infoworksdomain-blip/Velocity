@@ -120,6 +120,13 @@
       "when": 1788900000000,
       "tag": "0016_competitors",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1788920000000,
+      "tag": "0017_ugc_consent_artefacts",
+      "breakpoints": true
     }
   ]
 }
