@@ -1,5 +1,6 @@
 import { router } from "../trpc";
 import { authRouter } from "./auth";
+import { calendarRouter } from "./calendar";
 import { contentRouter } from "./content";
 import { dashboardRouter } from "./dashboard";
 import { mediaRouter } from "./media";
@@ -19,6 +20,7 @@ export const appRouter = router({
   render: renderRouter,
   media: mediaRouter,
   velocity: velocityRouter,
+  calendar: calendarRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -20,6 +20,15 @@ export const calendarSlots = pgTable("calendar_slots", {
   workspaceId: workspaceIdColumn().references(() => workspaces.id),
   campaignId: uuid("campaign_id").references(() => campaigns.id),
   platform: platformEnum("platform").notNull(),
+  /**
+   * STEP 10 addition: a workspace can have more than one account on the
+   * same platform (build script's own "5 accounts" across "3 platforms"
+   * in GATE 10 implies exactly this), and C6's per-account rate caps only
+   * mean something once a slot names WHICH account. `platform` above
+   * stays (a real, useful denormalization for filtering by platform
+   * without a join) but every real cap/spacing check is keyed on this.
+   */
+  socialAccountId: uuid("social_account_id").references(() => socialAccounts.id),
   scheduledAt: timestamp("scheduled_at", { withTimezone: true }).notNull(),
   contentItemId: uuid("content_item_id").references(() => contentItems.id),
   ...timestamps(),

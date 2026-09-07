@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "caps": {
+    "tiktok": {
+      "postsPerRollingWindow": 15,
+      "windowHours": 24,
+      "minSpacingMinutes": 15,
+      "note": "Audited client's per-creator cap (~15/day), shared across all API clients on that creator per the build script. Unaudited clients are far more restrictive (SELF_ONLY, max 5 users posting per 24h total) — that's an app-level gate, not a per-account posting cap, so it isn't modelled here; see docs/steps/STEP-11.md when that step lands."
+    },
+    "instagram": {
+      "postsPerRollingWindow": 100,
+      "windowHours": 24,
+      "minSpacingMinutes": 15,
+      "note": "100 API-published posts per rolling 24h per account, per Meta's content_publishing_limit."
+    },
+    "youtube": {
+      "postsPerRollingWindow": 100,
+      "windowHours": 24,
+      "minSpacingMinutes": 15,
+      "note": "YouTube's real constraint is a 100-units/day API quota (videos.insert costs 1 unit), not a literal post-count cap — modelled here as a generous practical daily count since ordinary SME posting cadence never approaches the real quota ceiling. Revisit if a workspace's posting volume ever gets close."
+    }
+  },
+  "defaultMinSpacingMinutes": 15
+}

@@ -78,6 +78,13 @@
       "when": 1788780000000,
       "tag": "0010_velocity_bandit",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1788800000000,
+      "tag": "0011_calendar_slot_social_account",
+      "breakpoints": true
     }
   ]
 }

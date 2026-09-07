@@ -11,3 +11,4 @@ export * as qc from "./qc/index";
 export * as provenance from "./provenance/index";
 export * as metering from "./metering/index";
 export * as velocity from "./velocity/index";
+export * as calendar from "./calendar/index";
