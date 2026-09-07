@@ -6,7 +6,7 @@ export * from "./brand";
 export * from "./content-planning";
 export * from "./content-production";
 export * from "./rendering";
-export * from "./blitz";
+export * from "./velocity";
 export * from "./scheduling";
 export * from "./social";
 export * from "./analytics";

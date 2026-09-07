@@ -13,7 +13,7 @@ export const Default: Story = {
   args: {
     items: [
       { id: "dashboard", label: "Dashboard", icon: "◧", href: "#", active: true },
-      { id: "blitz", label: "Blitz", icon: "⚡", href: "#" },
+      { id: "velocity", label: "Velocity", icon: "⚡", href: "#" },
       { id: "calendar", label: "Calendar", icon: "▦", href: "#" },
       { id: "analytics", label: "Analytics", icon: "📈", href: "#" },
     ],

@@ -51,7 +51,7 @@ export const renderRouter = router({
 
       // C7: human approval before publish. Triggering a render through
       // this authenticated, permission-checked endpoint IS the recorded
-      // approval event for STEP 8's demo path — STEP 9's Blitz swipe-right
+      // approval event for STEP 8's demo path — STEP 9's Velocity swipe-right
       // is the real product surface for this same event.
       const contentItemId = randomUUID();
       await db.insert(schema.contentItems).values({

@@ -129,7 +129,7 @@ export async function renderWorkflow(input: RenderWorkflowInput): Promise<Render
       widthPx: compositionOutput.widthPx,
       heightPx: compositionOutput.heightPx,
       durationMs: compositionOutput.durationMs,
-      requestedByUserId: input.workspaceId, // TODO(STEP-9): thread the real requesting user id through RenderWorkflowInput once Blitz swipe-right carries it
+      requestedByUserId: input.workspaceId, // TODO(STEP-9): thread the real requesting user id through RenderWorkflowInput once Velocity swipe-right carries it
     });
 
     return {

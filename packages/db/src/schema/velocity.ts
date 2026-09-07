@@ -4,7 +4,7 @@ import { contentConcepts } from "./content-production";
 import { swipeDirectionEnum } from "./enums";
 import { workspaces } from "./tenancy";
 
-export const blitzSessions = pgTable("blitz_sessions", {
+export const velocitySessions = pgTable("velocity_sessions", {
   id: idColumn(),
   workspaceId: workspaceIdColumn().references(() => workspaces.id),
   userId: uuid("user_id").notNull(),
@@ -17,12 +17,12 @@ export const blitzSessions = pgTable("blitz_sessions", {
  * purpose — the build script calls it out as the highest-value signal and
  * "the one most implementations forget to log," so it isn't optional here.
  */
-export const blitzEvents = pgTable("blitz_events", {
+export const velocityEvents = pgTable("velocity_events", {
   id: idColumn(),
   workspaceId: workspaceIdColumn().references(() => workspaces.id),
-  blitzSessionId: uuid("blitz_session_id")
+  velocitySessionId: uuid("velocity_session_id")
     .notNull()
-    .references(() => blitzSessions.id),
+    .references(() => velocitySessions.id),
   contentConceptId: uuid("content_concept_id")
     .notNull()
     .references(() => contentConcepts.id),

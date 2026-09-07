@@ -7,7 +7,7 @@ title VELOCITY — Containers
 Person(user, "User", "Individual / Business / Agency")
 
 System_Boundary(velocity, "VELOCITY") {
-  Container(web, "apps/web", "Next.js 15, App Router", "Dashboard, Blitz, Calendar, Content Studio; tRPC internally, REST /v1 publicly")
+  Container(web, "apps/web", "Next.js 15, App Router", "Dashboard, Velocity, Calendar, Content Studio; tRPC internally, REST /v1 publicly")
   Container(worker, "apps/worker", "Node, BullMQ + Temporal client", "Short jobs (BullMQ) and long-running render/publish workflow orchestration (Temporal workers)")
   Container(render, "apps/render", "Node, Remotion on Lambda", "Deterministic video/image composition; text layer separate from video track")
   ContainerDb(pg, "Postgres 16", "+ pgvector, RLS", "Transactional state; every tenant table scoped by workspace_id")

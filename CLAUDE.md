@@ -25,7 +25,7 @@ Environment/tooling notes worth knowing before touching adjacent code:
 
 **STEP 8B (Hook & On-Screen Text Engine) — GATE 8B mostly passed for real**: real Anthropic (forced tool-use) and OpenAI (strict JSON-schema) adapters — genuine SDK-calling code, request-shape-verified against local mock servers, with a deterministic stub automatically standing in when no funded key is configured (the same factory, not a separate code path — see `docs/steps/STEP-08B.md` scope decision 2). The `text` provider kind extends STEP 8's ADR-0004 router with zero kind-specific code changes, real evidence the router genuinely is provider-kind-agnostic. The full 8B.4 validation/repair loop (schema → one repair call → deterministic template fallback, reusing STEP 8's real brand-rules/safety checks) and the 8B.5 layout engine (auto-fit binary search, safe-area intersection, legibility/contrast) are real and fully tested — 73 tests in `packages/text-engine`, no PGlite/Temporal dependency needed since it's all pure logic plus local mock HTTP servers. `apps/worker`'s `composeText` activity fills STEP 8's own documented seam for real, wired into the idempotency ledger with a genuinely different failure-mode shape than the other four provider kinds (no vendor-side job to poll by — the whole result is captured atomically with `submit()`, not just a job id). `apps/render` has all 7 real text-overlay components (`HookOverlay`/`CaptionTrack`/`StickerText`/`MemeBar`/`LowerThird`/`CTAEndCard`/`SlideText`), unrunnable in this sandbox for the same reason `VerticalVideo`/`Slideshow` already were (STEP 8) plus a browser-only canvas measurer. Found and fixed a real bug in the process: `tryFit`'s binary search never re-verified its last line's width (the line-breaker intentionally lets the final line overflow, by design, expecting the caller to re-check — the caller wasn't). Run `pnpm gate:08b` for the live report.
 
-Next: STEP 9 (Blitz — the two-tier swipe queue and bandit).
+Next: STEP 9 (Velocity — the two-tier swipe queue and bandit).
 
 ## Non-negotiable constraints (C1–C8)
 
@@ -52,7 +52,7 @@ Monorepo (pnpm + Turborepo): `apps/web`, `apps/worker`, `apps/render`, `packages
 
 ## The two things that decide whether this works
 
-1. **Blitz is a two-tier queue.** Cheap LLM-only concept cards (hook + angle + storyboard + a preview still with the hook composited on) are what users swipe through. The expensive video render fires only on swipe-right. Never render before the swipe. Swipe-to-next latency budget: 100ms.
+1. **Velocity is a two-tier queue.** Cheap LLM-only concept cards (hook + angle + storyboard + a preview still with the hook composited on) are what users swipe through. The expensive video render fires only on swipe-right. Never render before the swipe. Swipe-to-next latency budget: 100ms.
 2. **On-screen text is its own composition layer** (`packages/text-engine`), authored by Claude or GPT via one schema (`TextPlan`) that drives both providers. Remotion renders it separately from the video track, so a hook change re-renders in seconds for pennies. The renderer — never the model — picks font size (binary-search to fit the platform safe box).
 
 ## Design tokens (Appendix A — do not deviate; CI fails the build on literals outside `packages/ui/tokens`)

@@ -14,7 +14,7 @@ A tenant-scoped operating unit — one brand, one calendar, one credit balance. 
 Versioned extraction of a workspace's brand: product, ICP, pains, benefits, tone, visual identity, competitors, compliance notes (STEP 6). Multiple versions per workspace, diffable. The extractor treats scraped source content as untrusted — this is the entity most directly exposed to prompt-injection risk (see threat model). Embedded into pgvector for retrieval by `Angle`/`TrendBlueprint` matching.
 
 ### Angle
-A marketing angle derived from a `BrandProfile` (pain-led, transformation, comparison, myth-bust, POV, listicle, founder story, social proof, objection-handling, meme — STEP 8.2). Feeds `ContentConcept` generation and is a dimension in the Blitz bandit (STEP 9).
+A marketing angle derived from a `BrandProfile` (pain-led, transformation, comparison, myth-bust, POV, listicle, founder story, social proof, objection-handling, meme — STEP 8.2). Feeds `ContentConcept` generation and is a dimension in the Velocity bandit (STEP 9).
 
 ### TrendBlueprint
 The **structure** of a trending video — hook pattern, beat timings, shot grammar, caption cadence, text placement, audio archetype (STEP 8.3). Deliberately holds no source footage — this is the entity **C3** exists to constrain. Retrieved by vector similarity against the brand/angle embedding.
@@ -23,7 +23,7 @@ The **structure** of a trending video — hook pattern, beat timings, shot gramm
 An AI UGC character or AI Influencer identity — appearance, voice, tone, backstory (STEP 15). Any persona modeling a real identifiable person requires a recorded consent artefact before generation is permitted; this is enforced at the `Persona` level, not downstream.
 
 ### ContentConcept
-The Tier-1, LLM-only unit that fills the Blitz queue: a hook, an `Angle`, a format, a `Persona`, a `TrendBlueprint`, a storyboard, a link to its `TextPlan`, and a preview asset (STEP 8.2, STEP 9). Always carries `ai_generated: true`. Cheap to produce in bulk — this is the entity the two-tier queue economics (§4 of the Fastlane teardown, STEP 9 of the build script) depend on staying cheap.
+The Tier-1, LLM-only unit that fills the Velocity queue: a hook, an `Angle`, a format, a `Persona`, a `TrendBlueprint`, a storyboard, a link to its `TextPlan`, and a preview asset (STEP 8.2, STEP 9). Always carries `ai_generated: true`. Cheap to produce in bulk — this is the entity the two-tier queue economics (§4 of the Fastlane teardown, STEP 9 of the build script) depend on staying cheap.
 
 ### TextPlan
 The on-screen text contract: hook, 5–8 hook variants, timed overlays, caption track, CTA, per-slide text — one JSON object produced by the text-engine (Anthropic or OpenAI) and consumed by Remotion (STEP 8B.2). Versioned independently of the video track so a hook swap re-renders in seconds, not minutes. Every generation call that produces one is a **C5** metering event.
@@ -47,4 +47,4 @@ One attempt (or the record of a successful attempt) to publish a `ContentItem` t
 An OAuth-connected TikTok/Instagram/YouTube account belonging to a `Workspace` (STEP 11). Holds `platform_credentials` (envelope-encrypted, never logged, never returned by any API) and rolling `platform_quota_state` counters that **C6** is enforced against.
 
 ### MetricSnapshot
-A point-in-time ingestion of platform performance data (views, likes, shares, watch-time, etc.) or an attribution event, joined back to the `Publication`/`ContentItem`/`Angle`/hook-pattern that produced it (STEP 13). This is what closes the feedback loop into the Blitz bandit, the best-time model, and the hook-pattern weights — without it the product is a generator, not a growth tool.
+A point-in-time ingestion of platform performance data (views, likes, shares, watch-time, etc.) or an attribution event, joined back to the `Publication`/`ContentItem`/`Angle`/hook-pattern that produced it (STEP 13). This is what closes the feedback loop into the Velocity bandit, the best-time model, and the hook-pattern weights — without it the product is a generator, not a growth tool.

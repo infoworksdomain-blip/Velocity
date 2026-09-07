@@ -13,7 +13,7 @@ export const Default: Story = {
   args: {
     steps: [
       { number: "01", heading: "Enter your URL", copy: "We learn your product, audience, and tone in seconds." },
-      { number: "02", heading: "Blitz", copy: "Swipe through concepts built from your own brand." },
+      { number: "02", heading: "Velocity", copy: "Swipe through concepts built from your own brand." },
       { number: "03", heading: "Fill your calendar", copy: "One click schedules 30 days of posts." },
       { number: "04", heading: "Track growth", copy: "See which posts actually drove signups and sales." },
     ],

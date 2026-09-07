@@ -64,6 +64,13 @@
       "when": 1788740000000,
       "tag": "0008_credit_ledger_trigger_security_definer",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1788760000000,
+      "tag": "0009_rename_blitz_to_velocity",
+      "breakpoints": true
     }
   ]
 }

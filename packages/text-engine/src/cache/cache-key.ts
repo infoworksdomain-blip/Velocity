@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 /**
  * Build script 8B.4: "Cache key: hash(brand_profile_version + angle_id +
  * format + blueprint_id + platform). A cache hit costs nothing and is the
- * difference between a viable and non-viable Blitz queue." A missing
+ * difference between a viable and non-viable Velocity queue." A missing
  * `blueprintId` (a concept with no matched trend blueprint) is a real,
  * valid input, not an error — it's included as the literal string "none"
  * so it still participates in the hash rather than being silently dropped.

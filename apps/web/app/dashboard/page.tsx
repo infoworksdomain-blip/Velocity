@@ -20,7 +20,7 @@ type WorkspaceListItem = Awaited<ReturnType<typeof trpcClient.workspace.listMine
 
 const SIDEBAR_ITEMS: SidebarItem[] = [
   { id: "dashboard", label: "Dashboard", icon: <span aria-hidden>◆</span>, href: "/dashboard", active: true },
-  { id: "blitz", label: "Blitz", icon: <span aria-hidden>▲</span>, href: "/blitz" },
+  { id: "velocity", label: "Velocity", icon: <span aria-hidden>▲</span>, href: "/velocity" },
   { id: "calendar", label: "Calendar", icon: <span aria-hidden>■</span>, href: "/calendar" },
   { id: "accounts", label: "Accounts", icon: <span aria-hidden>●</span>, href: "/accounts" },
 ];
@@ -100,8 +100,8 @@ export default function DashboardPage() {
 function DashboardBody({ data }: { data: DashboardData }) {
   const sections =
     data.workspaceType === "business"
-      ? (["nextAction", "accounts", "performance", "blitz", "credit"] as const)
-      : (["credit", "nextAction", "blitz", "performance", "accounts"] as const);
+      ? (["nextAction", "accounts", "performance", "velocity", "credit"] as const)
+      : (["credit", "nextAction", "velocity", "performance", "accounts"] as const);
 
   const sectionRenderers: Record<(typeof sections)[number], () => ReactNode> = {
     credit: () => <CreditMeter key="credit" balance={data.creditBalance} limit={data.creditLimit} />,
@@ -110,9 +110,9 @@ function DashboardBody({ data }: { data: DashboardData }) {
         <EmptyState heading="Next best action" body={data.nextBestAction} />
       </div>
     ),
-    blitz: () => (
-      <div key="blitz" className={styles.statGrid}>
-        <StatCard label="Blitz queue" value={String(data.blitzPendingCount)} />
+    velocity: () => (
+      <div key="velocity" className={styles.statGrid}>
+        <StatCard label="Velocity queue" value={String(data.velocityPendingCount)} />
         <StatCard label="Scheduled" value={String(data.upcomingScheduledCount)} />
       </div>
     ),

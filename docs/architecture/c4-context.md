@@ -9,7 +9,7 @@ Person(business, "Business user", "SaaS/e-commerce/agency operator, multi-seat")
 Person(agencyOp, "Agency operator", "Manages N client workspaces")
 Person(clientViewer, "Client-portal viewer", "Read-only or approval-only branded surface")
 
-System(velocity, "VELOCITY", "URL-in, published-post-out short-form content engine: brand ingest, concept generation, Blitz swipe review, scheduling, publishing, attribution")
+System(velocity, "VELOCITY", "URL-in, published-post-out short-form content engine: brand ingest, concept generation, Velocity swipe review, scheduling, publishing, attribution")
 
 System_Ext(tiktok, "TikTok Content Posting API", "Official publishing: Upload (draft) and Direct Post")
 System_Ext(instagram, "Instagram Content Publishing API", "Official publishing to Reels, Business/Creator accounts only")
@@ -20,7 +20,7 @@ System_Ext(videoModels, "Video/image model vendors", "Kling, Veo, Seedance, Mini
 System_Ext(stripe, "Stripe", "Subscriptions + metered credits")
 System_Ext(r2, "Cloudflare R2 + CDN", "Signed-URL media storage")
 
-Rel(individual, velocity, "Onboards with a URL, swipes Blitz, reviews calendar")
+Rel(individual, velocity, "Onboards with a URL, swipes Velocity, reviews calendar")
 Rel(business, velocity, "Same, plus team roles and approval workflows")
 Rel(agencyOp, velocity, "Operates client workspaces, white-label console")
 Rel(clientViewer, velocity, "Views/approves via branded client portal")

@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { BlitzCard } from "./BlitzCard";
+import { VelocityCard } from "./VelocityCard";
 
-const meta: Meta<typeof BlitzCard> = {
-  component: BlitzCard,
-  title: "AppShell/BlitzCard",
+const meta: Meta<typeof VelocityCard> = {
+  component: VelocityCard,
+  title: "AppShell/VelocityCard",
 };
 export default meta;
 
-type Story = StoryObj<typeof BlitzCard>;
+type Story = StoryObj<typeof VelocityCard>;
 
 export const Default: Story = {
   args: {

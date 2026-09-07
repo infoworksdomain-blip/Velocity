@@ -11,10 +11,10 @@ type Story = StoryObj<typeof SpotlightBlock>;
 
 export const Default: Story = {
   args: {
-    label: "Blitz mode",
+    label: "Velocity mode",
     heading: "Swipe through ideas, not renders",
     body: "Every concept costs a fraction of a penny until you swipe right — that's the only way the economics of 1,000s of content ideas actually work.",
-    ctaLabel: "See Blitz in action",
+    ctaLabel: "See Velocity in action",
     quote: { text: "It's the only tool where I'm not scared to say no to an idea.", source: "Early access customer" },
   },
 };

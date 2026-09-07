@@ -24,7 +24,7 @@ export const dashboardRouter = router({
       workspaceRows,
       subscriptionRows,
       creditBalanceRows,
-      blitzPendingRows,
+      velocityPendingRows,
       upcomingSlotRows,
       performanceRows,
       connectedAccounts,
@@ -52,7 +52,7 @@ export const dashboardRouter = router({
             isNull(schema.contentConcepts.deletedAt),
             notInArray(
               schema.contentConcepts.id,
-              db.select({ id: schema.blitzEvents.contentConceptId }).from(schema.blitzEvents),
+              db.select({ id: schema.velocityEvents.contentConceptId }).from(schema.velocityEvents),
             ),
           ),
         ),
@@ -99,7 +99,7 @@ export const dashboardRouter = router({
     const creditLimit = plans.PLAN_CREDIT_LIMITS[planKey];
 
     const creditBalance = Number(creditBalanceRows.rows[0]?.balance ?? 0);
-    const blitzPendingCount = blitzPendingRows[0]?.value ?? 0;
+    const velocityPendingCount = velocityPendingRows[0]?.value ?? 0;
     const upcomingScheduledCount = upcomingSlotRows[0]?.value ?? 0;
     const performance = {
       views: Number(performanceRows[0]?.views ?? 0),
@@ -111,7 +111,7 @@ export const dashboardRouter = router({
     const nextBestAction = resolveNextBestAction({
       hasConnectedAccount: connectedAccounts.length > 0,
       creditBalance,
-      blitzPendingCount,
+      velocityPendingCount,
       upcomingScheduledCount,
     });
 
@@ -120,7 +120,7 @@ export const dashboardRouter = router({
       workspaceType: workspace.workspaceType,
       creditBalance,
       creditLimit,
-      blitzPendingCount,
+      velocityPendingCount,
       upcomingScheduledCount,
       last7DaysPerformance: performance,
       connectedAccounts,
@@ -132,7 +132,7 @@ export const dashboardRouter = router({
 interface NextBestActionInput {
   hasConnectedAccount: boolean;
   creditBalance: number;
-  blitzPendingCount: number;
+  velocityPendingCount: number;
   upcomingScheduledCount: number;
 }
 
@@ -149,11 +149,11 @@ function resolveNextBestAction(input: NextBestActionInput): string {
   if (input.creditBalance <= 0) {
     return "Add credits to your workspace to generate content";
   }
-  if (input.blitzPendingCount > 0) {
-    return "Swipe through your Blitz queue to approve content";
+  if (input.velocityPendingCount > 0) {
+    return "Swipe through your Velocity queue to approve content";
   }
   if (input.upcomingScheduledCount > 0) {
     return "You're all caught up — nothing else needs attention right now";
   }
-  return "Your Blitz queue is empty — content generation ships in STEP 8";
+  return "Your Velocity queue is empty — content generation ships in STEP 8";
 }

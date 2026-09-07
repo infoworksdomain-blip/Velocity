@@ -17,7 +17,7 @@ export interface SafeAreaOverlayProps {
 const REFERENCE_WIDTH = 1080;
 const REFERENCE_HEIGHT = 1920;
 
-/** Toggleable platform safe-area guide, overlaid on a BlitzCard/ContentCard preview. */
+/** Toggleable platform safe-area guide, overlaid on a VelocityCard/ContentCard preview. */
 export function SafeAreaOverlay({ insets, platformLabel, visible = true }: SafeAreaOverlayProps) {
   if (!visible) return null;
 

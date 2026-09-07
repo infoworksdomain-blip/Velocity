@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { Text } from "../primitives/Text";
-import styles from "./BlitzCard.module.css";
+import styles from "./VelocityCard.module.css";
 
-export interface BlitzCardProps {
+export interface VelocityCardProps {
   media: ReactNode;
   hook: string;
   angle: string;
@@ -16,7 +16,7 @@ export interface BlitzCardProps {
  * threshold) is STEP 9's job; this component exposes `dragX` as the single
  * input that visual behavior would drive.
  */
-export function BlitzCard({ media, hook, angle, dragX = 0 }: BlitzCardProps) {
+export function VelocityCard({ media, hook, angle, dragX = 0 }: VelocityCardProps) {
   const rotation = Math.max(-12, Math.min(12, dragX / 10));
   return (
     <div className={styles.card} style={{ transform: `translateX(${dragX}px) rotate(${rotation}deg)` }}>

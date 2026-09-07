@@ -11,7 +11,7 @@ type Story = StoryObj<typeof EmptyState>;
 
 export const Default: Story = {
   args: {
-    heading: "Your Blitz queue is empty",
+    heading: "Your Velocity queue is empty",
     body: "Connect a brand profile and we'll generate your first batch of concepts.",
     ctaLabel: "Generate concepts",
   },

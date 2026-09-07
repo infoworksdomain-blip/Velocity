@@ -14,7 +14,7 @@ export const Default: Story = {
     testimonials: [
       { id: "1", quote: "We went from zero to a full calendar in a single afternoon.", source: "@northwind" },
       { id: "2", quote: "The hook variants alone paid for the plan.", source: "@acme" },
-      { id: "3", quote: "Blitz is genuinely the fastest review loop I've used.", source: "@globex" },
+      { id: "3", quote: "Velocity is genuinely the fastest review loop I've used.", source: "@globex" },
     ],
   },
 };

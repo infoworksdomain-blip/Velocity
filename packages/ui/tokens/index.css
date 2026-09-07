@@ -16,7 +16,7 @@
   --flare-deep: #c9350a; /* pressed states, gradient stop */
   --ember: #0b0b0c; /* gradient base for the divider + footer */
   --glow: rgba(255, 77, 18, 0.26); /* bloom behind hero media + primary CTA */
-  --scrim: rgba(0, 0, 0, 0.65); /* dark gradient behind light text over media (ContentCard, BlitzCard) */
+  --scrim: rgba(0, 0, 0, 0.65); /* dark gradient behind light text over media (ContentCard, VelocityCard) */
   --on-dark: #ffffff; /* text color over a scrim/media surface, distinct from --ink which is for text on --paper */
 
   /* Form / depth */

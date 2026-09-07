@@ -3,7 +3,7 @@ import type { ContentFormat } from "@velocity/contracts";
 /**
  * `content_concepts.predicted_score` (STEP 8.2). This is a deterministic
  * heuristic, not a learned model — the real learned ranking is STEP 9's
- * Blitz bandit, which observes actual swipe/dwell-time signal this step
+ * Velocity bandit, which observes actual swipe/dwell-time signal this step
  * has no access to yet. Combines: the source blueprint's velocity score
  * (higher = the pattern is trending harder right now), a recency decay
  * (fresher signal is worth more), the angle-to-brand cosine similarity

@@ -13,7 +13,7 @@ export const Default: Story = {
   args: {
     wordmark: "VELOCITY",
     columns: [
-      { heading: "Product", links: [{ label: "Blitz", href: "#" }, { label: "Pricing", href: "#" }] },
+      { heading: "Product", links: [{ label: "Velocity", href: "#" }, { label: "Pricing", href: "#" }] },
       { heading: "Company", links: [{ label: "About", href: "#" }] },
       { heading: "Resources", links: [{ label: "Docs", href: "#" }] },
       { heading: "Legal", links: [{ label: "Privacy", href: "#" }] },
