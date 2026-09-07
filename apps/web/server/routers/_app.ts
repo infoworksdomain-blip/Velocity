@@ -7,6 +7,7 @@ import { mediaRouter } from "./media";
 import { notificationsRouter } from "./notifications";
 import { onboardingRouter } from "./onboarding";
 import { renderRouter } from "./render";
+import { socialRouter } from "./social";
 import { velocityRouter } from "./velocity";
 import { workspaceRouter } from "./workspace";
 
@@ -21,6 +22,7 @@ export const appRouter = router({
   media: mediaRouter,
   velocity: velocityRouter,
   calendar: calendarRouter,
+  social: socialRouter,
 });
 
 export type AppRouter = typeof appRouter;

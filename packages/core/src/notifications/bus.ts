@@ -17,7 +17,9 @@ export type NotificationEventType =
   | "render_complete"
   | "publish_failed"
   | "credit_low"
-  | "invitation_received";
+  | "invitation_received"
+  | "token_expiring"
+  | "account_reauth_required";
 
 export interface NotificationEvent {
   type: NotificationEventType;

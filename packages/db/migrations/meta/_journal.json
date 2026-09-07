@@ -85,6 +85,13 @@
       "when": 1788800000000,
       "tag": "0011_calendar_slot_social_account",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1788820000000,
+      "tag": "0012_social_account_connection_status",
+      "breakpoints": true
     }
   ]
 }

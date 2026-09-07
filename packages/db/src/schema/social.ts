@@ -1,6 +1,6 @@
 import { boolean, integer, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { idColumn, timestamps, workspaceIdColumn } from "./_helpers";
-import { platformEnum } from "./enums";
+import { connectionStatusEnum, platformEnum } from "./enums";
 import { workspaces } from "./tenancy";
 
 export const socialAccounts = pgTable("social_accounts", {
@@ -10,6 +10,8 @@ export const socialAccounts = pgTable("social_accounts", {
   externalAccountId: text("external_account_id").notNull(),
   handle: text("handle"),
   isPrivate: boolean("is_private"), // TikTok unaudited-client accounts must be private — tracked, not enforced here
+  connectionStatus: connectionStatusEnum("connection_status").notNull().default("connected"),
+  lastHealthCheckAt: timestamp("last_health_check_at", { withTimezone: true }),
   ...timestamps(),
 }, (table) => [
   uniqueIndex("social_accounts_platform_external_id_idx").on(table.platform, table.externalAccountId),
@@ -33,15 +35,28 @@ export const platformCredentials = pgTable("platform_credentials", {
   ...timestamps(),
 });
 
-export const platformQuotaState = pgTable("platform_quota_state", {
-  id: idColumn(),
-  workspaceId: workspaceIdColumn().references(() => workspaces.id),
-  socialAccountId: uuid("social_account_id")
-    .notNull()
-    .references(() => socialAccounts.id),
-  windowStartsAt: timestamp("window_starts_at", { withTimezone: true }).notNull(),
-  windowSeconds: integer("window_seconds").notNull(),
-  requestCount: integer("request_count").notNull().default(0),
-  requestCap: integer("request_cap").notNull(),
-  ...timestamps(),
-});
+/**
+ * One row per social account (STEP 11) — the unique index below is not
+ * just an integrity nicety, it's what makes `checkAndIncrementQuota`'s
+ * single-statement `INSERT ... ON CONFLICT` genuinely atomic under real
+ * concurrency (GATE 11: "Quota counters correct under concurrent
+ * publishes"). Without it, two concurrent first-ever requests for the
+ * same account could both take the INSERT path and create two rows,
+ * defeating the whole point of a single counter.
+ */
+export const platformQuotaState = pgTable(
+  "platform_quota_state",
+  {
+    id: idColumn(),
+    workspaceId: workspaceIdColumn().references(() => workspaces.id),
+    socialAccountId: uuid("social_account_id")
+      .notNull()
+      .references(() => socialAccounts.id),
+    windowStartsAt: timestamp("window_starts_at", { withTimezone: true }).notNull(),
+    windowSeconds: integer("window_seconds").notNull(),
+    requestCount: integer("request_count").notNull().default(0),
+    requestCap: integer("request_cap").notNull(),
+    ...timestamps(),
+  },
+  (table) => [uniqueIndex("platform_quota_state_social_account_id_idx").on(table.socialAccountId)],
+);

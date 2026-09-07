@@ -75,3 +75,13 @@ export const renderStepStateEnum = pgEnum("render_step_state", [
   "skipped",
 ]);
 
+/**
+ * social_accounts.connection_status (STEP 11). `connected` — the token is
+ * valid and no reauth is needed. `reauth_required` — the token was
+ * revoked/expired and the account needs the user to reconnect (GATE 11:
+ * "a revoked token yields a clear reconnect prompt, not a silent
+ * failure" — this is the field that prompt reads). `disconnected` — the
+ * user explicitly disconnected the account.
+ */
+export const connectionStatusEnum = pgEnum("connection_status", ["connected", "reauth_required", "disconnected"]);
+
