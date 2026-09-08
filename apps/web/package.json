@@ -23,7 +23,7 @@
     "@velocity/text-engine": "workspace:*",
     "@velocity/ui": "workspace:*",
     "@velocity/worker": "workspace:*",
-    "drizzle-orm": "^0.38.2",
+    "drizzle-orm": "^0.45.2",
     "next": "15.5.25",
     "react": "19.0.0",
     "react-dom": "19.0.0",
@@ -39,6 +39,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "jsdom": "^25.0.1",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "vite": "^6.4.3",
+    "vitest": "^3.2.6"
   }
 }

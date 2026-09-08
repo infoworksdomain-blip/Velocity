@@ -24,11 +24,12 @@
     "@temporalio/workflow": "1.11.7",
     "@temporalio/client": "1.11.7",
     "@temporalio/common": "1.11.7",
-    "drizzle-orm": "^0.38.2"
+    "drizzle-orm": "^0.45.2"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
     "@temporalio/testing": "1.11.7",
-    "vitest": "^2.1.8"
+    "vite": "^6.4.3",
+    "vitest": "^3.2.6"
   }
 }
