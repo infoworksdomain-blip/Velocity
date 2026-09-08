@@ -1,9 +1,9 @@
 import { fileURLToPath } from "node:url";
-import { social, publish } from "@velocity/core";
+import { admin, social, publish } from "@velocity/core";
 import type { PreflightResult } from "@velocity/contracts";
 import { schema } from "@velocity/db";
 import { eq } from "drizzle-orm";
-import { runInWorkspaceTx } from "../context.js";
+import { getAdminDb, runInWorkspaceTx } from "../context.js";
 import { runIdempotentStep } from "./publish-step-ledger.js";
 
 const DEFAULT_QUOTA_WINDOW_SECONDS = 86400;
@@ -34,6 +34,27 @@ export interface PreflightActivityInput {
  * never double-increments quota for the same publication.
  */
 export async function preflightCheck(input: PreflightActivityInput): Promise<PreflightResult> {
+  // STEP 18's global kill switch — read via the admin (RLS-bypassing)
+  // connection BEFORE opening the workspace transaction below, never
+  // inside it: runIdempotentStep holds one transaction open for its
+  // whole check-claim-compute-persist sequence (its own doc comment),
+  // and nesting a second top-level query through a DIFFERENT connection
+  // handle inside that open transaction is a real contention hazard in
+  // this test harness (PGlite backs both `getAdminDb()` and the
+  // workspace transaction with the SAME single underlying connection in
+  // tests, unlike production's genuinely separate connection pools) —
+  // found via a real, reproducible slowdown/deadlock-prone pattern
+  // across the publish-workflow test suite. ProviderRegistry's own TTL
+  // reload doesn't apply here (this is a per-call DB read, not a cached
+  // router config), so a pause takes effect on literally the next
+  // preflight call, well inside GATE 18's 60-second bound.
+  const pauseKey = admin.platformPauseFlagKey(input.platform);
+  const pauseRows = await getAdminDb()
+    .select({ workspaceId: schema.featureFlags.workspaceId, userId: schema.featureFlags.userId, key: schema.featureFlags.key, isEnabled: schema.featureFlags.isEnabled })
+    .from(schema.featureFlags)
+    .where(eq(schema.featureFlags.key, pauseKey));
+  const platformPaused = admin.isPlatformPaused(input.platform, pauseRows);
+
   return runIdempotentStep({ runInWorkspaceTx: (fn) => runInWorkspaceTx(input.workspaceId, fn), workspaceId: input.workspaceId, publicationId: input.publicationId, stepKind: "preflight" }, async (db) => {
     const [renderRow] = await db.select().from(schema.renders).where(eq(schema.renders.id, input.renderId)).limit(1);
     const [contentItemRow] = await db.select().from(schema.contentItems).where(eq(schema.contentItems.id, input.contentItemId)).limit(1);
@@ -53,6 +74,7 @@ export async function preflightCheck(input: PreflightActivityInput): Promise<Pre
       socialAccount: { connectionStatus: socialAccountRow.connectionStatus },
       quota: { allowed: true },
       mediaSpec,
+      platformPaused,
     });
     if (!dryRun.passed) return dryRun;
 

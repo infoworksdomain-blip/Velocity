@@ -12,9 +12,10 @@ import {
   ProviderRegistry,
   CircuitBreaker,
   InMemoryBreakerStore,
+  type ProviderConfigSource,
 } from "@velocity/providers";
 import { AnthropicTextProvider, OpenAITextProvider, createStubTextProvider } from "@velocity/text-engine";
-import { createKmsProvider, withWorkspace, type KmsProvider } from "@velocity/db";
+import { createAdminDb, createKmsProvider, withWorkspace, type KmsProvider } from "@velocity/db";
 import { StubCompositor } from "../../composition/stub.compositor.js";
 import { PassThroughNormaliser } from "../../composition/loudness.js";
 import { InMemoryBlobStore } from "../../storage/local.blob-store.js";
@@ -22,6 +23,7 @@ import type { BlobStore } from "../../storage/blob-store.js";
 import type { Compositor } from "../../composition/compositor.js";
 import type { WorkspaceDb } from "./step-ledger.js";
 import type { LoudnessNormaliser } from "../../composition/loudness.js";
+import { DbProviderConfigSource, type AdminLikeDb } from "./db-provider-config-source.js";
 
 /**
  * Module-level singleton wiring for every render activity (STEP 8.4).
@@ -31,10 +33,30 @@ import type { LoudnessNormaliser } from "../../composition/loudness.js";
  * in this codebase, applied to the activity layer.
  */
 
+// STEP 18: the file source stays the source of truth for which providers
+// exist and their credentials; DbProviderConfigSource overlays the
+// DB-backed admin-controllable fields (enabled/weight/tiers/adapter/
+// breaker) on top. A 30s TTL (ProviderRegistry's default) means an
+// admin's kill-switch flip reaches every worker process within GATE 18's
+// literal 60-second bound, with no restart. Swappable (not reset by
+// resetActivityContextForTests — deliberately sticky for a whole test
+// file, unlike the per-request runInWorkspaceTxImpl override below) so
+// render-workflow tests that have nothing to do with STEP 18 can point
+// getProviderRegistry() at a plain FileProviderConfigSource instead of
+// requiring a live admin DB connection — see
+// apps/worker/src/__tests__/helpers/provider-config-env.ts.
+type ProviderConfigSourceFactory = () => ProviderConfigSource;
+const defaultProviderConfigSourceFactory: ProviderConfigSourceFactory = () => new DbProviderConfigSource(new FileProviderConfigSource());
+let providerConfigSourceFactoryImpl: ProviderConfigSourceFactory = defaultProviderConfigSourceFactory;
+
+export function setProviderConfigSourceForTests(factory: ProviderConfigSourceFactory): void {
+  providerConfigSourceFactoryImpl = factory;
+}
+
 let registry: ProviderRegistry | undefined;
 export function getProviderRegistry(): ProviderRegistry {
   if (registry) return registry;
-  registry = new ProviderRegistry(new FileProviderConfigSource());
+  registry = new ProviderRegistry(providerConfigSourceFactoryImpl());
   registry.register("video", "kling-3.0", (entry) => createKlingStubProvider(entry.tiers));
   registry.register("video", "veo-3.1", (entry) => createVeoStubProvider(entry.tiers));
   registry.register("video", "seedance-2.5", (entry) => createSeedanceStubProvider(entry.tiers));
@@ -57,6 +79,22 @@ export function getProviderRegistry(): ProviderRegistry {
     entry.credentials.apiKey ? new OpenAITextProvider("gpt-4.1", entry.credentials.apiKey, entry.tiers) : createStubTextProvider("openai", entry.tiers),
   );
   return registry;
+}
+
+// STEP 18: platform-root reads with no workspace context (e.g. the
+// feature_flags row for a global publish pause) — same role as apps/web's
+// getAdminDb(), needed here because this activity layer has no HTTP
+// request to attach a workspace-scoped db to. Sticky across a test file
+// (not reset by resetActivityContextForTests), the same reasoning as the
+// provider-config-source factory above.
+let adminDbInstance: AdminLikeDb | undefined;
+export function getAdminDb(): AdminLikeDb {
+  adminDbInstance ??= createAdminDb();
+  return adminDbInstance;
+}
+
+export function setAdminDbForTests(db: AdminLikeDb): void {
+  adminDbInstance = db;
 }
 
 let breaker: CircuitBreaker | undefined;

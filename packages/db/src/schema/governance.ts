@@ -1,6 +1,6 @@
 import { boolean, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { idColumn, workspaceIdColumn } from "./_helpers";
-import { workspaces } from "./tenancy";
+import { users, workspaces } from "./tenancy";
 
 /**
  * Append-only. No `updatedAt`/`deletedAt` — a row is never modified after
@@ -19,10 +19,19 @@ export const auditLogs = pgTable("audit_logs", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-/** Platform-root by default (workspaceId null = global flag); a non-null workspaceId scopes an override to one workspace. */
+/**
+ * Platform-root by default (workspaceId AND userId null = global flag).
+ * STEP 18 added `userId` (build script's own literal "feature flags
+ * evaluate per workspace and per user") — resolution precedence is
+ * user-override -> workspace-override -> platform-default, the same
+ * "most specific tier wins" shape STEP 4's settings resolution already
+ * established (`packages/core/src/settings/resolve.ts`), extended one
+ * level further. See `packages/core/src/admin/feature-flags.ts`.
+ */
 export const featureFlags = pgTable("feature_flags", {
   id: idColumn(),
   workspaceId: uuid("workspace_id").references(() => workspaces.id),
+  userId: uuid("user_id").references(() => users.id),
   key: text("key").notNull(),
   isEnabled: boolean("is_enabled").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

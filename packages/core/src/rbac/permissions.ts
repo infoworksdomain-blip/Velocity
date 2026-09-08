@@ -53,6 +53,11 @@ export const PERMISSION_CATALOG = [
   "billing:manage_any:platform",
   "feature_flags:manage:platform",
   "system:configure:platform",
+  // STEP 18: the build script's own "audit log viewer" — no pre-existing
+  // permission covered this (the others are all about taking an action;
+  // this is read-only oversight), so it's a genuine new grant, not a
+  // reuse of an existing one.
+  "audit_log:read:platform",
 ] as const;
 
 export type Permission = (typeof PERMISSION_CATALOG)[number];

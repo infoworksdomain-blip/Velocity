@@ -8,6 +8,7 @@ const baseInput: RunPreflightChecksInput = {
   socialAccount: { connectionStatus: "connected" },
   quota: { allowed: true },
   mediaSpec: { maxDurationMs: 90000, minDurationMs: 3000, aspectRatio: "9:16", note: "" },
+  platformPaused: false,
 };
 
 describe("runPreflightChecks", () => {
@@ -65,6 +66,19 @@ describe("runPreflightChecks", () => {
     const result = runPreflightChecks({ ...baseInput, quota: { allowed: false } });
     expect(result.passed).toBe(false);
     expect(result.failureKind).toBe("quota");
+  });
+
+  it("fails with failureKind quota (not terminal) when the platform is globally paused (STEP 18 kill switch)", () => {
+    const result = runPreflightChecks({ ...baseInput, platformPaused: true });
+    expect(result.passed).toBe(false);
+    expect(result.failureKind).toBe("quota");
+    expect(result.reasons.join(" ")).toContain("paused");
+  });
+
+  it("a global pause is checked even when every other check would otherwise pass, before quota is consulted", () => {
+    const result = runPreflightChecks({ ...baseInput, platformPaused: true, quota: { allowed: false } });
+    expect(result.reasons.join(" ")).toContain("paused");
+    expect(result.reasons.join(" ")).not.toContain("headroom");
   });
 
   it("reports every failing terminal reason at once, not just the first", () => {

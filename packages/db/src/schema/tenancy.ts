@@ -48,6 +48,9 @@ export const users = pgTable("users", {
    * Postgres has no native cross-row CHECK against another table's column.
    */
   platformRoleId: uuid("platform_role_id").references(() => roles.id),
+  /** STEP 18: real user suspension (build script: "user management: search, suspend, audited impersonation"). A suspended user's session cannot be created — see packages/core/src/auth/session.ts's own real check — and `suspendedReason` is required whenever this is set (enforced in apps/web/server/admin-service.ts, not at the DB level). */
+  suspendedAt: timestamp("suspended_at", { withTimezone: true }),
+  suspendedReason: text("suspended_reason"),
   ...timestamps(),
 }, (table) => [uniqueIndex("users_email_idx").on(table.email)]);
 

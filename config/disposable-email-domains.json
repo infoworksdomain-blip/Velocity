@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "domains": ["mailinator.com", "10minutemail.com", "guerrillamail.com", "tempmail.com", "yopmail.com", "trashmail.com", "getnada.com", "throwawaymail.com"],
+  "note": "A real, configurable domain-matching mechanism (packages/core/src/admin/risk-rules.ts) needs a real list to match against — this is a small, illustrative seed of widely-known disposable-email providers, not a comprehensive or maintained block list. A production system would subscribe to a maintained disposable-domain feed. See docs/steps/STEP-18.md, the same honest-seed-list precedent as config/public-figures.json (STEP 15)."
+}

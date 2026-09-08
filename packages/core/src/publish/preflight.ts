@@ -41,6 +41,15 @@ export interface RunPreflightChecksInput {
   socialAccount: PreflightSocialAccountInput;
   quota: PreflightQuotaInput;
   mediaSpec: PlatformMediaSpec;
+  /**
+   * STEP 18's global publish pause (build script: "social integration
+   * management ... global pause"), reusing the feature-flags mechanism
+   * with the `platform_pause:${platform}` convention key rather than new
+   * infrastructure — see packages/core/src/admin/feature-flags.ts's
+   * `isPlatformPaused`. The calling Temporal activity resolves this flag
+   * before calling in; this function stays pure.
+   */
+  platformPaused: boolean;
 }
 
 /**
@@ -89,6 +98,14 @@ export function runPreflightChecks(input: RunPreflightChecksInput): PreflightRes
 
   if (reasons.length > 0) {
     return { passed: false, failureKind: "terminal", reasons, mediaUrl: null };
+  }
+
+  // STEP 18's global kill switch — an admin pause, not a content defect or
+  // an infrastructure blip, so it shares "quota"'s retry-later semantics
+  // (attemptOutcome records it as deferred, not a hard failure) rather
+  // than "terminal".
+  if (input.platformPaused) {
+    return { passed: false, failureKind: "quota", reasons: [`Publishing to ${input.platform} is currently paused platform-wide by an administrator.`], mediaUrl: null };
   }
 
   if (!input.quota.allowed) {

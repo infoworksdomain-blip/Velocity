@@ -7,7 +7,7 @@ import { Worker } from "@temporalio/worker";
 import { eq } from "drizzle-orm";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import * as activities from "../temporal/activities/index.js";
-import { resetActivityContextForTests, setRunInWorkspaceTxForTests } from "../temporal/activities/context.js";
+import { resetActivityContextForTests, setAdminDbForTests, setRunInWorkspaceTxForTests } from "../temporal/activities/context.js";
 import { RENDER_TASK_QUEUE } from "../temporal/task-queues.js";
 import { buildPublishFixture } from "./helpers/publish-fixtures.js";
 import { useTestEncryptionKeyForTests } from "./helpers/kms-env.js";
@@ -28,6 +28,7 @@ describe("publish workflow — preflight rejections never reach a vendor (STEP 1
 
   beforeAll(async () => {
     testDb = await createPgliteTestDb();
+    setAdminDbForTests(testDb.admin);
     testEnv = await TestWorkflowEnvironment.createTimeSkipping();
     kms = new LocalDevKmsProvider("a".repeat(64));
   }, 60000);
@@ -86,6 +87,28 @@ describe("publish workflow — preflight rejections never reach a vendor (STEP 1
 
     expect(result.status).toBe("failed");
     expect(result.failureKind).toBe("quota");
+    expect(fetchMock).not.toHaveBeenCalled();
+
+    const attemptRows = await testDb.admin.select().from(schema.publicationAttempts).where(eq(schema.publicationAttempts.publicationId, input.publicationId));
+    expect(attemptRows[0]?.outcome).toBe("quota_deferred");
+  }, 60000);
+
+  it("STEP 18: fails with failureKind quota, with no vendor call, when an admin has globally paused the platform", async () => {
+    const { input } = await buildPublishFixture(testDb, kms, { platform: "tiktok" });
+
+    // The real global-pause mechanism: a platform-root feature_flags row
+    // (no workspaceId, no userId) under the platform_pause:<platform>
+    // convention key — see packages/core/src/admin/feature-flags.ts.
+    await testDb.admin.insert(schema.featureFlags).values({ key: "platform_pause:tiktok", isEnabled: true, workspaceId: null, userId: null });
+
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await runWorkflow(`publish:${input.publicationId}`, input);
+
+    expect(result.status).toBe("failed");
+    expect(result.failureKind).toBe("quota");
+    expect(result.errorMessage ?? "").toContain("paused");
     expect(fetchMock).not.toHaveBeenCalled();
 
     const attemptRows = await testDb.admin.select().from(schema.publicationAttempts).where(eq(schema.publicationAttempts.publicationId, input.publicationId));

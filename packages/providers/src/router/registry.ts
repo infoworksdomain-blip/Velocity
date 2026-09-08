@@ -4,18 +4,44 @@ import type { ProviderConfigSource } from "./config-source.js";
 
 export type ProviderFactory<T extends AnyProvider = AnyProvider> = (entry: ProviderEntry) => T;
 
+export interface ProviderRegistryOptions {
+  /**
+   * How long a loaded config is trusted before the next `ensureLoaded()`
+   * call re-reads it. Default 30s -- comfortably under GATE 18's literal
+   * "a model kill switch takes effect within 60 seconds without a
+   * deploy": every routing decision calls `ensureLoaded()`, so worst-case
+   * staleness after an admin flips a provider's `enabled` flag in the DB
+   * is one TTL window, not "until the process restarts."
+   */
+  reloadIntervalMs?: number;
+  /** Injectable clock, so tests can fast-forward past the TTL without a real wall-clock wait (same pattern as STEP 11's token-refresh-daemon test). */
+  now?: () => number;
+}
+
 /**
  * Holds the actual adapter instances, keyed by (kind, id), and the config
  * that decides which are enabled and how they rank. Adapters register a
  * factory once at worker boot; `reload()` re-reads config (e.g. after
- * STEP 18's kill switch flips a flag) without restarting the process.
+ * STEP 18's kill switch flips a flag) without restarting the process --
+ * `ensureLoaded()` also calls it automatically once the TTL expires, so a
+ * DB-backed config source (STEP 18's `DbProviderConfigSource`) propagates
+ * changes on its own, with no external scheduler required.
  */
 export class ProviderRegistry {
   private readonly factories = new Map<string, ProviderFactory>();
   private readonly instances = new Map<string, AnyProvider>();
   private config: ProviderRegistryConfig | null = null;
+  private lastLoadedAtMs: number | null = null;
+  private readonly reloadIntervalMs: number;
+  private readonly now: () => number;
 
-  constructor(private readonly configSource: ProviderConfigSource) {}
+  constructor(
+    private readonly configSource: ProviderConfigSource,
+    options: ProviderRegistryOptions = {},
+  ) {
+    this.reloadIntervalMs = options.reloadIntervalMs ?? 30_000;
+    this.now = options.now ?? Date.now;
+  }
 
   private key(kind: ProviderKind, id: string): string {
     return `${kind}:${id}`;
@@ -27,10 +53,16 @@ export class ProviderRegistry {
 
   async reload(): Promise<void> {
     this.config = await this.configSource.load();
+    this.lastLoadedAtMs = this.now();
+  }
+
+  private isStale(): boolean {
+    if (this.config === null || this.lastLoadedAtMs === null) return true;
+    return this.now() - this.lastLoadedAtMs >= this.reloadIntervalMs;
   }
 
   private async ensureLoaded(): Promise<ProviderRegistryConfig> {
-    if (!this.config) await this.reload();
+    if (this.isStale()) await this.reload();
     return this.config!;
   }
 

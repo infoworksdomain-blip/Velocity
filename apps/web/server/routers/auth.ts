@@ -4,6 +4,7 @@ import { createKmsProvider, schema } from "@velocity/db";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
+import { checkAndRecordSignupRisk } from "../admin-service";
 import { getAdminDb } from "../db";
 import { createSession } from "../session-service";
 import { protectedProcedure, publicProcedure, requirePlatformPermission, router } from "../trpc";
@@ -44,6 +45,11 @@ export const authRouter = router({
         passwordHash,
       });
 
+      // STEP 18: real, non-blocking disposable-email detection — see
+      // admin-service.ts's checkAndRecordSignupRisk for why this doesn't
+      // write to risk_signals (workspace-scoped, no workspace exists yet).
+      await checkAndRecordSignupRisk(userId, input.email);
+
       const session = await createSession(userId);
       return { userId, ...session };
     }),
@@ -52,7 +58,7 @@ export const authRouter = router({
     .input(z.object({ email: z.string().email(), password: z.string() }))
     .mutation(async ({ input }) => {
       const rows = await getAdminDb()
-        .select({ id: schema.users.id, passwordHash: schema.users.passwordHash })
+        .select({ id: schema.users.id, passwordHash: schema.users.passwordHash, suspendedAt: schema.users.suspendedAt })
         .from(schema.users)
         .where(eq(schema.users.email, input.email))
         .limit(1);
@@ -67,6 +73,11 @@ export const authRouter = router({
 
       if (!user || !passwordValid) {
         throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid email or password" });
+      }
+
+      // STEP 18: a suspended user's password may be correct, but no session is issued — the real enforcement half of admin user suspension, checked AFTER the password to avoid leaking "this account exists and is suspended" to an unauthenticated caller who doesn't know the password.
+      if (user.suspendedAt) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "This account has been suspended" });
       }
 
       const session = await createSession(user.id);

@@ -1,0 +1,98 @@
+.shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+  background: var(--paper-2);
+}
+
+.main {
+  padding: calc(var(--space-unit) * 8) calc(var(--space-unit) * 10);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 5);
+  max-width: 960px;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 3);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  box-shadow: var(--sh-card);
+  padding: calc(var(--space-unit) * 4);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 2);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--space-unit) * 2);
+  padding: calc(var(--space-unit) * 2) calc(var(--space-unit) * 3);
+  border-radius: var(--r-field);
+  border: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--flare-deep);
+}
+
+.badgeOk {
+  composes: badge;
+  color: #1a7f37;
+}
+
+.form {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--space-unit) * 2);
+  flex-wrap: wrap;
+}
+
+.input {
+  font-family: var(--font-display);
+  font-size: var(--text-body);
+  padding: calc(var(--space-unit) * 2) calc(var(--space-unit) * 3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-field);
+  background: var(--paper);
+}
+
+.actionButton {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-body);
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: calc(var(--space-unit) * 1) calc(var(--space-unit) * 3);
+  cursor: pointer;
+}
+
+.dangerButton {
+  composes: actionButton;
+  border-color: var(--flare-deep);
+  color: var(--flare-deep);
+}
+
+@media (max-width: 900px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+}

@@ -7,7 +7,7 @@ import { Worker } from "@temporalio/worker";
 import { eq } from "drizzle-orm";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import * as activities from "../temporal/activities/index.js";
-import { resetActivityContextForTests, setRunInWorkspaceTxForTests } from "../temporal/activities/context.js";
+import { resetActivityContextForTests, setAdminDbForTests, setRunInWorkspaceTxForTests } from "../temporal/activities/context.js";
 import { RENDER_TASK_QUEUE } from "../temporal/task-queues.js";
 import { buildPublishFixture } from "./helpers/publish-fixtures.js";
 import { useTestEncryptionKeyForTests } from "./helpers/kms-env.js";
@@ -36,6 +36,7 @@ describe("publish workflow — duplicate trigger rejection (GATE 12: zero duplic
 
   beforeAll(async () => {
     testDb = await createPgliteTestDb();
+    setAdminDbForTests(testDb.admin);
     testEnv = await TestWorkflowEnvironment.createTimeSkipping();
     kms = new LocalDevKmsProvider("a".repeat(64));
   }, 60000);
