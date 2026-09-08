@@ -1,5 +1,8 @@
 import { router } from "../trpc";
+import { agentsRouter } from "./agents";
 import { analyticsRouter } from "./analytics";
+import { apiKeysRouter } from "./api-keys";
+import { automationRouter } from "./automation";
 import { authRouter } from "./auth";
 import { calendarRouter } from "./calendar";
 import { contentRouter } from "./content";
@@ -13,6 +16,7 @@ import { renderRouter } from "./render";
 import { socialRouter } from "./social";
 import { ugcRouter } from "./ugc";
 import { velocityRouter } from "./velocity";
+import { webhooksRouter } from "./webhooks";
 import { workspaceRouter } from "./workspace";
 
 export const appRouter = router({
@@ -31,6 +35,10 @@ export const appRouter = router({
   analytics: analyticsRouter,
   growthBrain: growthBrainRouter,
   ugc: ugcRouter,
+  automation: automationRouter,
+  agents: agentsRouter,
+  webhooks: webhooksRouter,
+  apiKeys: apiKeysRouter,
 });
 
 export type AppRouter = typeof appRouter;

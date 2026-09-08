@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
-import { analytics } from "@velocity/core";
+import { analytics, velocity as velocityCore } from "@velocity/core";
 import { schema } from "@velocity/db";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import type { PgDatabase } from "drizzle-orm/pg-core";
 
 const MAX_SLUG_ATTEMPTS = 5;
@@ -87,4 +87,26 @@ export async function recordAttributionEvent(db: AnalyticsDb, vclid: string, eve
     metadata: { clickEventId: vclid },
   });
   return true;
+}
+
+/**
+ * The exact atomic upsert routers/analytics.ts's `closeLoop` mutation used
+ * to apply real performance-derived updates to `velocity_preferences`,
+ * extracted here (STEP 16) so it has ONE implementation shared by that
+ * router AND the automation engine's `boost_winner_variants` action
+ * (packages/core/src/automation) — the same "extract a shared service
+ * function rather than let two call sites drift" pattern already used for
+ * `previewAutoFillForWorkspace`/`extractBlueprintForCompetitor`.
+ */
+export async function applyPreferenceUpdates(db: AnalyticsDb, workspaceId: string, updates: velocityCore.PreferenceUpdate[]): Promise<{ dimensionsUpdated: number }> {
+  for (const update of updates) {
+    await db
+      .insert(schema.velocityPreferences)
+      .values({ id: randomUUID(), workspaceId, dimensionKey: update.dimensionKey, alpha: 1 + update.alphaDelta, beta: 1 + update.betaDelta })
+      .onConflictDoUpdate({
+        target: [schema.velocityPreferences.workspaceId, schema.velocityPreferences.dimensionKey],
+        set: { alpha: sql`${schema.velocityPreferences.alpha} + ${update.alphaDelta}`, beta: sql`${schema.velocityPreferences.beta} + ${update.betaDelta}`, updatedAt: new Date() },
+      });
+  }
+  return { dimensionsUpdated: updates.length };
 }

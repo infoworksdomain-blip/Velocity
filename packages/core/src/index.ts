@@ -18,3 +18,6 @@ export * as analytics from "./analytics/index";
 export * as audit from "./audit/index";
 export * as growthBrain from "./growth-brain/index";
 export * as ugc from "./ugc/index";
+export * as automation from "./automation/index";
+export * as agents from "./agents/index";
+export * as webhooks from "./webhooks/index";

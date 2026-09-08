@@ -19,7 +19,7 @@ import { fetchMetricSamples, getWorkspaceTimezone } from "./routers/analytics";
  * shape) — a real, contained scope decision, not an oversight; see
  * docs/steps/STEP-14.md.
  */
-type AssistantDb = PgDatabase<any, typeof schema>; // eslint-disable-line @typescript-eslint/no-explicit-any
+export type AssistantDb = PgDatabase<any, typeof schema>; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 const { runAssistantConversation, GROWTH_BRAIN_TOOLS } = growthBrain;
 const { writeAuditLog } = audit;
@@ -35,7 +35,7 @@ const { writeAuditLog } = audit;
  * STEP-14.md and the adversarial test in __tests__/assistant-service.test.ts.
  */
 
-function getAssistantProvider(): AssistantProvider {
+export function getAssistantProvider(): AssistantProvider {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   return apiKey ? new AnthropicAssistantProvider("claude-sonnet-4-6", apiKey) : createStubAssistantProvider();
 }
@@ -53,9 +53,19 @@ const CreateConceptsInputSchema = z.object({
   formats: z.array(z.enum(["ai_ugc", "slideshow", "hook_demo", "meme"])).min(1),
 });
 const ScheduleContentInputSchema = z.object({ days: z.number().int().min(1).max(60) });
-const PullAnalyticsInputSchema = z.object({ groupBy: z.enum(["format", "angle", "persona", "platform", "hookPattern", "cohort"]) });
+// `.default("platform")` matters beyond convenience: StubAssistantProvider
+// (used whenever no funded Anthropic key is configured — see STEP 16's
+// agent-service.test.ts, which surfaced this) always calls a matched tool
+// with `input: {}`, since a keyword-triggered stub has no way to infer a
+// real groupBy value. Without a default, every stub-driven pull_analytics
+// call failed validation before this fix — a real, pre-existing STEP 14
+// bug, invisible until STEP 16's agent-run test asserted on the audit
+// log's actual action name rather than only on the reply text. A real
+// LLM call always supplies its own groupBy, which overrides this default
+// exactly as normal.
+const PullAnalyticsInputSchema = z.object({ groupBy: z.enum(["format", "angle", "persona", "platform", "hookPattern", "cohort"]).default("platform") });
 
-async function executeGrowthBrainTool(workspaceId: string, name: string, rawInput: unknown, db: AssistantDb): Promise<unknown> {
+export async function executeGrowthBrainTool(workspaceId: string, name: string, rawInput: unknown, db: AssistantDb): Promise<unknown> {
   switch (name) {
     case "create_content_concepts": {
       const input = CreateConceptsInputSchema.parse(rawInput);

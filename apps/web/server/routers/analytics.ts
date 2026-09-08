@@ -1,7 +1,6 @@
-import { randomUUID } from "node:crypto";
 import { analytics as analyticsCore, calendar, velocity as velocityCore } from "@velocity/core";
 import { schema } from "@velocity/db";
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import type { PgDatabase } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { getAdminDb } from "../db";
@@ -125,14 +124,15 @@ export const analyticsRouter = router({
    * updates to velocity_preferences — the SAME atomic upsert routers/
    * velocity.ts's swipe handler already uses, generalized from a binary
    * swipe outcome to computePreferenceUpdatesFromPerformance's
-   * statistical winner/loser signal. Manually triggered here (no
-   * scheduler exists yet — see docs/steps/STEP-13.md) rather than
-   * automatic; a future scheduled job would call this same logic.
+   * statistical winner/loser signal. Manually triggered here as a direct
+   * user action; STEP 16's automation engine can ALSO trigger this exact
+   * logic automatically (its `boost_winner_variants` action calls the
+   * same extracted `applyPreferenceUpdates`, apps/web/server/analytics-
+   * service.ts) — one real implementation, two real trigger paths.
    */
   closeLoop: requireWorkspacePermission(PERMISSION).mutation(async ({ ctx }) => {
     const timezone = await getWorkspaceTimezone(ctx.workspaceId);
     const samples = await fetchMetricSamples(ctx.workspaceId, timezone);
-    const db = getAdminDb();
 
     const updates = computePreferenceUpdatesFromPerformance(
       samples.map((s) => ({
@@ -142,17 +142,9 @@ export const analyticsRouter = router({
       })),
     );
 
-    for (const update of updates) {
-      await db
-        .insert(schema.velocityPreferences)
-        .values({ id: randomUUID(), workspaceId: ctx.workspaceId, dimensionKey: update.dimensionKey, alpha: 1 + update.alphaDelta, beta: 1 + update.betaDelta })
-        .onConflictDoUpdate({
-          target: [schema.velocityPreferences.workspaceId, schema.velocityPreferences.dimensionKey],
-          set: { alpha: sql`${schema.velocityPreferences.alpha} + ${update.alphaDelta}`, beta: sql`${schema.velocityPreferences.beta} + ${update.betaDelta}`, updatedAt: new Date() },
-        });
-    }
-
-    return { dimensionsUpdated: updates.length, samplesConsidered: samples.length };
+    const { applyPreferenceUpdates } = await import("../analytics-service");
+    const { dimensionsUpdated } = await applyPreferenceUpdates(getAdminDb(), ctx.workspaceId, updates);
+    return { dimensionsUpdated, samplesConsidered: samples.length };
   }),
 
   createShortLink: requireWorkspacePermission(PERMISSION)

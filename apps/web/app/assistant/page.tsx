@@ -16,6 +16,7 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
   { id: "analytics", label: "Analytics", icon: <span aria-hidden>▲</span>, href: "/analytics" },
   { id: "assistant", label: "Assistant", icon: <span aria-hidden>✦</span>, href: "/assistant", active: true },
   { id: "ugc", label: "UGC Studio", icon: <span aria-hidden>★</span>, href: "/ugc" },
+  { id: "automations", label: "Automation", icon: <span aria-hidden>⚙</span>, href: "/automations" },
 ];
 
 /**

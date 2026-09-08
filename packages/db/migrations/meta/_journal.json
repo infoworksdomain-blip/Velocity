@@ -127,6 +127,27 @@
       "when": 1788920000000,
       "tag": "0017_ugc_consent_artefacts",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1788940000000,
+      "tag": "0018_campaign_pause",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1788960000000,
+      "tag": "0019_webhook_delivery_retry_state",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1788980000000,
+      "tag": "0020_api_idempotency_keys",
+      "breakpoints": true
     }
   ]
 }

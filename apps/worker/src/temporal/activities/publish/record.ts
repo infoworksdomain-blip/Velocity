@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { notifications } from "@velocity/core";
+import { notifications, webhooks } from "@velocity/core";
 import type { PublishFailureKind, PublishResult } from "@velocity/contracts";
 import { schema } from "@velocity/db";
 import { eq } from "drizzle-orm";
@@ -71,6 +71,17 @@ export async function record(input: RecordActivityInput): Promise<PublishResult>
       title: input.status === "published" ? `Published to ${input.platform}` : `Publishing to ${input.platform} failed`,
       body: input.status === "published" ? "Your content is now live." : (input.errorMessage ?? "See publication attempts for details."),
       data: { publicationId: input.publicationId, platform: input.platform, platformPostId: input.platformPostId },
+    });
+
+    // STEP 16: the real public webhook system's first actual producer.
+    // emitWebhookEvent only writes durable, pending delivery rows here —
+    // apps/worker's webhook-delivery-daemon.ts (a separate tick, same
+    // "write intent here, deliver on a tick" split as STEP 11/13's
+    // daemons) does the real HTTP delivery.
+    await webhooks.emitWebhookEvent(db, {
+      workspaceId: input.workspaceId,
+      eventType: input.status === "published" ? "publication.succeeded" : "publication.failed",
+      payload: { publicationId: input.publicationId, platform: input.platform, platformPostId: input.platformPostId, aiLabelSet, failureKind: input.failureKind },
     });
 
     return result;

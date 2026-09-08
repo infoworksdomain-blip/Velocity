@@ -11,6 +11,8 @@ export const campaigns = pgTable("campaigns", {
   name: text("name").notNull(),
   startsAt: timestamp("starts_at", { withTimezone: true }),
   endsAt: timestamp("ends_at", { withTimezone: true }),
+  /** STEP 16: a real, reversible pause — set by the automation engine's `pause_campaign` action (or a human) without touching startsAt/endsAt, which describe the campaign's actual planned window, not its current run state. */
+  pausedAt: timestamp("paused_at", { withTimezone: true }),
   ...timestamps(),
   ...softDelete(),
 });

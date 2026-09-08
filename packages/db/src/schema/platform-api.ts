@@ -1,4 +1,4 @@
-import { boolean, integer, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { boolean, integer, jsonb, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { idColumn, timestamps, workspaceIdColumn } from "./_helpers";
 import { workspaces } from "./tenancy";
 
@@ -35,5 +35,32 @@ export const webhookDeliveries = pgTable("webhook_deliveries", {
   responseStatus: integer("response_status"),
   attemptCount: integer("attempt_count").notNull().default(0),
   deliveredAt: timestamp("delivered_at", { withTimezone: true }),
+  /** STEP 16 additions: real exponential-backoff retry state. Null nextRetryAt + null deliveredAt + attemptCount 0 means "not yet attempted, due now." A null nextRetryAt with attemptCount >= MAX_DELIVERY_ATTEMPTS means exhausted — the replay endpoint's job is to clear it back to "due now." */
+  nextRetryAt: timestamp("next_retry_at", { withTimezone: true }),
+  lastError: text("last_error"),
   ...timestamps(),
 });
+
+/**
+ * Generic Idempotency-Key support for the Public API (STEP 16, build
+ * script: "idempotency keys on writes"). Unlike `publications.
+ * idempotency_key` (STEP 12, scoped to one specific write path), this is
+ * a real, reusable mechanism any /v1 POST/PATCH/DELETE handler can use:
+ * an atomic `INSERT ... ON CONFLICT DO NOTHING` on (workspace_id, key)
+ * claims the key before the handler's real work runs, and the cached
+ * `responseBody`/`statusCode` are replayed verbatim on a retried request
+ * with the same key — the same claim-before-side-effect discipline as
+ * `render_steps`/`publication_steps`.
+ */
+export const apiIdempotencyKeys = pgTable(
+  "api_idempotency_keys",
+  {
+    id: idColumn(),
+    workspaceId: workspaceIdColumn().references(() => workspaces.id),
+    idempotencyKey: text("idempotency_key").notNull(),
+    statusCode: integer("status_code"),
+    responseBody: jsonb("response_body"),
+    ...timestamps(),
+  },
+  (table) => [uniqueIndex("api_idempotency_keys_workspace_key_idx").on(table.workspaceId, table.idempotencyKey)],
+);

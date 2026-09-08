@@ -20,7 +20,8 @@ export type NotificationEventType =
   | "credit_low"
   | "invitation_received"
   | "token_expiring"
-  | "account_reauth_required";
+  | "account_reauth_required"
+  | "automation_alert";
 
 export interface NotificationEvent {
   type: NotificationEventType;

@@ -18,6 +18,7 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
   { id: "analytics", label: "Analytics", icon: <span aria-hidden>▲</span>, href: "/analytics", active: true },
   { id: "assistant", label: "Assistant", icon: <span aria-hidden>✦</span>, href: "/assistant" },
   { id: "ugc", label: "UGC Studio", icon: <span aria-hidden>★</span>, href: "/ugc" },
+  { id: "automations", label: "Automation", icon: <span aria-hidden>⚙</span>, href: "/automations" },
 ];
 
 const GROUP_TABS: { key: GroupBy; label: string }[] = [

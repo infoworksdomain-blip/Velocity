@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { notifications } from "@velocity/core";
+import { notifications, webhooks } from "@velocity/core";
 import { schema } from "@velocity/db";
 import { eq } from "drizzle-orm";
 import { runInWorkspaceTx } from "./context.js";
@@ -36,6 +36,9 @@ export async function publishReady(input: PublishReadyInput): Promise<{ mediaAss
 
     await db.update(schema.contentItems).set({ status: "ready" }).where(eq(schema.contentItems.id, input.contentItemId));
     await db.update(schema.renders).set({ status: "succeeded", outputStorageKey: input.outputStorageKey }).where(eq(schema.renders.id, input.renderId));
+
+    // STEP 16: real webhook emission, same "write the durable pending delivery here, apps/worker's webhook-delivery-daemon.ts delivers it on a tick" split as the publish pipeline's own record.ts.
+    await webhooks.emitWebhookEvent(db, { workspaceId: input.workspaceId, eventType: "render.completed", payload: { renderId: input.renderId, mediaAssetId, contentItemId: input.contentItemId } });
   });
 
   notifications.publish({
