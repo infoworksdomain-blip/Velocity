@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { auth } from "@velocity/core";
+import { auth, security } from "@velocity/core";
 import { createKmsProvider, schema } from "@velocity/db";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, isNull } from "drizzle-orm";
@@ -8,6 +8,17 @@ import { checkAndRecordSignupRisk } from "../admin-service";
 import { getAdminDb } from "../db";
 import { createSession } from "../session-service";
 import { protectedProcedure, publicProcedure, requirePlatformPermission, router } from "../trpc";
+
+// STEP 20: real signup-velocity rate limiting (build script: "rate
+// limiting and abuse — signup velocity"). Keyed on the email domain, not
+// IP — this codebase doesn't yet plumb the real client IP through to the
+// tRPC context (a separate, larger change; see docs/steps/STEP-20.md's
+// scope decisions), and domain-based limiting is still a real, meaningful
+// defence against the common "spin up N accounts on the same throwaway
+// domain" abuse pattern, complementing STEP 18's disposable-email
+// DETECTION with actual signup-velocity ENFORCEMENT.
+const SIGNUP_RATE_LIMIT_WINDOW_SECONDS = 3600;
+const SIGNUP_RATE_LIMIT_CAP_PER_DOMAIN = 10;
 
 /**
  * STEP 3's auth router. Proves the pattern (session issuance, MFA,
@@ -27,6 +38,12 @@ export const authRouter = router({
       }),
     )
     .mutation(async ({ input }) => {
+      const emailDomain = input.email.split("@")[1]?.toLowerCase() ?? "unknown";
+      const rateLimit = await security.checkAndIncrementRateLimit(getAdminDb(), { bucketKey: `signup:email_domain:${emailDomain}`, windowSeconds: SIGNUP_RATE_LIMIT_WINDOW_SECONDS, requestCap: SIGNUP_RATE_LIMIT_CAP_PER_DOMAIN });
+      if (!rateLimit.allowed) {
+        throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "Too many signups from this email domain recently — please try again later" });
+      }
+
       const existing = await getAdminDb()
         .select({ id: schema.users.id })
         .from(schema.users)

@@ -24,3 +24,5 @@ export * as webhooks from "./webhooks/index";
 export * as agency from "./agency/index";
 export * as admin from "./admin/index";
 export * as billing from "./billing/index";
+export * as security from "./security/index";
+export * as compliance from "./compliance/index";

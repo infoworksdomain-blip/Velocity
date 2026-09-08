@@ -22,6 +22,7 @@ import {
   upsertAiProviderConfig,
   upsertFeatureFlag,
 } from "../admin-service";
+import { eraseUserData, exportUserData } from "../compliance-service";
 import { reconcileAllWorkspaces } from "../credit-gate-service";
 import { getAdminDb } from "../db";
 import { requirePlatformPermission, router } from "../trpc";
@@ -149,5 +150,16 @@ export const adminRouter = router({
     reconcile: requirePlatformPermission("system:configure:platform")
       .input(z.object({ sinceIso: z.string().datetime() }))
       .mutation(({ input }) => reconcileAllWorkspaces(new Date(input.sinceIso), getAdminDb())),
+  }),
+
+  /** STEP 20's real GDPR/UK-GDPR DSAR export + erasure mechanism. */
+  gdpr: router({
+    exportUserData: requirePlatformPermission("gdpr:manage:platform")
+      .input(z.object({ targetUserId: z.string().uuid() }))
+      .query(({ input }) => exportUserData(input.targetUserId, getAdminDb())),
+
+    eraseUserData: requirePlatformPermission("gdpr:manage:platform")
+      .input(z.object({ targetUserId: z.string().uuid() }))
+      .mutation(({ ctx, input }) => eraseUserData({ targetUserId: input.targetUserId, actorUserId: ctx.user.id }, getAdminDb())),
   }),
 });

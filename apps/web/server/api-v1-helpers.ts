@@ -1,15 +1,22 @@
+import { security } from "@velocity/core";
+import type { ApiKeyDb } from "./api-key-service";
 import { hasScope, verifyApiKey, type VerifiedApiKey } from "./api-key-service";
+import { getAdminDb } from "./db";
 
 /**
  * Shared plumbing for every `/v1/*` Public API route handler (build
  * script: "REST, OpenAPI 3.1, API-key auth scoped to workspace +
  * permission, cursor pagination, rate limits, idempotency keys on
- * writes"). Rate limiting is honestly NOT implemented here — this
- * sandbox has no production rate-limiter infra (Redis or similar), the
- * same class of gap as every other "no scheduler/production infra
- * wired up" honest limitation already documented across this build (see
- * docs/steps/STEP-16.md).
+ * writes"). STEP 16 originally flagged rate limiting as honestly NOT
+ * implemented (no production rate-limiter infra like Redis) — STEP 20
+ * closes that specific gap with a real, DB-backed limiter
+ * (packages/core/src/security/rate-limit.ts, the same atomic
+ * check-and-increment shape STEP 11's platform quota counter already
+ * proved race-free under real concurrent load), not Redis, but real and
+ * enforced.
  */
+const API_KEY_RATE_LIMIT_WINDOW_SECONDS = 60;
+const API_KEY_RATE_LIMIT_CAP = 120; // 2 req/sec sustained, generous for a legitimate integration, low enough to blunt real key abuse
 
 export class ApiAuthError extends Error {
   constructor(
@@ -20,14 +27,18 @@ export class ApiAuthError extends Error {
   }
 }
 
-export async function authenticateApiRequest(req: Request, requiredScope: string): Promise<VerifiedApiKey> {
+export async function authenticateApiRequest(req: Request, requiredScope: string, db: ApiKeyDb = getAdminDb()): Promise<VerifiedApiKey> {
   const authHeader = req.headers.get("authorization");
   if (!authHeader?.startsWith("Bearer ")) throw new ApiAuthError(401, "Missing or malformed Authorization header — expected 'Bearer <api-key>'");
 
   const rawKey = authHeader.slice("Bearer ".length);
-  const key = await verifyApiKey(rawKey);
+  const key = await verifyApiKey(rawKey, db);
   if (!key) throw new ApiAuthError(401, "Invalid or revoked API key");
   if (!hasScope(key, requiredScope)) throw new ApiAuthError(403, `This API key is not scoped for '${requiredScope}'`);
+
+  const rateLimit = await security.checkAndIncrementRateLimit(db, { bucketKey: `api_key:${key.id}`, windowSeconds: API_KEY_RATE_LIMIT_WINDOW_SECONDS, requestCap: API_KEY_RATE_LIMIT_CAP });
+  if (!rateLimit.allowed) throw new ApiAuthError(429, `Rate limit exceeded: ${rateLimit.requestCount}/${rateLimit.requestCap} requests in the current ${API_KEY_RATE_LIMIT_WINDOW_SECONDS}s window`);
+
   return key;
 }
 

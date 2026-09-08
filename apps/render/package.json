@@ -13,13 +13,13 @@
     "test": "echo \"@velocity/render: no compositions yet\""
   },
   "dependencies": {
-    "@velocity/core": "workspace:*",
+    "@remotion/cli": "4.0.499",
     "@velocity/contracts": "workspace:*",
+    "@velocity/core": "workspace:*",
     "@velocity/text-engine": "workspace:*",
-    "remotion": "4.0.290",
-    "@remotion/cli": "4.0.290",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "remotion": "4.0.499",
     "zod": "^3.24.1"
   },
   "devDependencies": {

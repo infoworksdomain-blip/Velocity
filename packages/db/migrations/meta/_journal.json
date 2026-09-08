@@ -169,6 +169,13 @@
       "when": 1789040000000,
       "tag": "0023_billing",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1789060000000,
+      "tag": "0024_security",
+      "breakpoints": true
     }
   ]
 }

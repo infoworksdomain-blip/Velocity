@@ -58,6 +58,11 @@ export const PERMISSION_CATALOG = [
   // this is read-only oversight), so it's a genuine new grant, not a
   // reuse of an existing one.
   "audit_log:read:platform",
+  // STEP 20: GDPR/UK-GDPR DSAR export + erasure — legally significant
+  // and destructive (erasure is irreversible), so this gets its own
+  // dedicated permission rather than reusing users:suspend:platform,
+  // whose scope is account access, not personal-data disposition.
+  "gdpr:manage:platform",
 ] as const;
 
 export type Permission = (typeof PERMISSION_CATALOG)[number];

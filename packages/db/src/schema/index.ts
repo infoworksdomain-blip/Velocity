@@ -18,3 +18,4 @@ export * from "./governance";
 export * from "./notifications";
 export * from "./agency";
 export * from "./admin";
+export * from "./security";

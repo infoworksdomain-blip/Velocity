@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { billing } from "@velocity/core";
+import { billing, security } from "@velocity/core";
 import { schema } from "@velocity/db";
 // @velocity/worker has no "exports" restriction (like @velocity/db) — this
 // reaches its compiled Temporal client directly, the same pattern used for
@@ -10,6 +10,15 @@ import { assertWorkspaceCanGenerate } from "./credit-gate-service";
 import { getAdminDb } from "./db";
 
 const DEFAULT_COST_CEILING_USD = 5;
+
+// STEP 20: real generation-abuse rate limiting (build script: "rate
+// limiting and abuse — generation abuse") — a BURST-rate cap, distinct
+// from STEP 19's credit-balance cap (which limits total spend, not the
+// rate of spending it). A workspace with a huge credit balance could
+// still hammer this endpoint faster than any legitimate swipe-right
+// pattern could produce; this bounds that independently.
+const GENERATION_RATE_LIMIT_WINDOW_SECONDS = 60;
+const GENERATION_RATE_LIMIT_CAP = 20;
 
 export interface TriggerRenderInput {
   workspaceId: string;
@@ -34,6 +43,9 @@ export interface TriggerRenderResult {
  */
 export async function triggerRenderForConcept(input: TriggerRenderInput): Promise<TriggerRenderResult> {
   const db = getAdminDb();
+
+  const rateLimit = await security.checkAndIncrementRateLimit(db, { bucketKey: `generate:${input.workspaceId}`, windowSeconds: GENERATION_RATE_LIMIT_WINDOW_SECONDS, requestCap: GENERATION_RATE_LIMIT_CAP });
+  if (!rateLimit.allowed) throw new Error(`Generation rate limit exceeded: ${rateLimit.requestCount}/${rateLimit.requestCap} renders triggered in the current ${GENERATION_RATE_LIMIT_WINDOW_SECONDS}s window`);
 
   const conceptRows = await db
     .select()

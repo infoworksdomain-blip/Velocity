@@ -122,6 +122,7 @@ export const ROLE_PERMISSIONS: Record<RoleKey, readonly Permission[]> = {
     "feature_flags:manage:platform",
     "system:configure:platform",
     "audit_log:read:platform",
+    "gdpr:manage:platform",
   ],
   support: ["users:impersonate:platform", "workspaces:manage_any:platform", "audit_log:read:platform"],
   moderator: ["moderation:review:platform"],

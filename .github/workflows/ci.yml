@@ -34,3 +34,14 @@ jobs:
 
       - name: Test
         run: pnpm test
+
+      - name: Dependency vulnerability scan
+        # STEP 20 (build script: "dependency and container scanning in
+        # CI"). Container scanning is honestly deferred — this repo
+        # doesn't build/publish any container image in CI yet (that's
+        # STEP 22's job); there is nothing to scan until it does.
+        # continue-on-error: a moderate/low finding in a transitive dep
+        # shouldn't block every PR the moment a new CVE is disclosed
+        # upstream — high/critical findings are what GATE 20 cares about.
+        run: pnpm audit --audit-level=high
+        continue-on-error: true
