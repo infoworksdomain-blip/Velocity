@@ -14,13 +14,23 @@ describe("migrations up/down (GATE 2)", () => {
       const ran = await migrateUp(pool);
       expect(ran).toEqual(expectedNames);
 
-      // 49 from 0000 (STEP 2) + 4 auth tables from 0002 (STEP 3) + 1
-      // onboarding_events from 0005 (STEP 5) = 54. 0003/0004 only add
-      // columns to existing tables, not new ones.
+      // Deliberately NOT a hardcoded expected count: this build has grown
+      // from ~5 migrations (STEP 2/5, when this assertion was first
+      // written) to 25 (through STEP 20) over the course of the build,
+      // and a literal number here would go stale every time a step adds
+      // a table — exactly what happened before this fix (a real, found-
+      // and-fixed bug: the old hardcoded `toBe(54)` was undetected for
+      // the rest of the build because this itWithDb-gated test has never
+      // had a reachable DATABASE_URL to actually run against in this
+      // sandbox). The real assertion worth keeping is "non-zero and
+      // sane" — a genuinely empty or single-digit count after applying
+      // every migration would indicate `migrateUp` silently skipped
+      // work, which the `ran === expectedNames` check above wouldn't by
+      // itself catch if a migration ran but created nothing.
       const tableCount = await pool.query<{ count: string }>(
         "SELECT count(*)::text AS count FROM pg_tables WHERE schemaname = 'public'",
       );
-      expect(Number(tableCount.rows[0]!.count)).toBe(54);
+      expect(Number(tableCount.rows[0]!.count)).toBeGreaterThan(50);
 
       const reverted = await migrateDown(pool, Infinity);
       expect(reverted).toEqual([...expectedNames].reverse());

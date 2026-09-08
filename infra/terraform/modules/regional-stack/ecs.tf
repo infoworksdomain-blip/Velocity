@@ -74,7 +74,7 @@ resource "aws_lb_target_group" "web_blue" {
   vpc_id      = aws_vpc.main.id
   target_type = "ip"
   health_check {
-    path                = "/api/trpc/dashboard.summary"
+    path                = "/api/health"
     healthy_threshold   = 2
     unhealthy_threshold = 3
     interval            = 15
@@ -89,7 +89,7 @@ resource "aws_lb_target_group" "web_green" {
   vpc_id      = aws_vpc.main.id
   target_type = "ip"
   health_check {
-    path                = "/api/trpc/dashboard.summary"
+    path                = "/api/health"
     healthy_threshold   = 2
     unhealthy_threshold = 3
     interval            = 15
