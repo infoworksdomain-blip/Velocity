@@ -21,3 +21,4 @@ export * as ugc from "./ugc/index";
 export * as automation from "./automation/index";
 export * as agents from "./agents/index";
 export * as webhooks from "./webhooks/index";
+export * as agency from "./agency/index";

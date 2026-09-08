@@ -1,4 +1,5 @@
 import { router } from "../trpc";
+import { agencyRouter } from "./agency";
 import { agentsRouter } from "./agents";
 import { analyticsRouter } from "./analytics";
 import { apiKeysRouter } from "./api-keys";
@@ -39,6 +40,7 @@ export const appRouter = router({
   agents: agentsRouter,
   webhooks: webhooksRouter,
   apiKeys: apiKeysRouter,
+  agency: agencyRouter,
 });
 
 export type AppRouter = typeof appRouter;

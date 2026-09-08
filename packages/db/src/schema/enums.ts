@@ -85,3 +85,14 @@ export const renderStepStateEnum = pgEnum("render_step_state", [
  */
 export const connectionStatusEnum = pgEnum("connection_status", ["connected", "reauth_required", "disconnected"]);
 
+/**
+ * Creator Marketplace engagement lifecycle (STEP 17, build script module
+ * 29: "brief -> delivery -> approval -> payment"). `rejected` is not
+ * terminal — a workspace can reject a delivery and the creator re-
+ * delivers (real creative feedback loops), so `rejected -> delivered` is
+ * a valid transition (see packages/core/src/agency/engagement-lifecycle.ts).
+ * `cancelled` is terminal and only reachable from `briefed`/`accepted`
+ * (before real creative work or payment has happened).
+ */
+export const marketplaceEngagementStatusEnum = pgEnum("marketplace_engagement_status", ["briefed", "accepted", "delivered", "approved", "rejected", "paid", "cancelled"]);
+

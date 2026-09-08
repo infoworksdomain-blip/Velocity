@@ -1,0 +1,44 @@
+.shell {
+  min-height: 100vh;
+  background: var(--paper-2);
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  padding: calc(var(--space-unit) * 8) calc(var(--space-unit) * 10) calc(var(--space-unit) * 4);
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+}
+
+.main {
+  padding: calc(var(--space-unit) * 6) calc(var(--space-unit) * 10);
+  max-width: 700px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 2);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--space-unit) * 3);
+  border-radius: var(--r-card);
+  border: 1px solid var(--line);
+  background: var(--paper);
+  box-shadow: var(--sh-card);
+}
+
+.badge {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--ink-2);
+}

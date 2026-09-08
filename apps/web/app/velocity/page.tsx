@@ -17,6 +17,7 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
   { id: "assistant", label: "Assistant", icon: <span aria-hidden>✦</span>, href: "/assistant" },
   { id: "ugc", label: "UGC Studio", icon: <span aria-hidden>★</span>, href: "/ugc" },
   { id: "automations", label: "Automation", icon: <span aria-hidden>⚙</span>, href: "/automations" },
+  { id: "agency", label: "Agency", icon: <span aria-hidden>◈</span>, href: "/agency" },
 ];
 
 /** Past this many px of horizontal drag, releasing commits the swipe instead of springing back — build script STEP 9's "swipe-to-next latency budget: under 100ms" is about the LOCAL, optimistic response to a commit (state update + animation start), not the server round trip, which happens after. */

@@ -16,3 +16,4 @@ export * from "./automation";
 export * from "./platform-api";
 export * from "./governance";
 export * from "./notifications";
+export * from "./agency";
