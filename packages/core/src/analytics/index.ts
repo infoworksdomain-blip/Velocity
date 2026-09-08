@@ -1,4 +1,5 @@
 export * from "./aggregate.js";
+export * from "./cost-metrics.js";
 export * from "./csv-export.js";
 export * from "./report.js";
 export * from "./short-link.js";

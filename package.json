@@ -27,7 +27,8 @@
     "gate:17": "tsx scripts/gate-17/index.ts",
     "gate:18": "tsx scripts/gate-18/index.ts",
     "gate:19": "tsx scripts/gate-19/index.ts",
-    "gate:20": "tsx scripts/gate-20/index.ts"
+    "gate:20": "tsx scripts/gate-20/index.ts",
+    "gate:21": "tsx scripts/gate-21/index.ts"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.18.0",

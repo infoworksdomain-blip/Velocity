@@ -153,4 +153,10 @@ export const analyticsRouter = router({
       const { createShortLink } = await import("../analytics-service");
       return createShortLink(getAdminDb(), { workspaceId: ctx.workspaceId, publicationId: input.publicationId, destinationUrl: input.destinationUrl });
     }),
+
+  /** STEP 21's literal "cost per published post tracked as a first-class metric". */
+  costPerPublishedPost: requireWorkspacePermission(PERMISSION).query(async ({ ctx }) => {
+    const { getCostPerPublishedPost } = await import("../analytics-service");
+    return getCostPerPublishedPost(getAdminDb(), ctx.workspaceId);
+  }),
 });

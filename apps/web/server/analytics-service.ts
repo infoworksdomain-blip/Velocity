@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { analytics, velocity as velocityCore } from "@velocity/core";
 import { schema } from "@velocity/db";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import type { PgDatabase } from "drizzle-orm/pg-core";
 
 const MAX_SLUG_ATTEMPTS = 5;
@@ -109,4 +109,34 @@ export async function applyPreferenceUpdates(db: AnalyticsDb, workspaceId: strin
       });
   }
   return { dimensionsUpdated: updates.length };
+}
+
+/**
+ * STEP 21's literal "cost per published post tracked as a first-class
+ * metric". Real data this build already tracks accurately, not a new
+ * meter: `renders.cost_usd` is the atomically-accumulated sum of every
+ * metered provider call for that render (STEP 8's C5 metering, step-
+ * ledger.ts's atomic SQL increment, never read-then-write). Sums EVERY
+ * render tied to a published content item — including any regeneration
+ * rounds — since the real unit-economics question is "what did it cost,
+ * in total, to get this piece published," not just the winning render's
+ * own cost.
+ */
+export async function getCostPerPublishedPost(db: AnalyticsDb, workspaceId: string): Promise<analytics.CostPerPublishedPostResult> {
+  const publishedContentItemIds = await db
+    .selectDistinct({ contentItemId: schema.publications.contentItemId })
+    .from(schema.publications)
+    .where(and(eq(schema.publications.workspaceId, workspaceId), eq(schema.publications.status, "published")));
+
+  const publishedPostCount = publishedContentItemIds.length;
+  if (publishedPostCount === 0) return analytics.computeCostPerPublishedPost(0, 0);
+
+  const contentItemIds = publishedContentItemIds.map((row) => row.contentItemId);
+  const costRows = await db
+    .select({ totalCostUsd: sql<string>`COALESCE(SUM(${schema.renders.costUsd}), 0)` })
+    .from(schema.renders)
+    .where(and(eq(schema.renders.workspaceId, workspaceId), inArray(schema.renders.contentItemId, contentItemIds)));
+
+  const totalCostUsd = Number(costRows[0]?.totalCostUsd ?? 0);
+  return analytics.computeCostPerPublishedPost(totalCostUsd, publishedPostCount);
 }

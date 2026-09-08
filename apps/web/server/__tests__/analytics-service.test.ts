@@ -4,7 +4,7 @@ import { schema } from "@velocity/db";
 import type { PgliteTestDb } from "@velocity/db/dist/testing/pglite.js";
 import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { createShortLink, recordAttributionEvent, recordClick } from "../analytics-service";
+import { createShortLink, getCostPerPublishedPost, recordAttributionEvent, recordClick } from "../analytics-service";
 
 /**
  * STEP 13's real, PGlite-backed proof of GATE 13's "attribution joins
@@ -90,5 +90,63 @@ describe("analytics-service — website attribution (real embedded Postgres)", (
     const second = await createShortLink(testDb.admin, { workspaceId, publicationId: null, destinationUrl: "https://b.example.com" }, collidingThenRealGenerator);
     expect(second.slug).not.toBe(fixedSlug);
     expect(calls).toBe(2);
+  });
+
+  describe("getCostPerPublishedPost — STEP 21's literal 'cost per published post' metric", () => {
+    async function seedPublishedPostWithRenders(costsUsd: number[]) {
+      const brandProfileId = randomUUID();
+      const angleId = randomUUID();
+      const textPlanId = randomUUID();
+      const contentConceptId = randomUUID();
+      const contentItemId = randomUUID();
+      const socialAccountId = randomUUID();
+      const publicationId = randomUUID();
+
+      await testDb.admin.insert(schema.brandProfiles).values({ id: brandProfileId, workspaceId, version: 1, product: "P", category: "c", sourceUrl: "https://example.com" });
+      await testDb.admin.insert(schema.angles).values({ id: angleId, workspaceId, brandProfileId, kind: "pain_led", description: "d" });
+      await testDb.admin.insert(schema.textPlans).values({ id: textPlanId, workspaceId, version: "1.0", plan: {} });
+      await testDb.admin.insert(schema.contentConcepts).values({ id: contentConceptId, workspaceId, angleId, format: "meme", hook: "h", textPlanId });
+      await testDb.admin.insert(schema.contentItems).values({ id: contentItemId, workspaceId, contentConceptId, textPlanId, status: "published" });
+      await testDb.admin.insert(schema.socialAccounts).values({ id: socialAccountId, workspaceId, platform: "tiktok", externalAccountId: `ext-${socialAccountId}` });
+      await testDb.admin.insert(schema.publications).values({ id: publicationId, workspaceId, contentItemId, socialAccountId, idempotencyKey: `${contentItemId}:${socialAccountId}`, status: "published", platformPostId: "post-1" });
+
+      // One row per real render tied to this content item — e.g. a
+      // regeneration round — proving the real total (not just the
+      // winning render's own cost) is what gets summed.
+      for (const costUsd of costsUsd) {
+        await testDb.admin.insert(schema.renders).values({ id: randomUUID(), workspaceId, contentItemId, providerId: "kling-3.0", modelId: "kling-3.0", promptHash: "hash1", costUsd: costUsd.toFixed(4) });
+      }
+      return { contentItemId, publicationId };
+    }
+
+    it("returns null cost-per-post with zero totals when there are no published posts yet", async () => {
+      const emptyWorkspaceId = randomUUID();
+      const orgId = randomUUID();
+      await testDb.admin.insert(schema.organisations).values({ id: orgId, name: "Empty Org" });
+      await testDb.admin.insert(schema.workspaces).values({ id: emptyWorkspaceId, organisationId: orgId, name: "Empty WS", workspaceType: "business" });
+
+      const result = await getCostPerPublishedPost(testDb.admin, emptyWorkspaceId);
+      expect(result).toEqual({ totalCostUsd: 0, publishedPostCount: 0, costPerPostUsd: null });
+    });
+
+    it("sums every render tied to a single published post, including regeneration rounds", async () => {
+      await seedPublishedPostWithRenders([0.6, 0.6]); // two render attempts for the same published post
+
+      const result = await getCostPerPublishedPost(testDb.admin, workspaceId);
+      expect(result.publishedPostCount).toBe(1);
+      expect(result.totalCostUsd).toBeCloseTo(1.2, 4);
+      expect(result.costPerPostUsd).toBeCloseTo(1.2, 4);
+    });
+
+    it("averages correctly across multiple published posts with different real costs", async () => {
+      await seedPublishedPostWithRenders([2.0]);
+      await seedPublishedPostWithRenders([4.0]);
+
+      const result = await getCostPerPublishedPost(testDb.admin, workspaceId);
+      // 1 (from the previous test) + 2 new = 3 published posts this run; total cost 1.2 + 2.0 + 4.0 = 7.2
+      expect(result.publishedPostCount).toBe(3);
+      expect(result.totalCostUsd).toBeCloseTo(7.2, 4);
+      expect(result.costPerPostUsd).toBeCloseTo(2.4, 4);
+    });
   });
 });
