@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { schema } from "@velocity/db";
+import { creditsForUsage } from "../billing/credit-pricing.js";
 
 /**
  * The literal implementation of C5 ("every model call — video, image, and
@@ -37,19 +38,6 @@ export interface RecordUsageInput {
   referenceId?: string;
 }
 
-/**
- * Provisional USD-to-credit conversion (STEP 19/Billing owns the real
- * pricing model) — mirrors the same disclaimer already on
- * PLAN_SEAT_LIMITS/PLAN_CREDIT_LIMITS. 1 credit = $0.01; a job costing
- * less than that still debits a minimum of 1 credit so no job is ever
- * genuinely free to run.
- */
-const CREDIT_UNIT_USD = 0.01;
-
-export function usdToCredits(costUsd: number): number {
-  return Math.max(1, Math.ceil(costUsd / CREDIT_UNIT_USD));
-}
-
 export interface RecordUsageResult {
   usageEventId: string;
 }
@@ -68,10 +56,15 @@ export async function recordUsage(tx: UsageRecorderTx, input: RecordUsageInput):
     referenceId: input.referenceId ?? null,
   });
 
+  // STEP 19: market-anchored credits-per-output-unit (video/image/tts/
+  // transcription/text each priced by what they ARE, not by whichever
+  // vendor happened to fulfil the call) — see billing/credit-pricing.ts.
+  const debitCredits = creditsForUsage({ jobKind: input.jobKind, durationSec: input.jobKind === "video" ? input.units : undefined });
+
   await tx.insert(schema.creditLedger).values({
     id: randomUUID(),
     workspaceId: input.workspaceId,
-    debit: usdToCredits(input.costUsd),
+    debit: debitCredits,
     credit: 0,
     reason: `${input.jobKind}_generate`,
     referenceId: usageEventId,

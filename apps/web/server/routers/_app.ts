@@ -6,6 +6,7 @@ import { analyticsRouter } from "./analytics";
 import { apiKeysRouter } from "./api-keys";
 import { automationRouter } from "./automation";
 import { authRouter } from "./auth";
+import { billingRouter } from "./billing";
 import { calendarRouter } from "./calendar";
 import { contentRouter } from "./content";
 import { dashboardRouter } from "./dashboard";
@@ -43,6 +44,7 @@ export const appRouter = router({
   apiKeys: apiKeysRouter,
   agency: agencyRouter,
   admin: adminRouter,
+  billing: billingRouter,
 });
 
 export type AppRouter = typeof appRouter;

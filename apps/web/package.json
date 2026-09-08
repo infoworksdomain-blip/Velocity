@@ -12,6 +12,7 @@
     "test:e2e": "echo \"@velocity/web: Playwright suite arrives once STEP 6/8 replace the onboarding stubs with real behavior worth driving through a browser\""
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "1.30.0",
     "@tanstack/react-query": "^5.62.7",
     "@trpc/client": "^10.45.2",
     "@trpc/server": "^10.45.2",
@@ -22,11 +23,11 @@
     "@velocity/text-engine": "workspace:*",
     "@velocity/ui": "workspace:*",
     "@velocity/worker": "workspace:*",
-    "@modelcontextprotocol/sdk": "1.30.0",
     "drizzle-orm": "^0.38.2",
     "next": "15.1.3",
     "react": "19.0.0",
     "react-dom": "19.0.0",
+    "stripe": "^22.6.1",
     "superjson": "^2.2.2",
     "zod": "^3.24.1"
   },

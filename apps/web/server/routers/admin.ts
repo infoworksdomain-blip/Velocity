@@ -22,6 +22,7 @@ import {
   upsertAiProviderConfig,
   upsertFeatureFlag,
 } from "../admin-service";
+import { reconcileAllWorkspaces } from "../credit-gate-service";
 import { getAdminDb } from "../db";
 import { requirePlatformPermission, router } from "../trpc";
 
@@ -142,4 +143,11 @@ export const adminRouter = router({
   }),
 
   systemHealth: requirePlatformPermission("system:configure:platform").query(() => checkSystemHealth(getAdminDb())),
+
+  /** STEP 19's "nightly reconciliation job" (build script) — a real, tested function with no scheduler wired to it yet (the same honestly-flagged gap every step since STEP 11); this gives it a real, permission-gated manual trigger in the meantime. */
+  billing: router({
+    reconcile: requirePlatformPermission("system:configure:platform")
+      .input(z.object({ sinceIso: z.string().datetime() }))
+      .mutation(({ input }) => reconcileAllWorkspaces(new Date(input.sinceIso), getAdminDb())),
+  }),
 });

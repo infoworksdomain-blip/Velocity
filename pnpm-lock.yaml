@@ -111,6 +111,9 @@ importers:
       react-dom:
         specifier: 19.0.0
         version: 19.0.0(react@19.0.0)
+      stripe:
+        specifier: ^22.6.1
+        version: 22.6.1(@types/node@22.20.1)
       superjson:
         specifier: ^2.2.2
         version: 2.2.6
@@ -4072,6 +4075,15 @@ packages:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
 
+  stripe@22.6.1:
+    resolution: {integrity: sha512-hAKSkGeVt2u46TRYhmnvwmVHxBNtOCJnPjc+SH5sP2B2ypElYzAAY3Ljx0Ar8C2w8nfpFQiZ95qoDCDsFkXMTA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@types/node': '>=18'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+
   style-loader@4.0.0:
     resolution: {integrity: sha512-1V4WqhhZZgjVAVJyt7TdDPZoPBPNHbekX4fWnCJL1yQukhCeZhJySUL+gL9y6sNdN95uEOS83Y55SqHcP7MzLA==}
     engines: {node: '>= 18.12.0'}
@@ -5469,14 +5481,14 @@ snapshots:
     dependencies:
       '@remotion/studio': 4.0.290(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@remotion/studio-shared': 4.0.290(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      css-loader: 5.2.7(webpack@5.96.1(esbuild@0.25.0)(postcss@8.5.28))
+      css-loader: 5.2.7(webpack@5.96.1(postcss@8.5.28))
       esbuild: 0.25.0
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
       react-refresh: 0.9.0
       remotion: 4.0.290(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       source-map: 0.7.3
-      style-loader: 4.0.0(webpack@5.96.1(esbuild@0.25.0)(postcss@8.5.28))
+      style-loader: 4.0.0(webpack@5.96.1(postcss@8.5.28))
       webpack: 5.96.1(esbuild@0.25.0)(postcss@8.5.28)
     transitivePeerDependencies:
       - '@minify-html/node'
@@ -6603,7 +6615,7 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
-  css-loader@5.2.7(webpack@5.96.1(esbuild@0.25.0)(postcss@8.5.28)):
+  css-loader@5.2.7(webpack@5.96.1(postcss@8.5.28)):
     dependencies:
       icss-utils: 5.1.0(postcss@8.5.28)
       loader-utils: 2.0.4
@@ -8117,7 +8129,11 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
-  style-loader@4.0.0(webpack@5.96.1(esbuild@0.25.0)(postcss@8.5.28)):
+  stripe@22.6.1(@types/node@22.20.1):
+    optionalDependencies:
+      '@types/node': 22.20.1
+
+  style-loader@4.0.0(webpack@5.96.1(postcss@8.5.28)):
     dependencies:
       webpack: 5.96.1(esbuild@0.25.0)(postcss@8.5.28)
 

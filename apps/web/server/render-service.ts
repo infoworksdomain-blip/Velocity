@@ -1,10 +1,12 @@
 import { randomUUID } from "node:crypto";
+import { billing } from "@velocity/core";
 import { schema } from "@velocity/db";
 // @velocity/worker has no "exports" restriction (like @velocity/db) — this
 // reaches its compiled Temporal client directly, the same pattern used for
 // @velocity/db's testing subpath.
 import { startRenderWorkflow } from "@velocity/worker/dist/temporal/client.js";
 import { and, eq } from "drizzle-orm";
+import { assertWorkspaceCanGenerate } from "./credit-gate-service";
 import { getAdminDb } from "./db";
 
 const DEFAULT_COST_CEILING_USD = 5;
@@ -44,6 +46,18 @@ export async function triggerRenderForConcept(input: TriggerRenderInput): Promis
   const storyboardRows = await db.select().from(schema.storyboards).where(eq(schema.storyboards.contentConceptId, concept.id)).limit(1);
   const storyboard = storyboardRows[0];
   if (!storyboard) throw new Error(`Concept ${concept.id} has no storyboard`);
+
+  // STEP 19 / GATE 19: "a workspace at its cap cannot generate" — checked
+  // here, before Temporal ever starts a real (billable) render workflow,
+  // the same "never render before the swipe" choke point this function
+  // already is. A conservative estimate from the storyboard's own total
+  // duration (slideshow scenes priced per-image, everything else priced
+  // per video-second) — the real, final charge is metered precisely by
+  // the render pipeline itself (metering/usage-recorder.ts); this is a
+  // pre-check, not the authoritative charge.
+  const totalDurationSec = storyboard.scenes.reduce((sum: number, scene: { durationMs: number }) => sum + scene.durationMs / 1000, 0);
+  const estimatedCredits = concept.format === "slideshow" ? storyboard.scenes.length * billing.CREDITS_PER_IMAGE : billing.creditsForUsage({ jobKind: "video", durationSec: totalDurationSec });
+  await assertWorkspaceCanGenerate(input.workspaceId, estimatedCredits, db);
 
   // content_items.textPlanId is NOT NULL — STEP 9's own concept-generation
   // integration (content-service.ts) makes this real for every concept

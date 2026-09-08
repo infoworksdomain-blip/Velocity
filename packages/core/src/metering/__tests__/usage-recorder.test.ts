@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { recordUsage, usdToCredits, type UsageRecorderTx } from "../usage-recorder.js";
+import { recordUsage, type UsageRecorderTx } from "../usage-recorder.js";
+import { CREDITS_PER_IMAGE, CREDITS_PER_TRANSCRIPTION_CALL, CREDITS_PER_VIDEO_SECOND } from "../../billing/credit-pricing.js";
 
 function makeFakeTx() {
   const inserted: { table: unknown; values: Record<string, unknown> }[] = [];
@@ -41,6 +42,32 @@ describe("recordUsage — the C5 choke point", () => {
     });
   });
 
+  it("STEP 19: the credit_ledger debit is market-anchored (video: units == seconds, CREDITS_PER_VIDEO_SECOND each), not a function of the underlying provider's costUsd", async () => {
+    const { tx, inserted } = makeFakeTx();
+    await recordUsage(tx, {
+      workspaceId: "11111111-1111-1111-1111-111111111111",
+      provider: "kling",
+      model: "kling-3.0",
+      units: 5, // 5 seconds
+      costUsd: 0.6, // deliberately NOT what determines the debit any more
+      jobKind: "video",
+    });
+    expect(inserted[1]!.values.debit).toBe(5 * CREDITS_PER_VIDEO_SECOND);
+  });
+
+  it("an image job debits the flat CREDITS_PER_IMAGE rate regardless of units/costUsd", async () => {
+    const { tx, inserted } = makeFakeTx();
+    await recordUsage(tx, {
+      workspaceId: "11111111-1111-1111-1111-111111111111",
+      provider: "seedream",
+      model: "seedream-5.0",
+      units: 4,
+      costUsd: 0.06,
+      jobKind: "image",
+    });
+    expect(inserted[1]!.values.debit).toBe(CREDITS_PER_IMAGE);
+  });
+
   it("the credit_ledger debit references the usage_events row it was charged for", async () => {
     const { tx, inserted } = makeFakeTx();
     const { usageEventId } = await recordUsage(tx, {
@@ -65,14 +92,8 @@ describe("recordUsage — the C5 choke point", () => {
       costUsd: 0.0001,
       jobKind: "transcription",
     });
-    expect(inserted[1]!.values.debit).toBeGreaterThanOrEqual(1);
-  });
-
-  it("usdToCredits rounds up so a job is never under-charged", () => {
-    expect(usdToCredits(0.001)).toBe(1);
-    expect(usdToCredits(0.01)).toBe(1);
-    expect(usdToCredits(0.011)).toBe(2);
-    expect(usdToCredits(1.0)).toBe(100);
+    expect(inserted[1]!.values.debit).toBe(CREDITS_PER_TRANSCRIPTION_CALL);
+    expect(inserted[1]!.values.debit as number).toBeGreaterThanOrEqual(1);
   });
 
   it("calls insert exactly twice, in order (usage_events before credit_ledger)", async () => {

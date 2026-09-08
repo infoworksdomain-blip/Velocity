@@ -1,0 +1,107 @@
+.shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+  background: var(--paper-2);
+}
+
+.main {
+  padding: calc(var(--space-unit) * 8) calc(var(--space-unit) * 10);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 5);
+  max-width: 900px;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 3);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  box-shadow: var(--sh-card);
+  padding: calc(var(--space-unit) * 4);
+}
+
+.planGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: calc(var(--space-unit) * 3);
+}
+
+.planCard {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 2);
+  padding: calc(var(--space-unit) * 3);
+  border-radius: var(--r-field);
+  border: 1px solid var(--line);
+}
+
+.planCardActive {
+  composes: planCard;
+  border-color: var(--flare);
+  box-shadow: 0 0 0 1px var(--flare);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 2);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--space-unit) * 2);
+  padding: calc(var(--space-unit) * 2) calc(var(--space-unit) * 3);
+  border-radius: var(--r-field);
+  border: 1px solid var(--line);
+}
+
+.badge {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--flare-deep);
+}
+
+.actionButton {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-body);
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: calc(var(--space-unit) * 1) calc(var(--space-unit) * 3);
+  cursor: pointer;
+}
+
+.generateButton {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-body);
+  background: var(--flare);
+  color: var(--paper);
+  border: none;
+  border-radius: var(--r-pill);
+  padding: calc(var(--space-unit) * 2) calc(var(--space-unit) * 5);
+  cursor: pointer;
+}
+
+.generateButton:hover {
+  background: var(--flare-deep);
+}
+
+@media (max-width: 900px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+}
