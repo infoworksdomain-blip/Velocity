@@ -24,6 +24,10 @@ Thumbs.db
 
 # test / coverage
 coverage/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
 
 # remotion
 apps/render/out/

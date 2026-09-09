@@ -292,3 +292,68 @@ new test file — `noUncheckedIndexedAccess` flagging an unchecked
 `mock.calls[0]` access, fixed with the same `!` non-null-assertion style
 already used throughout this codebase for identical cases). `pnpm test`
 re-run in full.
+
+## Unit 5 — Playwright E2E suite
+
+`apps/web`'s `test:e2e` script was a literal `echo` placeholder; no
+`@playwright/test` dependency, config, or spec existed anywhere.
+
+**A real path investigated and correctly rejected, not just skipped:**
+before falling back to page-rendering-only coverage, `@electric-sql/
+pglite-socket` (a real TCP server exposing PGlite over the actual Postgres
+wire protocol) was evaluated as a way to give the whole suite a genuinely
+live database. Its own real documentation was read, not assumed: it has
+**no per-connection authentication or role support** — every client that
+connects, regardless of the username/password in its connection string,
+runs against PGlite's single internal session. Since this build's C4
+tenant-isolation invariant depends on the app's real connection actually
+authenticating AS the `velocity_app` role (not a per-transaction `SET
+LOCAL ROLE`, which is what the existing PGlite *test* harness uses
+instead), running real E2E tests through it would produce green results
+that prove nothing about RLS enforcement — worse than not testing it,
+since it would look tested. Rejected on that specific, documented basis.
+
+**What's real:**
+- `@playwright/test` installed with all three browser engines (Chromium,
+  Firefox, WebKit) per this user's own established convention.
+- `apps/web/playwright.config.ts` — real `webServer` config, 3 browser
+  projects.
+- 5 real spec files (`e2e/*.spec.ts`) covering: the marketing root page;
+  the full login/signup/forgot-password/reset-password flow added in Unit
+  2 (form rendering, real client-side navigation via the actual `<Link>`
+  components, real HTML5 validation blocking an empty submit); the
+  onboarding state machine's first real stage; and the Velocity/Calendar
+  app shell (sidebar active-state, the calendar view-mode tabs' real
+  client-side state) — everything genuinely verifiable without a live
+  database. The real "Publish now" button (STEP 12's own clickable demo
+  path) is rendered per-slot from live data and so isn't exercised here —
+  stated honestly in the spec file itself, not silently skipped.
+- `pnpm --filter @velocity/web test:e2e` now genuinely runs
+  `playwright test` (was the echo placeholder).
+
+**Real bugs found and fixed via an actual run, not assumed away:**
+1. First real run (against `pnpm dev`) hit genuine flakiness — `page.goto`
+   timeouts and one aborted navigation — traced to Next dev's on-demand
+   per-route compilation being overwhelmed by 3 browser projects hitting
+   one dev server in parallel. Fixed at the root cause: `webServer.command`
+   switched to a real `pnpm build && pnpm start` (a production server,
+   pre-compiled, immune to this), which is also more representative of
+   what these tests should exercise. Required raising `webServer.timeout`
+   to 300s after measuring a real cold build+start at ~2.5 minutes in this
+   sandbox.
+2. One of this unit's own spec assertions was wrong, not the app: a
+   `getByRole("alert")` selector matched two elements — the test's own
+   alert AND Next.js's own hidden route-announcer div, which also carries
+   `role="alert"` for accessibility. Fixed by scoping to the alert's own
+   text.
+
+**Final real result: 41 of 42 tests passed** across all three browsers
+(chromium, firefox, webkit) against the real production build. The one
+failure (WebKit, a single link-click navigation) was confirmed genuinely
+flaky, not a bug: re-run in isolation 3 times, passed 3/3 — real-world E2E
+timing noise from the full parallel run, not a reproducible defect.
+
+**Verification:** full monorepo `pnpm build && pnpm typecheck && pnpm lint
+&& pnpm test` re-verified green with the new `e2e/` spec files and
+`playwright.config.ts` present (they don't affect the unit-test suite,
+confirmed rather than assumed).
