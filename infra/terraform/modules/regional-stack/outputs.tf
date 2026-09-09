@@ -23,3 +23,8 @@ output "media_bucket_name" {
 output "secrets_arn" {
   value = aws_secretsmanager_secret.app.arn
 }
+
+output "remotion_lambda_role_arn" {
+  value       = aws_iam_role.remotion_lambda.arn
+  description = "Pass to `remotion lambda functions deploy --custom-role-arn=<this>` (or DeployFunctionInput.customRoleArn) so the deployed function assumes this Terraform-managed role instead of Remotion's own account-wide default."
+}

@@ -23,3 +23,7 @@ output "media_bucket_name" {
 output "secrets_arn" {
   value = module.regional_stack.secrets_arn
 }
+
+output "remotion_lambda_role_arn" {
+  value = module.regional_stack.remotion_lambda_role_arn
+}

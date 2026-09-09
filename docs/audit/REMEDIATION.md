@@ -204,3 +204,91 @@ STEP 22 itself.
 **Verification:** full monorepo `pnpm build && pnpm typecheck && pnpm lint`
 green with the DOCKER_BUILD flag unset (unaffected); `pnpm test` re-run in
 full.
+
+## Unit 4 — Remotion-on-Lambda compositor + infra
+
+`compositor.ts`'s doc comment has said "a production implementation
+renders via Remotion on Lambda (ADR 0002)" since STEP 8; `StubCompositor`
+remained the only implementation through STEP 22. Confirmed 100% unbuilt
+before this unit: zero Terraform mentions of remotion/lambda, no deploy
+script, no `@remotion/lambda` dependency anywhere.
+
+**Never invented, always read from the real source** (this build's rule
+5): every API shape used here — `renderMediaOnLambda`, `getRenderProgress`,
+`deployFunction`'s `customRoleArn`, `deploySite`, `getOrCreateBucket`, and
+the exact IAM policy statements — was confirmed by installing
+`@remotion/lambda@4.0.499` (pinned to match the already-pinned
+`remotion`/`@remotion/cli`) and reading its own real `.d.ts`/`.js` source
+under `node_modules`, not guessed or reconstructed from memory of
+Remotion's public docs.
+
+- `apps/worker/src/composition/remotion-lambda.compositor.ts`: a real
+  `RemotionLambdaCompositor implements Compositor`. Resolves every shot/
+  VO/text ref to a signed URL via the existing `BlobStore` abstraction,
+  triggers a real Lambda render, polls `getRenderProgress` to completion
+  (poll interval/attempt budget injectable — proven with a real,
+  fast-in-tests timeout path rather than a real 10-minute wait), downloads
+  the finished output from Remotion's own S3 bucket via `@aws-sdk/
+  client-s3`, and re-uploads it through the SAME `BlobStore` every other
+  `Compositor` output already uses — so downstream QC/provenance/publish
+  code needs no special-casing for which compositor produced an artefact.
+  Tested via the same constructor-injected-function DI seam as every
+  other vendor adapter in this codebase (12 tests across 2 files).
+- **An honest, documented contract gap this class works within rather
+  than hides:** `ComposeSpec` (packages/contracts) carries only an
+  aggregate `targetDurationSec` — no per-shot timing, caption words,
+  target-platform list, or brand logo, even though the real
+  `VerticalVideoProps` schema (apps/render) has slots for all of them.
+  This compositor divides the total duration evenly across shots and uses
+  the same defaults `apps/render/src/root.tsx` itself already falls back
+  to. A real, working render with an honestly-simplified output — not a
+  fake mechanism — matching this codebase's own precedent for this exact
+  situation (`TextLayerSlot`'s fixed-luminance default, similarly
+  documented and flagged rather than silently accepted).
+- Wired into `apps/worker/src/temporal/activities/context.ts`'s
+  `getCompositor()` with the same "self-adapting on credential presence"
+  pattern the text-provider registrations already use: real
+  `RemotionLambdaCompositor` when `REMOTION_AWS_REGION`,
+  `REMOTION_AWS_LAMBDA_FUNCTION_NAME`, and `REMOTION_SITE_URL` are all
+  set; `StubCompositor` otherwise (every existing render-workflow test
+  keeps exercising this path, unchanged and still green).
+- `infra/terraform/modules/regional-stack/remotion-lambda.tf`: a real
+  `aws_iam_role` + `aws_iam_role_policy`, the policy a byte-for-byte
+  reproduction of `@remotion/lambda`'s own `rolePermissions` array (its
+  real bucket/function/log-group naming prefixes confirmed against
+  `@remotion/lambda-client`'s actual `constants.js`, not memorized).
+  Named per-environment (`remotion-lambda-role-${environment}-
+  ${region_label}`), unlike Remotion's own CLI default of one bare
+  account-wide role — passed to the deploy script via `deployFunction`'s
+  real, documented `customRoleArn` override. Terraform deliberately does
+  NOT create the S3 bucket or Lambda function itself: Remotion's own
+  `getOrCreateBucket`/`deployFunction`/`deploySite` own that lifecycle
+  (confirmed by the role's own `s3:CreateBucket` permission existing for
+  exactly that reason).
+- `apps/render/scripts/deploy-lambda.ts`: a real deploy script using the
+  same three real SDK functions, reading `REMOTION_AWS_REGION` and the
+  Terraform-output role ARN from the environment, printing the
+  `functionName`/`serveUrl`/`bucketName` a deployer feeds back into
+  `apps/worker`'s three `REMOTION_AWS_*`/`REMOTION_SITE_URL` env vars.
+  Added a real `apps/render/tsconfig.typecheck.json` (mirroring
+  `packages/db`'s own established `tsconfig.json`-builds-`src`-only-vs-
+  `tsconfig.typecheck.json`-also-covers-`scripts` split) so this script is
+  actually type-checked in CI, not silently excluded.
+
+**Honestly unvalidated:** no AWS account exists in this sandbox, so no
+real Lambda function has ever been deployed and no real render has ever
+run end-to-end — the same category as every other funded-cloud-
+infrastructure dependency across this entire build (STEP 22's own
+Terraform included). What's real and verified: every SDK call shape
+(confirmed against the installed package's actual source), the IAM policy
+(byte-for-byte from Remotion's own source), the render-trigger→poll→
+download→re-upload mechanics (12 passing tests with real assertions on
+call shape, retry counts, and error propagation), and the env-var-gated
+activation path (3 passing tests covering all-set/partially-set/unset).
+
+**Verification:** full monorepo `pnpm build && pnpm typecheck && pnpm lint`
+green (including a real type error this pass found and fixed in its own
+new test file — `noUncheckedIndexedAccess` flagging an unchecked
+`mock.calls[0]` access, fixed with the same `!` non-null-assertion style
+already used throughout this codebase for identical cases). `pnpm test`
+re-run in full.

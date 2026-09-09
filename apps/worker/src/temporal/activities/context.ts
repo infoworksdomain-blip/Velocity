@@ -17,6 +17,7 @@ import {
 import { AnthropicTextProvider, OpenAITextProvider, createStubTextProvider } from "@velocity/text-engine";
 import { createAdminDb, createKmsProvider, withWorkspace, type KmsProvider } from "@velocity/db";
 import { StubCompositor } from "../../composition/stub.compositor.js";
+import { RemotionLambdaCompositor, type RemotionLambdaConfig } from "../../composition/remotion-lambda.compositor.js";
 import { PassThroughNormaliser } from "../../composition/loudness.js";
 import { InMemoryBlobStore } from "../../storage/local.blob-store.js";
 import type { BlobStore } from "../../storage/blob-store.js";
@@ -122,9 +123,29 @@ export function getBlobStore(): BlobStore {
   return blobStore;
 }
 
+/**
+ * Post-STEP-22 audit remediation: same "self-adapting on credential
+ * presence" pattern the text-provider registrations above already use —
+ * with all three REMOTION_AWS_* env vars configured (set by a real
+ * apps/render `deploy:lambda` run), this activates the real
+ * RemotionLambdaCompositor; absent any of them, the render pipeline stays
+ * on the StubCompositor default exactly as before, no restart-required
+ * config change needed to keep this sandbox (and any environment without
+ * a deployed Lambda function) working.
+ */
+export function readRemotionLambdaConfig(): RemotionLambdaConfig | null {
+  const region = process.env.REMOTION_AWS_REGION;
+  const functionName = process.env.REMOTION_AWS_LAMBDA_FUNCTION_NAME;
+  const serveUrl = process.env.REMOTION_SITE_URL;
+  if (!region || !functionName || !serveUrl) return null;
+  return { region: region as RemotionLambdaConfig["region"], functionName, serveUrl, compositionId: "VerticalVideo" };
+}
+
 let compositor: Compositor | undefined;
 export function getCompositor(): Compositor {
-  compositor ??= new StubCompositor(getBlobStore());
+  if (compositor) return compositor;
+  const lambdaConfig = readRemotionLambdaConfig();
+  compositor = lambdaConfig ? new RemotionLambdaCompositor(getBlobStore(), lambdaConfig) : new StubCompositor(getBlobStore());
   return compositor;
 }
 
