@@ -5,6 +5,7 @@ import { TRPCError } from "@trpc/server";
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { checkAndRecordSignupRisk } from "../admin-service";
+import * as authService from "../auth-service";
 import { getAdminDb } from "../db";
 import { createSession } from "../session-service";
 import { protectedProcedure, publicProcedure, requirePlatformPermission, router } from "../trpc";
@@ -108,6 +109,34 @@ export const authRouter = router({
       .where(eq(schema.sessions.id, ctx.sessionId));
     return { ok: true };
   }),
+
+  /**
+   * Always returns { ok: true } regardless of whether the email matches an
+   * account — the same "don't leak whether this email exists" discipline
+   * login's dummy-hash comparison already established. Logic lives in
+   * auth-service.ts (db-parameter pattern) so it's directly testable
+   * against real PGlite; this procedure is a thin wrapper.
+   */
+  requestPasswordReset: publicProcedure
+    .input(z.object({ email: z.string().email() }))
+    .mutation(async ({ input }) => authService.requestPasswordReset(input.email)),
+
+  /**
+   * Single-use, 15-minute token. See auth-service.ts's resetPassword for
+   * the session-revocation-on-success behavior.
+   */
+  resetPassword: publicProcedure
+    .input(z.object({ token: z.string().min(1), newPassword: z.string().min(8) }))
+    .mutation(async ({ input }) => {
+      try {
+        return await authService.resetPassword(input.token, input.newPassword);
+      } catch (err) {
+        if (err instanceof Error && err.message === "INVALID_OR_EXPIRED_RESET_TOKEN") {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "This password reset link is invalid or has expired" });
+        }
+        throw err;
+      }
+    }),
 
   sessions: router({
     list: protectedProcedure.query(async ({ ctx }) => {

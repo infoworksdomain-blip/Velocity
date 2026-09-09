@@ -1,7 +1,11 @@
 import { randomUUID } from "node:crypto";
+import { auth, notifications } from "@velocity/core";
 import { schema } from "@velocity/db";
 import { and, eq } from "drizzle-orm";
+import type { PgDatabase } from "drizzle-orm/pg-core";
 import { getAdminDb } from "./db";
+
+export type WorkspaceServiceDb = PgDatabase<any, typeof schema>; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 /**
  * Looks up the baseline (workspace_id IS NULL) global role by key — seeded
@@ -65,4 +69,50 @@ export async function createWorkspaceForUser(
   });
 
   return { workspaceId, organisationId };
+}
+
+/**
+ * Post-STEP-22 audit remediation: `members.invite` (workspace.ts) used to
+ * insert an `invitations` row and stop — nobody was ever actually told.
+ * This sends the real email (the invitee's only path to the accept link,
+ * since they may not have an account yet) and, when the invitee already
+ * has an account, publishes the already-defined-but-never-used
+ * `invitation_received` notification bus event (packages/core's bus has
+ * carried this type since STEP 7 with zero producers). db-parameter
+ * pattern for testability, matching auth-service.ts's shape.
+ */
+export async function sendInvitationNotification(
+  input: { invitationId: string; workspaceId: string; inviteeEmail: string; inviterUserId: string },
+  db: WorkspaceServiceDb = getAdminDb(),
+  emailProvider: auth.EmailProvider = auth.createEmailProvider(),
+): Promise<void> {
+  const [workspaceRows, inviterRows, existingInviteeRows] = await Promise.all([
+    db.select({ name: schema.workspaces.name }).from(schema.workspaces).where(eq(schema.workspaces.id, input.workspaceId)).limit(1),
+    db.select({ name: schema.users.name, email: schema.users.email }).from(schema.users).where(eq(schema.users.id, input.inviterUserId)).limit(1),
+    db.select({ id: schema.users.id }).from(schema.users).where(eq(schema.users.email, input.inviteeEmail)).limit(1),
+  ]);
+
+  const workspaceName = workspaceRows[0]?.name ?? "a workspace";
+  const inviterLabel = inviterRows[0]?.name ?? inviterRows[0]?.email ?? "Someone";
+  const appBaseUrl = process.env.APP_BASE_URL ?? "http://localhost:3000";
+  const acceptUrl = `${appBaseUrl}/accept-invite/${input.invitationId}`;
+
+  await emailProvider.send({
+    to: input.inviteeEmail,
+    subject: `${inviterLabel} invited you to join ${workspaceName} on VELOCITY`,
+    text: `${inviterLabel} has invited you to join "${workspaceName}" on VELOCITY. This invitation expires in 7 days.\n\nAccept it here: ${acceptUrl}`,
+    html: `<p>${inviterLabel} has invited you to join <strong>${workspaceName}</strong> on VELOCITY. This invitation expires in 7 days.</p><p><a href="${acceptUrl}">Accept the invitation</a></p>`,
+  });
+
+  const existingInvitee = existingInviteeRows[0];
+  if (existingInvitee) {
+    notifications.publish({
+      type: "invitation_received",
+      workspaceId: input.workspaceId,
+      userId: existingInvitee.id,
+      title: `Invitation to join ${workspaceName}`,
+      body: `${inviterLabel} invited you to join ${workspaceName}.`,
+      data: { invitationId: input.invitationId },
+    });
+  }
 }

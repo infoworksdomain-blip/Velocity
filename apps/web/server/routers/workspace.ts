@@ -6,7 +6,7 @@ import { and, desc, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { getAdminDb } from "../db";
 import { protectedProcedure, requireWorkspacePermission, router } from "../trpc";
-import { createWorkspaceForUser, findGlobalRoleId } from "../workspace-service";
+import { createWorkspaceForUser, findGlobalRoleId, sendInvitationNotification } from "../workspace-service";
 
 const INVITATION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -146,6 +146,15 @@ export const workspaceRouter = router({
           roleId,
           invitedByUserId: ctx.user.id,
           expiresAt: new Date(Date.now() + INVITATION_TTL_MS),
+        });
+
+        // Post-STEP-22 audit remediation: this used to stop here, leaving
+        // the invitee with no way to ever find out. Deliberately not
+        // awaited-and-thrown-on-failure — a transient email-provider error
+        // shouldn't roll back a real, already-persisted invitation the
+        // workspace admin can still see and re-share manually.
+        await sendInvitationNotification({ invitationId, workspaceId: ctx.workspaceId, inviteeEmail: input.email, inviterUserId: ctx.user.id }, db).catch((err) => {
+          console.error("[workspace.invite] failed to send invitation notification", err);
         });
 
         return { invitationId };
