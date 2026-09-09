@@ -28,6 +28,48 @@ terraform apply -var-file=environments/staging/uk.tfvars
 ## What this does NOT do
 
 - Provision a real domain/DNS (the ACM certificate's `domain_name` is a placeholder — a real deployment supplies its own).
-- Build/push the container images the ECS task definitions reference (`PLACEHOLDER_ECR_IMAGE_URI`) — that's the CI/CD pipeline's job, not this Terraform's.
+- Build/push the container images the ECS task definitions reference (`PLACEHOLDER_ECR_IMAGE_URI`) — that's the CI/CD pipeline's job, not this Terraform's (see "Building the container images" below for the real Dockerfiles this repo now has).
 - Configure the actual CodeDeploy blue/green traffic-shifting rules (`appspec.yaml`) — deployment-time config, not infrastructure.
 - Run a real `terraform plan`/`apply` — no AWS account, no Terraform binary, in this sandbox.
+
+## Building the container images (post-STEP-22 audit remediation)
+
+`apps/web/Dockerfile` and `apps/worker/Dockerfile` are real, multi-stage,
+pnpm-workspace-aware Dockerfiles — built **from the monorepo root**, not
+from inside `apps/web`/`apps/worker`, since a pnpm workspace install needs
+every package's manifest:
+
+```bash
+# From the repo root:
+docker build -f apps/web/Dockerfile    -t velocity-web:latest    .
+docker build -f apps/worker/Dockerfile -t velocity-worker:latest .
+```
+
+Pushing to the real ECR repositories these task definitions expect (once
+the AWS account and `aws_ecr_repository` resources exist — not yet
+provisioned by this Terraform):
+
+```bash
+aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <account-id>.dkr.ecr.<region>.amazonaws.com
+
+docker tag velocity-web:latest    <account-id>.dkr.ecr.<region>.amazonaws.com/velocity-web:latest
+docker tag velocity-worker:latest <account-id>.dkr.ecr.<region>.amazonaws.com/velocity-worker:latest
+docker push <account-id>.dkr.ecr.<region>.amazonaws.com/velocity-web:latest
+docker push <account-id>.dkr.ecr.<region>.amazonaws.com/velocity-worker:latest
+```
+
+`ecs.tf`'s `PLACEHOLDER_ECR_IMAGE_URI` would then be replaced with one of
+the pushed tags above — a real CI/CD pipeline does this substitution at
+deploy time (e.g. via `terraform apply -var="web_image=..."` once that
+variable exists, or a separate `aws ecs update-service --force-new-deployment`
+after pushing a new tag the task definition already references), neither
+of which this Terraform currently wires up.
+
+**Honestly unvalidated:** no Docker daemon exists in this sandbox
+(`docker: command not found`), so neither image has actually been built
+here. Both Dockerfiles were checked with `dockerfile-utils lint` (clean,
+no findings) and their `apps/web`/`apps/worker` build commands were
+verified for real via `turbo run build --filter=... --dry-run` to confirm
+each Dockerfile's `RUN` step builds exactly the workspace packages that
+app actually depends on — real verification of everything checkable
+without Docker itself, the same honest split as the rest of this file.

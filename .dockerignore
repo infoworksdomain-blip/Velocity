@@ -1,0 +1,19 @@
+# Docker build context is the monorepo root (apps/web/Dockerfile and
+# apps/worker/Dockerfile are both built with `-f apps/*/Dockerfile .`) —
+# this keeps that context small and avoids ever baking local secrets or
+# build artifacts into an image layer.
+node_modules
+**/node_modules
+**/.next
+**/dist
+**/.turbo
+**/out
+**/coverage
+**/*.tsbuildinfo
+.git
+.env
+.env.*
+!.env.example
+docs
+infra/terraform/**/*.tfstate*
+infra/terraform/**/.terraform

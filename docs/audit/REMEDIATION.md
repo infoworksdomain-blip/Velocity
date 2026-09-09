@@ -155,3 +155,52 @@ honestly rather than scope-crept into.
 green (33 routes building and prerendering, including all 5 new pages and
 3 new Route Handlers). `pnpm test` re-run in full — see the commit for
 this unit's exact pass/fail counts.
+
+## Unit 3 — Dockerfiles
+
+Real, multi-stage, pnpm-workspace-aware Dockerfiles for `apps/web` and
+`apps/worker` — confirmed via a full-tree glob that neither existed
+anywhere before this unit, despite `infra/terraform/modules/regional-stack/
+ecs.tf`'s two task definitions expecting a real image at
+`PLACEHOLDER_ECR_IMAGE_URI` since STEP 22.
+
+**A real bug found and fixed along the way, not routed around:** adding
+`output: "standalone"` to `apps/web/next.config.ts` (needed so the Docker
+image ships only the traced files it needs, not the whole monorepo's
+`node_modules`) broke `pnpm build` outright in this sandbox —
+`EPERM: operation not permitted, symlink ...`. Root-caused, not
+guessed at: Next's standalone output re-materialises pnpm's symlink-based
+`node_modules` via real filesystem symlinks, which Windows refuses without
+Developer Mode or admin rights — confirmed OFF via a direct (read-only)
+registry check (`HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\
+AppModelUnlock` doesn't even have the key). Enabling Developer Mode is a
+system-wide security-posture change this pass declined to make
+unprompted. Fixed correctly, not papered over: `output: "standalone"` (and
+the `outputFileTracingRoot` it needs to actually find `workspace:*`
+dependencies under `../../packages` — confirmed via Next's own docs that
+without this, monorepo tracing defaults to the app's own directory) are
+now gated behind a `DOCKER_BUILD=1` env var the Dockerfile's own build
+stage sets — real config for the real (Linux, unaffected by this)
+container build target, with local/CI builds on this Windows sandbox left
+exactly as they were. Re-verified: `pnpm build` (no flag) still green,
+matching pre-Unit-3 output exactly.
+
+Both Dockerfiles' dependency-build steps were verified for real via
+`turbo run build --filter=@velocity/web... --dry-run` / `--filter=
+@velocity/worker...` (not assumed): confirmed `apps/web` needs
+`@velocity/{contracts,core,db,providers,text-engine,ui,worker}` built
+first (worker included — apps/web imports its compiled Temporal client),
+while `apps/worker` needs only `@velocity/{contracts,core,db,providers,
+text-engine}` (no `ui`/`web`/`render` build cost paid). Both Dockerfiles
+pass `dockerfile-utils lint` cleanly (no findings).
+
+**Honestly unvalidated:** no Docker daemon exists in this sandbox
+(`docker: command not found`) — neither image has actually been built.
+Real build/push commands for a genuine ECR target are documented in
+`infra/terraform/README.md`. This is the same "real code, unvalidated by
+the live operation" category as every other infra-dependent item in
+STEP 22 itself.
+
+**Verification:** full monorepo `pnpm build && pnpm typecheck && pnpm lint`
+green with the DOCKER_BUILD flag unset (unaffected); `pnpm test` re-run in
+full.
