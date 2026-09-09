@@ -357,3 +357,39 @@ timing noise from the full parallel run, not a reproducible defect.
 && pnpm test` re-verified green with the new `e2e/` spec files and
 `playwright.config.ts` present (they don't affect the unit-test suite,
 confirmed rather than assumed).
+
+## Final clean-clone verification
+
+A genuine fresh `git clone --local`, cold `pnpm install`, and cold
+`pnpm build && pnpm typecheck && pnpm lint && pnpm test` (no turbo cache
+reuse — confirmed `Cached: 0 cached` on every task) — the same discipline
+every STEP in this build has ended with. All green: 9/9 build, 16/16
+typecheck, 9/9 lint, 9/9 test (477 tests in `packages/core` alone, up from
+471 pre-remediation, matching the 6 new email-provider tests exactly).
+
+One new finding, not present at Unit 1's close: `pnpm audit` surfaced a
+fresh moderate advisory (GHSA-82fw-gwwq-j7x9, "Vitest: Path Traversal /
+Arbitrary File Read via @vitest/mocker Redirect Mock," vitest <4.1.11)
+published to the advisory database after Unit 1 landed — not something
+Unit 1 missed. Fixing it needs a major bump (3.2.7 → 4.x), a materially
+bigger jump than any fix this remediation pass has made. Checked before
+deciding: the vulnerable path is triggered through `vi.mock()`'s redirect
+resolution, and a repo-wide grep for `vi.mock(` returns zero matches
+anywhere in this codebase — every test here uses real dependency
+injection instead of vitest's mocking feature, the same "real code over
+mocks" discipline this build has held since STEP 1. The vulnerable code
+path is confirmed unreachable, not just assumed low-risk. Deferred with
+this written reasoning, matching STEP 20's own established precedent for
+findings whose attack vector this codebase's own usage doesn't create.
+
+## Summary
+
+All six originally-flagged gaps are closed: dependency vulnerabilities
+(24 → 0, plus this one new later-discovered advisory now documented and
+deliberately deferred), real email delivery, a working password-reset
+flow, invitation emails, real Dockerfiles, a real Remotion-on-Lambda
+compositor with real IAM infrastructure, and a real Playwright E2E suite
+with a 41/42 passing run against a real production build. Five units,
+five commits, each independently verified with the full monorepo
+build/typecheck/lint/test suite, plus this one comprehensive cold
+clean-clone pass covering the cumulative result.

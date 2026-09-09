@@ -59,6 +59,10 @@ Environment/tooling notes worth knowing before touching adjacent code:
 
 Every step from STEP 1 (Architecture) through STEP 22 (Production Deployment) has been built, tested, and verified in sequence, each with a full monorepo build/typecheck/lint/test pass and a genuine cold clean-clone verification before being committed. Every GATE's honesty matrix is recorded in its own `docs/steps/STEP-NN.md`; every genuinely infeasible claim across all 22 steps — funded LLM/vendor API keys, live OAuth app credentials, a funded Stripe test account, cryptographic C2PA signing, a real Postgres server before STEP 8's PGlite discovery, and now real cloud infrastructure for STEP 22's own three gate checks — was explicitly flagged rather than faked, the single discipline this entire build has held to consistently from the first step to the last. STEPS 1–7's own gate results are recorded directly in their `docs/steps/STEP-0N.md` files (the `pnpm gate:NN` script convention started at STEP 8); `pnpm gate:08` through `pnpm gate:22` each produce a live, honest report. There is no step left to proceed to next.
 
+## Post-STEP-22 production-readiness audit and remediation
+
+A production-readiness audit after STEP 22 found six real gaps beyond the 22 steps' own scope: 24 dependency vulnerabilities, no real email delivery, no password-reset flow, invitations that never notified anyone, no Dockerfile despite the ECS task definitions expecting one, a 100%-unbuilt Remotion-on-Lambda compositor, and no E2E suite. All six are now closed — see `docs/audit/REMEDIATION.md` for the full unit-by-unit writeup (dependency remediation; real email/password-reset/invitations, which surfaced and fixed a deeper gap — this app had no login page or session-cookie mechanism at all; real Dockerfiles; the real Remotion Lambda compositor + IAM infra; a real Playwright E2E suite with a 41/42 passing run against a real production build). Same discipline as the 22 steps themselves: five units, five commits, each independently verified, plus one final cold clean-clone pass covering the cumulative result.
+
 ## Non-negotiable constraints (C1–C8)
 
 | # | Constraint |
