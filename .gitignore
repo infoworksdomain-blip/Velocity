@@ -37,3 +37,6 @@ storybook-static/
 
 # generated deliverable documents (not source)
 deliverables/
+
+# Vercel CLI project link (local machine/account-specific, not shared config)
+.vercel
