@@ -1,23 +1,47 @@
 import { randomUUID } from "node:crypto";
 import { nextOnboardingStage, type OnboardingStage } from "@velocity/core";
 import { schema } from "@velocity/db";
-import { RealWebsiteIntelligenceProvider, StubConceptGenerationProvider } from "@velocity/providers";
+import { StubConceptGenerationProvider, StubWebsiteIntelligenceProvider, type WebsiteIntelligenceProvider } from "@velocity/providers";
 import { z } from "zod";
 import { getAdminDb } from "../db";
 import { protectedProcedure, publicProcedure, router } from "../trpc";
 import { createWorkspaceForUser } from "../workspace-service";
 
 /**
- * STEP 5's onboarding flow. `analyzeWebsite` now uses STEP 6's real
- * crawler (real SSRF-safe Playwright crawl, real injection-safe prompt
- * construction) — only its final LLM extraction step is still a stub, per
- * docs/steps/STEP-06.md. The concept batch in `complete` remains STEP 8's
- * stub. GATE 5's 90-second target still isn't measurable: a real crawl
- * plus a stub extraction has different (and still not representative)
- * timing than the eventual full pipeline.
+ * STEP 5's onboarding flow. `analyzeWebsite` uses STEP 6's real crawler
+ * (real SSRF-safe Playwright crawl, real injection-safe prompt
+ * construction) where a Playwright runtime is actually available — only
+ * its final LLM extraction step is still a stub, per docs/steps/STEP-06.md.
+ * The concept batch in `complete` remains STEP 8's stub. GATE 5's
+ * 90-second target still isn't measurable: a real crawl plus a stub
+ * extraction has different (and still not representative) timing than the
+ * eventual full pipeline.
+ *
+ * A real production bug found deploying to Vercel: this router used to
+ * hardcode `new RealWebsiteIntelligenceProvider()` at module scope — a
+ * static import that, via the real Playwright crawler it pulls in, threw
+ * `Cannot find module 'playwright'` the moment this router's module
+ * loaded, since apps/web/next.config.ts deliberately excludes `playwright`
+ * from every serverless function bundle (launching real headless Chromium
+ * isn't viable inside a typical Vercel function's size/runtime limits —
+ * that's a worker-shaped job, not a request/response one). Resolving the
+ * real provider now happens lazily, inside the procedure, via a dynamic
+ * `import()` of the crawler's own real subpath export
+ * ("@velocity/providers/brand-intelligence") with a graceful fallback to
+ * the deterministic stub when that import fails — the same
+ * real-adapter-with-a-safe-fallback shape already used throughout this
+ * codebase (STEP 8B's text providers, STEP 19's email provider, etc.),
+ * just applied here for the first time.
  */
+async function resolveWebsiteIntelligenceProvider(): Promise<WebsiteIntelligenceProvider> {
+  try {
+    const { RealWebsiteIntelligenceProvider } = await import("@velocity/providers/brand-intelligence");
+    return new RealWebsiteIntelligenceProvider();
+  } catch {
+    return new StubWebsiteIntelligenceProvider();
+  }
+}
 
-const websiteIntelligence = new RealWebsiteIntelligenceProvider();
 const conceptGeneration = new StubConceptGenerationProvider();
 
 async function recordEvent(sessionId: string, stage: OnboardingStage, workspaceId?: string) {
@@ -41,6 +65,7 @@ export const onboardingRouter = router({
     .input(z.object({ sessionId: z.string().uuid(), url: z.string().url() }))
     .mutation(async ({ input }) => {
       await recordEvent(input.sessionId, nextOnboardingStage("enter_url", { type: "URL_SUBMITTED" }));
+      const websiteIntelligence = await resolveWebsiteIntelligenceProvider();
       const brandProfile = await websiteIntelligence.analyze(input.url);
       const stage = nextOnboardingStage("analyzing", { type: "ANALYSIS_COMPLETE" });
       await recordEvent(input.sessionId, stage);

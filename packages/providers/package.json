@@ -6,6 +6,11 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./brand-intelligence": "./dist/brand-intelligence/index.js",
+    "./*": "./dist/*.js"
+  },
   "dependencies": {
     "playwright": "1.63.0",
     "zod": "^3.24.1",
