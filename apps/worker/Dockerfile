@@ -5,10 +5,18 @@
 # tsc-build + plain `node dist/index.js` runtime — no standalone-output
 # tracing needed.
 #
+# Debian slim, NOT Alpine: @temporalio/core-bridge ships a native addon
+# (a compiled Rust binary) prebuilt against glibc. Alpine uses musl libc
+# and has no `ld-linux-x86-64.so.2`, so the worker's real container startup
+# failed with ERR_DLOPEN_FAILED the first time this image actually ran on
+# real infrastructure (Railway) — Temporal's own docs list this as a known
+# constraint of @temporalio/worker, not something fixable via an Alpine
+# compat package. bookworm-slim is glibc-based and has no such issue.
+#
 # Build from the MONOREPO ROOT:
 #   docker build -f apps/worker/Dockerfile -t velocity-worker:latest .
 
-FROM node:22-alpine AS base
+FROM node:22-bookworm-slim AS base
 RUN corepack enable && corepack prepare pnpm@9.15.9 --activate
 WORKDIR /app
 
@@ -42,7 +50,7 @@ RUN pnpm exec turbo run build --filter=@velocity/worker...
 
 FROM base AS runner
 ENV NODE_ENV=production
-RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nodejs
+RUN groupadd --system --gid 1001 nodejs && useradd --system --uid 1001 --gid nodejs nodejs
 # Real production dependencies only — workspace:* packages resolve to
 # their built dist/ output via the node_modules symlinks pnpm already set
 # up in the deps stage, so copying node_modules + every workspace
@@ -67,16 +75,37 @@ COPY --from=builder --chown=nodejs:nodejs /app/apps/worker/dist ./apps/worker/di
 # only dist/ copied, resolution falls back to a legacy default of
 # <pkg-root>/index.js, which doesn't exist, throwing ERR_MODULE_NOT_FOUND
 # for a package whose real, correct dist/index.js is sitting right there.
+#
+# AND each of these packages has its OWN node_modules/@velocity/* symlinks
+# to whichever sibling workspace packages IT imports (e.g.
+# packages/core/node_modules/db -> packages/db, because packages/core's own
+# source imports @velocity/db) — this is the exact same per-package
+# node_modules reality as apps/worker's own node_modules above, just one
+# level deeper in the dependency graph. Without it, `packages/core/dist`
+# throws ERR_MODULE_NOT_FOUND for `@velocity/db` even though packages/db's
+# dist is right there in the image, because there is no path from
+# packages/core's own node_modules to it.
 COPY --from=builder --chown=nodejs:nodejs /app/packages/contracts/package.json ./packages/contracts/package.json
+COPY --from=builder --chown=nodejs:nodejs /app/packages/contracts/node_modules ./packages/contracts/node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/packages/contracts/dist ./packages/contracts/dist
 COPY --from=builder --chown=nodejs:nodejs /app/packages/core/package.json ./packages/core/package.json
+COPY --from=builder --chown=nodejs:nodejs /app/packages/core/node_modules ./packages/core/node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/packages/core/dist ./packages/core/dist
 COPY --from=builder --chown=nodejs:nodejs /app/packages/db/package.json ./packages/db/package.json
+COPY --from=builder --chown=nodejs:nodejs /app/packages/db/node_modules ./packages/db/node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/packages/db/dist ./packages/db/dist
 COPY --from=builder --chown=nodejs:nodejs /app/packages/providers/package.json ./packages/providers/package.json
+COPY --from=builder --chown=nodejs:nodejs /app/packages/providers/node_modules ./packages/providers/node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/packages/providers/dist ./packages/providers/dist
 COPY --from=builder --chown=nodejs:nodejs /app/packages/text-engine/package.json ./packages/text-engine/package.json
+COPY --from=builder --chown=nodejs:nodejs /app/packages/text-engine/node_modules ./packages/text-engine/node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/packages/text-engine/dist ./packages/text-engine/dist
+# Repo-root config/ (safe-areas.json, platform-media-specs.json, etc.) is
+# statically imported by compiled worker code (e.g.
+# remotion-lambda.compositor.js's `import ... from "../../../../config/
+# safe-areas.json"`) — a real runtime dependency this Dockerfile never
+# copied in at all until this fix.
+COPY --from=builder --chown=nodejs:nodejs /app/config ./config
 USER nodejs
 WORKDIR /app/apps/worker
 CMD ["node", "dist/index.js"]
