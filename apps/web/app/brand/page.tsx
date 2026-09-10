@@ -2,7 +2,7 @@
 
 import { useWorkspace } from "@/lib/workspace-context";
 import { trpcClient } from "@/lib/trpc-client";
-import { AppSidebar, EmptyState, Text, type SidebarItem } from "@velocity/ui";
+import { AppSidebar, Text, type SidebarItem } from "@velocity/ui";
 import { useCallback, useEffect, useState } from "react";
 import styles from "./brand.module.css";
 
@@ -118,12 +118,10 @@ export default function BrandPage() {
           <Text variant="body" as="p">
             Loading…
           </Text>
-        ) : profile === null ? (
-          <EmptyState heading="No brand profile yet" body="Finish onboarding to generate your first brand profile from your website." />
         ) : (
           <section className={styles.card}>
             <Text variant="label" as="p" className={styles.sectionLabel}>
-              Version {profile.version} · from {profile.sourceUrl || "manual entry"}
+              {profile ? `Version ${profile.version} · from ${profile.sourceUrl || "manual entry"}` : "No brand profile yet — fill this in to create your first version"}
             </Text>
             <div className={styles.form}>
               <label className={styles.fieldGroup}>
@@ -169,7 +167,7 @@ export default function BrandPage() {
                 <textarea className={styles.textarea} rows={3} value={ctaVariants} onChange={(e) => setCtaVariants(e.target.value)} />
               </label>
               <button type="button" className={styles.actionButton} onClick={() => void handleSave()} disabled={saving || !product.trim() || !category.trim()}>
-                {saving ? "Saving…" : "Save as new version"}
+                {saving ? "Saving…" : profile ? "Save as new version" : "Create brand profile"}
               </button>
             </div>
           </section>

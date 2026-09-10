@@ -107,6 +107,7 @@ export const onboardingRouter = router({
         name: z.string().min(1),
         workspaceType: z.enum(["individual", "business"]),
         timezone: z.string().default("UTC"),
+        sourceUrl: z.string().optional(),
         brandProfile: z.object({
           product: z.string(),
           category: z.string(),
@@ -123,6 +124,32 @@ export const onboardingRouter = router({
         workspaceType: input.workspaceType,
         timezone: input.timezone,
       });
+
+      // Real bug found in a full-scope page audit: this mutation used
+      // `input.brandProfile` only to name the workspace and seed the stub
+      // concept batch below — it never actually persisted a brand_profiles
+      // row, so everything the user just typed into onboarding vanished
+      // the moment this request finished. workspace.brandProfile.get
+      // (added alongside the new /brand page) had nothing to ever read.
+      await getAdminDb()
+        .insert(schema.brandProfiles)
+        .values({
+          id: randomUUID(),
+          workspaceId,
+          version: 1,
+          product: input.brandProfile.product,
+          category: input.brandProfile.category,
+          oneLiner: input.brandProfile.oneLiner,
+          icpSegments: input.brandProfile.icpSegments,
+          pains: input.brandProfile.pains,
+          benefits: input.brandProfile.benefits,
+          differentiators: [],
+          proofPoints: [],
+          ctaVariants: [],
+          competitors: [],
+          complianceNotes: [],
+          sourceUrl: input.sourceUrl ?? "",
+        });
 
       const concepts = await conceptGeneration.generateInitialBatch(input.brandProfile);
 

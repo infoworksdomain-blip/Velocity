@@ -148,6 +148,7 @@ export default function OnboardingPage() {
                 sessionId,
                 name: brandProfile.product,
                 workspaceType,
+                sourceUrl: url || undefined,
                 brandProfile,
               });
               setWorkspaceId(result.workspaceId);
