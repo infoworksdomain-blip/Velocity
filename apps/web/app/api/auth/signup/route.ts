@@ -1,9 +1,9 @@
 import { TRPCError } from "@trpc/server";
 import { getHTTPStatusCodeFromError } from "@trpc/server/http";
-import { appRouter } from "@/server/routers/_app";
+import { authRouter } from "@/server/routers/auth";
 import { sessionCookieHeader } from "@/server/auth-cookie";
 
-/** Same shape as ../login/route.ts — see that file's doc comment. */
+/** Same shape as ../login/route.ts — see that file's doc comment (including why this imports `authRouter` directly, not `appRouter`). */
 export async function POST(req: Request): Promise<Response> {
   let body: unknown;
   try {
@@ -16,9 +16,9 @@ export async function POST(req: Request): Promise<Response> {
     return Response.json({ error: "email and password are required" }, { status: 400 });
   }
 
-  const caller = appRouter.createCaller({ sessionId: null, user: null, workspaceIdHeader: null });
+  const caller = authRouter.createCaller({ sessionId: null, user: null, workspaceIdHeader: null });
   try {
-    const result = await caller.auth.signup({
+    const result = await caller.signup({
       email: input.email,
       password: input.password,
       name: typeof input.name === "string" ? input.name : undefined,
