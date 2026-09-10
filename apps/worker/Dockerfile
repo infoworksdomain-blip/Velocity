@@ -26,7 +26,13 @@ COPY packages/ui/package.json packages/ui/package.json
 RUN pnpm install --frozen-lockfile
 
 FROM base AS builder
-COPY --from=deps /app/node_modules ./node_modules
+# Same real bug apps/web/Dockerfile's own comment documents, fixed the
+# same way: pnpm gives every workspace package its own node_modules
+# (symlinks into the root .pnpm store), not just the root one — copying
+# only the root node_modules left per-package devDependencies
+# unresolvable for whichever package needed them. Copying the whole deps
+# output is the correct fix.
+COPY --from=deps /app ./
 COPY . .
 # Confirmed via `turbo run build --filter=@velocity/worker... --dry-run`
 # that this builds exactly @velocity/worker plus the workspace:*

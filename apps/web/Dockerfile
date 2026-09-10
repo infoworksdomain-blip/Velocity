@@ -32,8 +32,18 @@ COPY packages/ui/package.json packages/ui/package.json
 RUN pnpm install --frozen-lockfile
 
 FROM base AS builder
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
+# A real, previously-undiscovered bug — found by an actual `docker build`,
+# not guessed: pnpm gives EVERY workspace package its own node_modules
+# (symlinks into the root .pnpm store), not just the root one. Copying
+# only the root node_modules + apps/web's own left every other workspace
+# package (packages/ui's vite/@vitejs/plugin-react devDependencies
+# specifically) unresolvable, failing `packages/ui`'s own `tsc` build
+# with "Cannot find type definition file for 'vite/client'" — invisible
+# until this Dockerfile was actually built for the first time (no Docker
+# daemon existed in the sandbox it was originally written in). Copying
+# the whole deps output (manifests + every package's node_modules) is the
+# correct fix, not a narrower COPY list per package.
+COPY --from=deps /app ./
 COPY . .
 # Real, tested standalone-output config (see apps/web/next.config.ts) —
 # only active under this flag, since it needs real filesystem symlinks
