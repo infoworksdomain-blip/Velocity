@@ -50,6 +50,15 @@ RUN pnpm exec turbo run build --filter=@velocity/worker...
 
 FROM base AS runner
 ENV NODE_ENV=production
+# node:*-bookworm-slim has no CA certificate bundle installed by default —
+# confirmed directly against a real deployed container (/etc/ssl/certs was
+# empty). Fine for plaintext localhost Temporal, but every TLS connection
+# this process makes (Temporal Cloud, Neon Postgres, R2, any vendor API)
+# needs a trust store to verify the server certificate against; without
+# one, the handshake fails with an opaque low-level "transport error"
+# rather than a clear TLS/cert error, which is exactly what a real
+# Temporal Cloud connection attempt surfaced first.
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
 RUN groupadd --system --gid 1001 nodejs && useradd --system --uid 1001 --gid nodejs nodejs
 # Real production dependencies only — workspace:* packages resolve to
 # their built dist/ output via the node_modules symlinks pnpm already set
