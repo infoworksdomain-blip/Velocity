@@ -207,7 +207,7 @@ export default function VelocityPage() {
         )}
 
         {queue !== null && queue.length === 0 && (
-          <EmptyState heading="Your Velocity queue is empty" body="Content generation ships in STEP 8 — check back once your brand profile has generated concepts." />
+          <EmptyState heading="Your Velocity queue is empty" body="Concepts generate from your brand profile once an AI provider key is configured for this workspace. Check back after that's set up, or finish onboarding if you haven't yet." />
         )}
 
         {queue !== null && queue.length > 0 && (

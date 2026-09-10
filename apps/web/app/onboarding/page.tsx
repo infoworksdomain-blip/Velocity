@@ -38,7 +38,7 @@ export default function OnboardingPage() {
 
   return (
     <main>
-      <p className="label">STEP 5 — onboarding shell (functional only, STEP 7 owns the design)</p>
+      <p className="label">Set up your workspace</p>
       <p>Stage: {stage}</p>
       {error && <p role="alert">{error}</p>}
 

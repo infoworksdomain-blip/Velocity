@@ -1,0 +1,90 @@
+.page {
+  display: flex;
+  flex-direction: column;
+}
+
+.heroSection {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: calc(var(--space-unit) * 32) var(--container-gutter) calc(var(--space-unit) * 20);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 10);
+}
+
+.heroGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  align-items: center;
+  gap: calc(var(--space-unit) * 16);
+}
+
+@media (max-width: 900px) {
+  .heroGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cardMedia {
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(120% 90% at 20% 15%, var(--glow), transparent 60%),
+    var(--ember);
+}
+
+.section {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  width: 100%;
+  padding: calc(var(--space-unit) * 20) var(--container-gutter);
+}
+
+.sectionLabel {
+  margin-bottom: calc(var(--space-unit) * 8);
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: calc(var(--space-unit) * 6);
+}
+
+@media (max-width: 700px) {
+  .featureGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.featureIcon {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(60% 60% at 50% 50%, var(--glow), transparent 70%);
+}
+
+.featureIcon svg {
+  width: 32px;
+  height: 32px;
+  color: var(--flare-deep);
+}
+
+.pricingGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: calc(var(--space-unit) * 6);
+}
+
+@media (max-width: 900px) {
+  .pricingGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .pricingGrid {
+    grid-template-columns: 1fr;
+  }
+}
