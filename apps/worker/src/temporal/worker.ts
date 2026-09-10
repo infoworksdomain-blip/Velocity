@@ -1,12 +1,14 @@
 import { fileURLToPath } from "node:url";
 import { NativeConnection, Worker } from "@temporalio/worker";
 import * as activities from "./activities/index.js";
+import { resolveTemporalConnectionOptions, resolveTemporalNamespace } from "./connection-options.js";
 import { RENDER_TASK_QUEUE } from "./task-queues.js";
 
 export async function startRenderWorker(): Promise<Worker> {
-  const connection = await NativeConnection.connect({ address: process.env.TEMPORAL_ADDRESS ?? "localhost:7233" });
+  const connection = await NativeConnection.connect(resolveTemporalConnectionOptions());
   const worker = await Worker.create({
     connection,
+    namespace: resolveTemporalNamespace(),
     taskQueue: RENDER_TASK_QUEUE,
     workflowsPath: fileURLToPath(new URL("./workflows/index.js", import.meta.url)),
     activities,

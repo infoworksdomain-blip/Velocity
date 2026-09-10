@@ -1,13 +1,14 @@
 import { Client, Connection, WorkflowIdReusePolicy } from "@temporalio/client";
 import type { PublishResult, PublishWorkflowInput, RenderResult, RenderWorkflowInput } from "@velocity/contracts";
+import { resolveTemporalConnectionOptions, resolveTemporalNamespace } from "./connection-options.js";
 import { RENDER_TASK_QUEUE } from "./task-queues.js";
 
 let client: Client | undefined;
 
 export async function getTemporalClient(): Promise<Client> {
   if (client) return client;
-  const connection = await Connection.connect({ address: process.env.TEMPORAL_ADDRESS ?? "localhost:7233" });
-  client = new Client({ connection });
+  const connection = await Connection.connect(resolveTemporalConnectionOptions());
+  client = new Client({ connection, namespace: resolveTemporalNamespace() });
   return client;
 }
 
