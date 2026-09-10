@@ -1,6 +1,7 @@
 "use client";
 
 import { trpcClient } from "@/lib/trpc-client";
+import { useWorkspace } from "@/lib/workspace-context";
 import { AppSidebar, Text, type SidebarItem } from "@velocity/ui";
 import { useEffect, useState } from "react";
 import styles from "./billing.module.css";
@@ -35,6 +36,7 @@ const TOP_UP_PACKS = [
  * history.
  */
 export default function BillingPage() {
+  const { currentWorkspaceId } = useWorkspace();
   const [plans, setPlans] = useState<BillingPlan[]>([]);
   const [subscription, setSubscription] = useState<Subscription>(null);
   const [creditBalance, setCreditBalance] = useState<number>(0);
@@ -59,8 +61,9 @@ export default function BillingPage() {
   };
 
   useEffect(() => {
+    if (!currentWorkspaceId) return;
     void refresh();
-  }, []);
+  }, [currentWorkspaceId]);
 
   const handleSubscribe = async (planKey: "starter" | "growth" | "pro") => {
     setError(null);
