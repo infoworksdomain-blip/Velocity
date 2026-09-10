@@ -34,3 +34,6 @@ apps/render/out/
 
 # storybook
 storybook-static/
+
+# generated deliverable documents (not source)
+deliverables/
