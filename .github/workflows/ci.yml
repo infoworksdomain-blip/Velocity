@@ -23,6 +23,20 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # A real, previously-undiscovered gap: packages/providers' brand-
+      # intelligence crawler (src/brand-intelligence/crawler.ts) launches
+      # a real Chromium via the plain `playwright` package as part of
+      # `pnpm test`'s real 20-site GATE 6 test — and nothing ever
+      # installed the actual browser binary in CI. Invisible until this
+      # workflow's first real run: every environment this suite had run
+      # in before (including the sandbox that wrote it) already had
+      # Chromium cached locally from unrelated Playwright work elsewhere
+      # in the repo (apps/web's E2E suite). A genuinely fresh runner has
+      # no such cache — `chromium.launch()` fails outright, and the whole
+      # 20-site test fails at 0/20 rather than a partial/flaky result.
+      - name: Install Playwright Chromium (packages/providers' brand-intelligence crawler)
+        run: pnpm --filter @velocity/providers exec playwright install --with-deps chromium
+
       - name: Build
         run: pnpm build
 
