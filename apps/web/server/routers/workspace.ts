@@ -222,4 +222,69 @@ export const workspaceRouter = router({
       });
     }),
   }),
+
+  /**
+   * A real gap found in a full-scope page audit: onboarding.ts writes the
+   * first brand_profiles row (STEP 5/6), and velocity.ts reads the latest
+   * one internally for concept generation, but no procedure ever let a
+   * user view or edit their own brand profile again after onboarding —
+   * ugc.tsx's only way to reference one was a raw pasted UUID. `get`
+   * returns the latest version by the same `ORDER BY version DESC LIMIT 1`
+   * velocity.ts already uses; `update` inserts a new version rather than
+   * mutating the existing row, matching the table's own versioned design
+   * (brand_profiles.version) instead of quietly discarding history.
+   */
+  brandProfile: router({
+    get: requireWorkspacePermission("workspace:read:workspace").query(async ({ ctx }) => {
+      const rows = await getAdminDb()
+        .select()
+        .from(schema.brandProfiles)
+        .where(eq(schema.brandProfiles.workspaceId, ctx.workspaceId))
+        .orderBy(desc(schema.brandProfiles.version))
+        .limit(1);
+      return rows[0] ?? null;
+    }),
+
+    update: requireWorkspacePermission("workspace:update:workspace")
+      .input(
+        z.object({
+          product: z.string().min(1),
+          category: z.string().min(1),
+          oneLiner: z.string().optional(),
+          pains: z.array(z.string()),
+          benefits: z.array(z.string()),
+          differentiators: z.array(z.string()),
+          ctaVariants: z.array(z.string()),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const db = getAdminDb();
+        const existing = await db
+          .select({ version: schema.brandProfiles.version, sourceUrl: schema.brandProfiles.sourceUrl, icpSegments: schema.brandProfiles.icpSegments, proofPoints: schema.brandProfiles.proofPoints, complianceNotes: schema.brandProfiles.complianceNotes })
+          .from(schema.brandProfiles)
+          .where(eq(schema.brandProfiles.workspaceId, ctx.workspaceId))
+          .orderBy(desc(schema.brandProfiles.version))
+          .limit(1);
+        const previous = existing[0];
+        const id = randomUUID();
+        await db.insert(schema.brandProfiles).values({
+          id,
+          workspaceId: ctx.workspaceId,
+          version: (previous?.version ?? 0) + 1,
+          product: input.product,
+          category: input.category,
+          oneLiner: input.oneLiner ?? null,
+          icpSegments: previous?.icpSegments ?? [],
+          pains: input.pains,
+          benefits: input.benefits,
+          differentiators: input.differentiators,
+          proofPoints: previous?.proofPoints ?? [],
+          ctaVariants: input.ctaVariants,
+          competitors: [],
+          complianceNotes: previous?.complianceNotes ?? [],
+          sourceUrl: previous?.sourceUrl ?? "",
+        });
+        return { brandProfileId: id };
+      }),
+  }),
 });

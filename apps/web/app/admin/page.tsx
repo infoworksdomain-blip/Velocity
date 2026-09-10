@@ -11,6 +11,7 @@ type PendingReview = Awaited<ReturnType<typeof trpcClient.admin.moderation.listP
 type AuditLogRow = Awaited<ReturnType<typeof trpcClient.admin.auditLog.list.query>>[number];
 type AiProviderConfig = Awaited<ReturnType<typeof trpcClient.admin.aiModels.list.query>>[number];
 type RiskSignal = Awaited<ReturnType<typeof trpcClient.admin.risk.list.query>>[number];
+type FeatureFlagRow = Awaited<ReturnType<typeof trpcClient.admin.featureFlags.list.query>>[number];
 
 const SIDEBAR_ITEMS: SidebarItem[] = [
   { id: "dashboard", label: "Dashboard", icon: <span aria-hidden>◆</span>, href: "/dashboard" },
@@ -46,6 +47,9 @@ export default function AdminPage() {
   const [auditLogs, setAuditLogs] = useState<AuditLogRow[]>([]);
   const [providerConfigs, setProviderConfigs] = useState<AiProviderConfig[]>([]);
   const [riskSignals, setRiskSignals] = useState<RiskSignal[]>([]);
+  const [flagKey, setFlagKey] = useState("");
+  const [flagRows, setFlagRows] = useState<FeatureFlagRow[] | null>(null);
+  const [newFlagEnabled, setNewFlagEnabled] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const refreshStatic = async () => {
@@ -128,6 +132,26 @@ export default function AdminPage() {
       breakerCooldownSec: config.breakerCooldownSec,
     });
     await refreshStatic();
+  };
+
+  /**
+   * A real gap found in a full-scope page audit: admin.featureFlags.list/
+   * evaluate/upsert (STEP 18) are real and tested — this page already
+   * renders every other admin surface (system health, platform pause,
+   * moderation, audit log, AI models, risk) but never called these. `list`
+   * needs a key to look up rather than listing every flag ever created
+   * (there's no "list all keys" procedure), so this is a lookup-by-key
+   * tool, not a browsable table.
+   */
+  const handleLookupFlag = async () => {
+    if (!flagKey.trim()) return;
+    setFlagRows(await trpcClient.admin.featureFlags.list.query({ key: flagKey.trim() }));
+  };
+
+  const handleSetPlatformDefault = async () => {
+    if (!flagKey.trim()) return;
+    await trpcClient.admin.featureFlags.upsert.mutate({ key: flagKey.trim(), workspaceId: null, userId: null, isEnabled: newFlagEnabled });
+    await handleLookupFlag();
   };
 
   return (
@@ -317,6 +341,49 @@ export default function AdminPage() {
               </li>
             ))}
           </ul>
+        </section>
+
+        <section className={styles.panel}>
+          <Text variant="heading" as="h2">
+            Feature flags
+          </Text>
+          <div className={styles.form}>
+            <input className={styles.input} placeholder="Flag key" value={flagKey} onChange={(e) => setFlagKey(e.target.value)} />
+            <button type="button" className={styles.actionButton} onClick={() => void handleLookupFlag()}>
+              Look up
+            </button>
+          </div>
+
+          {flagRows !== null && (
+            <>
+              <ul className={styles.list}>
+                {flagRows.length === 0 && (
+                  <li className={styles.listItem}>
+                    <Text variant="body" as="span">
+                      No rows for this key yet.
+                    </Text>
+                  </li>
+                )}
+                {flagRows.map((row) => (
+                  <li key={row.id} className={styles.listItem}>
+                    <Text variant="body" as="span">
+                      {row.workspaceId ? `workspace ${row.workspaceId.slice(0, 8)}` : row.userId ? `user ${row.userId.slice(0, 8)}` : "platform default"}
+                    </Text>
+                    <span className={row.isEnabled ? styles.badgeOk : styles.badge}>{row.isEnabled ? "ON" : "OFF"}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className={styles.form}>
+                <select className={styles.input} value={newFlagEnabled ? "on" : "off"} onChange={(e) => setNewFlagEnabled(e.target.value === "on")}>
+                  <option value="on">On</option>
+                  <option value="off">Off</option>
+                </select>
+                <button type="button" className={styles.actionButton} onClick={() => void handleSetPlatformDefault()}>
+                  Set platform default
+                </button>
+              </div>
+            </>
+          )}
         </section>
       </main>
     </div>

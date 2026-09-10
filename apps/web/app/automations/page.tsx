@@ -16,10 +16,15 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
   { id: "accounts", label: "Accounts", icon: <span aria-hidden>●</span>, href: "/accounts" },
   { id: "analytics", label: "Analytics", icon: <span aria-hidden>▲</span>, href: "/analytics" },
   { id: "assistant", label: "Assistant", icon: <span aria-hidden>✦</span>, href: "/assistant" },
+  { id: "competitors", label: "Competitors", icon: <span aria-hidden>◧</span>, href: "/competitors" },
   { id: "ugc", label: "UGC Studio", icon: <span aria-hidden>★</span>, href: "/ugc" },
+  { id: "brand", label: "Brand", icon: <span aria-hidden>◐</span>, href: "/brand" },
+  { id: "media", label: "Media", icon: <span aria-hidden>▦</span>, href: "/media" },
   { id: "automations", label: "Automation", icon: <span aria-hidden>⚙</span>, href: "/automations", active: true },
   { id: "agency", label: "Agency", icon: <span aria-hidden>◈</span>, href: "/agency" },
   { id: "billing", label: "Billing", icon: <span aria-hidden>$</span>, href: "/billing" },
+  { id: "developers", label: "Developers", icon: <span aria-hidden>⌘</span>, href: "/developers" },
+  { id: "notifications", label: "Notifications", icon: <span aria-hidden>◒</span>, href: "/notifications" },
   { id: "settings", label: "Settings", icon: <span aria-hidden>◎</span>, href: "/settings" },
 ];
 

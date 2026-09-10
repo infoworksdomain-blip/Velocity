@@ -1,0 +1,151 @@
+.shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+  background: var(--paper-2);
+}
+
+.main {
+  padding: calc(var(--space-unit) * 8) calc(var(--space-unit) * 10);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 6);
+  max-width: 720px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 4);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  box-shadow: var(--sh-card);
+  padding: calc(var(--space-unit) * 6);
+}
+
+.sectionLabel {
+  color: var(--flare-deep);
+}
+
+.revealBox {
+  background: var(--paper-2);
+  border: 1px solid var(--flare-deep);
+  border-radius: var(--r-field);
+  padding: calc(var(--space-unit) * 3);
+}
+
+.revealBox code {
+  font-family: var(--font-mono);
+  word-break: break-all;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 2);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--space-unit) * 3);
+  padding: calc(var(--space-unit) * 3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-field);
+}
+
+.meta {
+  color: var(--ink-2);
+  margin-right: auto;
+  margin-left: calc(var(--space-unit) * 3);
+}
+
+.form {
+  display: flex;
+  gap: calc(var(--space-unit) * 2);
+  flex-wrap: wrap;
+}
+
+.webhookForm {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-unit) * 3);
+}
+
+.input {
+  font-family: var(--font-display);
+  font-size: var(--text-body);
+  padding: calc(var(--space-unit) * 2) calc(var(--space-unit) * 3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-field);
+  background: var(--paper);
+  flex: 1;
+  min-width: 200px;
+}
+
+.eventGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: calc(var(--space-unit) * 2);
+}
+
+.eventLabel {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--space-unit) * 2);
+}
+
+.actionButton {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-body);
+  background: var(--flare);
+  color: var(--paper);
+  border: none;
+  border-radius: var(--r-pill);
+  padding: calc(var(--space-unit) * 2) calc(var(--space-unit) * 4);
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.actionButton:hover {
+  background: var(--flare-deep);
+}
+
+.actionButton:disabled {
+  background: var(--line);
+  color: var(--ink-2);
+  cursor: not-allowed;
+}
+
+.actionButtonSmall {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-label);
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: calc(var(--space-unit) * 1) calc(var(--space-unit) * 2);
+  cursor: pointer;
+}
+
+.dangerButton {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-body);
+  background: var(--paper);
+  color: var(--flare-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: calc(var(--space-unit) * 1) calc(var(--space-unit) * 3);
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+}

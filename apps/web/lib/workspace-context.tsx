@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { trpcClient } from "./trpc-client";
+import { currentWorkspaceIdRef } from "./workspace-ref";
 
 interface WorkspaceContextValue {
   currentWorkspaceId: string | null;
@@ -14,12 +15,16 @@ const WorkspaceContext = createContext<WorkspaceContextValue | undefined>(undefi
  * The vanilla tRPC client (lib/trpc-client.ts) is a module-level singleton
  * with no access to React state, but workspace-scoped procedures need the
  * *current* workspace id as an `x-workspace-id` header on every request.
- * This ref is the bridge: WorkspaceProvider keeps it in sync with React
+ * This ref (lib/workspace-ref.ts — split out to avoid a real circular
+ * import between this file and trpc-client.ts, see that file's own
+ * comment) is the bridge: WorkspaceProvider keeps it in sync with React
  * state, and the client's `headers()` callback reads it per-request. A
  * ref rather than a subscription is enough here — the client only reads
- * it at request time, it never needs to re-render on change.
+ * it at request time, it never needs to re-render on change. Re-exported
+ * here so every existing importer of `currentWorkspaceIdRef` from this
+ * file keeps working unchanged.
  */
-export const currentWorkspaceIdRef: { current: string | null } = { current: null };
+export { currentWorkspaceIdRef };
 
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [currentWorkspaceId, setCurrentWorkspaceId] = useState<string | null>(null);

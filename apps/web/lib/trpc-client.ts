@@ -1,7 +1,7 @@
 import { createTRPCProxyClient, httpBatchLink } from "@trpc/client";
 import superjson from "superjson";
 import type { AppRouter } from "@/server/routers/_app";
-import { currentWorkspaceIdRef } from "@/lib/workspace-context";
+import { currentWorkspaceIdRef } from "./workspace-ref";
 
 /**
  * Vanilla tRPC client (not the React Query hooks integration — that's
