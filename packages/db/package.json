@@ -21,7 +21,7 @@
     "@electric-sql/pglite-pgvector": "^0.0.9"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && node ../../scripts/fix-esm-extensions.mjs dist",
     "typecheck": "tsc -p tsconfig.typecheck.json",
     "lint": "eslint .",
     "test": "vitest run",
