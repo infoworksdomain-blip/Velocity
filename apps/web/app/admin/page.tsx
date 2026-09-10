@@ -20,6 +20,7 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
   { id: "analytics", label: "Analytics", icon: <span aria-hidden>▲</span>, href: "/analytics" },
   { id: "agency", label: "Agency", icon: <span aria-hidden>◈</span>, href: "/agency" },
   { id: "admin", label: "Admin", icon: <span aria-hidden>⛭</span>, href: "/admin", active: true },
+  { id: "settings", label: "Settings", icon: <span aria-hidden>◎</span>, href: "/settings" },
 ];
 
 const PLATFORMS = ["tiktok", "instagram", "youtube"] as const;

@@ -28,6 +28,8 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
   { id: "ugc", label: "UGC Studio", icon: <span aria-hidden>★</span>, href: "/ugc" },
   { id: "automations", label: "Automation", icon: <span aria-hidden>⚙</span>, href: "/automations" },
   { id: "agency", label: "Agency", icon: <span aria-hidden>◈</span>, href: "/agency" },
+  { id: "billing", label: "Billing", icon: <span aria-hidden>$</span>, href: "/billing" },
+  { id: "settings", label: "Settings", icon: <span aria-hidden>◎</span>, href: "/settings" },
 ];
 
 const PLATFORM_GLYPH: Record<string, string> = { tiktok: "TT", instagram: "IG", youtube: "YT" };

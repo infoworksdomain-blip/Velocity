@@ -18,6 +18,7 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
   { id: "analytics", label: "Analytics", icon: <span aria-hidden>▲</span>, href: "/analytics" },
   { id: "agency", label: "Agency", icon: <span aria-hidden>◈</span>, href: "/agency" },
   { id: "billing", label: "Billing", icon: <span aria-hidden>$</span>, href: "/billing", active: true },
+  { id: "settings", label: "Settings", icon: <span aria-hidden>◎</span>, href: "/settings" },
 ];
 
 const TOP_UP_PACKS = [
